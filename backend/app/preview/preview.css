@@ -960,3 +960,200 @@ body {
 .kg-event--high {
   color: var(--warn-medium);
 }
+
+/* ---------------------------------------------------------------------------------------
+   Model probe scene
+   ---------------------------------------------------------------------------------------
+   The one scene that is not a picture of the product. It is a bench for comparing the rule
+   engine against the model on the same sentence, so it deliberately does not use the phone
+   palette for its own chrome — a developer tool that looked like the app would invite
+   someone to screenshot it as if it were one. The two verdict cards do use the severity
+   colours, because those are the thing being compared.
+   --------------------------------------------------------------------------------------- */
+
+.kg-scene--model {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.kg-model-conn {
+  margin-left: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+.kg-model-conn[data-off='true'] { color: #d14343; opacity: 1; }
+
+.kg-model-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kg-model-input {
+  width: 100%;
+  resize: none;
+  border: 1px solid var(--card-stroke);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  background: var(--chip-surface);
+  color: var(--on-surface);
+}
+.kg-model-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.kg-model-seeds { display: flex; flex-wrap: wrap; gap: 4px; }
+.kg-model-seeds button {
+  font: inherit;
+  font-size: 10.5px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--card-stroke);
+  background: transparent;
+  color: var(--on-surface-muted);
+  cursor: pointer;
+}
+.kg-model-seeds button:hover { border-color: var(--accent); color: var(--accent); }
+
+.kg-model-offline {
+  border: 1px dashed var(--card-stroke);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 11.5px;
+  color: var(--on-surface-muted);
+}
+.kg-model-offline strong { display: block; color: var(--on-surface); margin-bottom: 3px; }
+.kg-model-offline p { margin: 0 0 6px; }
+.kg-model-offline code {
+  display: block;
+  font-size: 10.5px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: var(--chip-surface);
+  word-break: break-all;
+}
+
+.kg-model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.kg-model-layer {
+  border: 1px solid var(--card-stroke);
+  border-radius: 10px;
+  padding: 8px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+/* Severity 0-3 shares the scale the warning strip uses, so the two cards read the same way
+   as the product's own warnings do. */
+.kg-model-layer[data-level='0'] { border-left: 3px solid var(--status-ok); }
+.kg-model-layer[data-level='1'] { border-left: 3px solid #b38600; }
+.kg-model-layer[data-level='2'] { border-left: 3px solid var(--warn-medium); }
+.kg-model-layer[data-level='3'] { border-left: 3px solid var(--warn-high); }
+.kg-model-layer[data-level='na'] { border-left: 3px solid var(--card-stroke); opacity: 0.55; }
+
+.kg-model-layer-head { display: flex; flex-direction: column; }
+.kg-model-layer-head strong { font-size: 11.5px; }
+.kg-model-layer-head span { font-size: 9.5px; color: var(--on-surface-muted); }
+.kg-model-level { font-size: 13px; font-weight: 700; margin-top: 2px; }
+.kg-model-msg { margin: 0; font-size: 10.5px; line-height: 1.35; }
+.kg-model-detail {
+  margin: 0;
+  font-size: 9.5px;
+  color: var(--on-surface-muted);
+  word-break: break-word;
+}
+
+.kg-model-verdict {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 5px;
+  border-radius: 8px;
+}
+.kg-model-verdict[data-tone='agree'] { background: rgba(46, 125, 67, 0.14); color: #2e7d43; }
+.kg-model-verdict[data-tone='model'] { background: rgba(192, 57, 43, 0.13); color: #c0392b; }
+.kg-model-verdict[data-tone='rules'] { background: rgba(179, 134, 0, 0.16); color: #8a6800; }
+
+.kg-model-section h4 {
+  margin: 0 0 5px;
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+
+.kg-model-ents { display: flex; flex-wrap: wrap; gap: 4px; }
+.kg-model-ents span {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--chip-surface);
+  border-bottom: 2px solid var(--accent);
+}
+.kg-model-ents em {
+  font-style: normal;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  margin-left: 3px;
+  vertical-align: super;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.kg-model-sig { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.kg-model-sig-name {
+  width: 96px;
+  font-size: 9.5px;
+  color: var(--on-surface-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kg-model-sig[data-on='true'] .kg-model-sig-name { color: var(--on-surface); font-weight: 600; }
+.kg-model-sig-bar {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--card-stroke);
+  overflow: visible;
+}
+.kg-model-sig-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: var(--on-surface-muted);
+  opacity: 0.5;
+}
+.kg-model-sig[data-on='true'] .kg-model-sig-bar i { background: var(--accent); opacity: 1; }
+/* The threshold tick. Drawing it is what makes a signal sitting just under its threshold
+   visibly different from one the model never considered. */
+.kg-model-sig-bar b {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--on-surface);
+  opacity: 0.5;
+}
+.kg-model-sig-num {
+  width: 26px;
+  text-align: right;
+  font-size: 9.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface-muted);
+}
+
+.kg-model-foot {
+  margin: 4px 0 0;
+  font-size: 9px;
+  color: var(--on-surface-muted);
+  word-break: break-all;
+}

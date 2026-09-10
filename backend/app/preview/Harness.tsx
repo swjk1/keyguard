@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ChatScene } from './screens/ChatScene';
 import { ChildApp } from './screens/ChildApp';
 import { DocsScene } from './screens/DocsScene';
+import { ModelScene } from './screens/ModelScene';
 import { ParentApp } from './screens/ParentApp';
 import type { RulePack } from './detect';
 import {
@@ -20,7 +21,7 @@ import {
 } from './world';
 
 /** What the child's phone is showing. The parent's only ever shows the Keyguard app. */
-type ChildScene = 'app' | 'chat' | 'docs';
+type ChildScene = 'app' | 'chat' | 'docs' | 'model';
 
 const SCREEN_HEIGHT = 852;
 
@@ -84,6 +85,7 @@ export function Harness({ pack }: { pack: RulePack }) {
                   ['app', 'Keyguard'],
                   ['chat', 'Chat app'],
                   ['docs', 'Documents'],
+                  ['model', 'Model'],
                 ] as [ChildScene, string][]
               ).map(([id, label]) => (
                 <button
@@ -119,6 +121,11 @@ export function Harness({ pack }: { pack: RulePack }) {
               screenHeight={SCREEN_HEIGHT}
             />
           ) : null}
+          {/* The model tab takes no `world`: it is a bench, not a scene. Nothing it does
+              queues an event or touches the pairing state, because comparing two detectors
+              on a sentence should not leave a trail in the family the other tabs are
+              testing. */}
+          {childScene === 'model' ? <ModelScene pack={pack} /> : null}
         </Device>
 
         <Device
@@ -238,6 +245,7 @@ function Controls({
             ['app', 'Keyguard'],
             ['chat', 'Chat'],
             ['docs', 'Docs'],
+            ['model', 'Model'],
           ]}
           value={childScene}
           onChange={(next) => setChildScene(next as ChildScene)}

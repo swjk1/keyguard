@@ -44,6 +44,45 @@ scopes, all three override levels, light and dark, and the keyboard-does-not-rep
 fallback that cannot be triggered deliberately on a device at all. Shortcuts skip the parts of
 the flow that are not what you are testing — **Pair now** does the handshake in one click.
 
+## The model tab
+
+A fourth tab on the child phone, and the only one that is not a picture of the product. It is
+a bench: it runs the **rule engine and the ML model on the same sentence** and shows both
+verdicts side by side.
+
+That comparison is the question that decides whether the model ships. Three outcomes, each
+meaning something different:
+
+- **Both fire.** The model corroborates a rule. Boring, and the good case.
+- **Rules only.** The model missed something a word list caught. Cheap to fix by training, and
+  until it is fixed the rule layer is still carrying it, so nothing is unprotected.
+- **Model only.** The interesting one. Either a genuine catch no word list could have made
+  ("got the house to myself tonight"), which is the whole argument for having a model, or a
+  false positive that would now interrupt a child the rules would have left alone.
+
+The rule side is `detect.ts`, the same cut-down port the chat and document scenes use, so a
+disagreement here is one those tabs would also have shown.
+
+**The model side needs a server.** The model is a PyTorch checkpoint in `training/`:
+
+```sh
+cd training && python -m scripts.serve_model --port 8731
+```
+
+Without it the tab says so and keeps working with the rule layer alone — the probe being off is
+the normal state of this harness, so it renders as an instruction rather than an error. The
+browser talks to `/preview/api/score`, a proxy, rather than to the Python server directly:
+that keeps the fetch same-origin and lets the probe stay bound to `127.0.0.1` with no CORS,
+instead of every website you visit being able to POST to your localhost.
+
+The proxy lives inside `app/preview/` deliberately, so the "delete `app/preview/` before
+deploying" note below removes it too. A route parked in `app/api/` would survive that deletion
+and quietly ship a proxy to an arbitrary URL.
+
+It already earned its place: the threshold tick drawn on each signal bar makes visible what the
+gold-set evaluation had only shown numerically — on a clearly unsafe message, `alone` reads
+0.97 against a 0.99 threshold and does not fire, while every other signal does.
+
 ## Why there are two typing apps
 
 A chat composer is not the only shape a text field comes in, and the differences are exactly the
@@ -110,6 +149,8 @@ Two things the harness cannot tell you, both worth remembering before trusting i
 ## Note for deployment
 
 `/preview` and `/` are dev tooling and have no place in a production deployment. They are
-harmless — static React over mock data, no API calls, no secrets — but they are also not
+harmless — static React over mock data, no secrets, and the one API route they do have
+(`/preview/api/score`) proxies only to a localhost model server and returns 404 when
+`NODE_ENV === 'production'` — but they are also not
 something to serve to the public. Delete `app/page.tsx` and `app/preview/` before deploying, or
 gate them on `process.env.NODE_ENV !== 'production'`.
