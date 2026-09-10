@@ -88,6 +88,21 @@ class TrainConfig:
     select_metric: str = "context_macro_f1"
     log_every: int = 50
 
+    # -- threshold selection (§22) --------------------------------------------------
+    threshold_objective: str = "recall"
+    threshold_min_precision: float | None = 0.90
+    """How the per-label operating points are chosen on validation.
+
+    Not `f1`, which is the obvious choice and the wrong one. The risk engine ORs eight
+    signals together, so each label's false positives compound: measured on the gold
+    set, F1-selected thresholds gave 141 false warnings per 1,000 safe messages, and
+    "maximise recall subject to precision >= 0.90" gave 51 for the same Level 3 recall.
+    Per-label macro-F1 got *worse* (0.732 -> 0.668) while the product metric improved
+    2.7x, which is exactly the disagreement §21 exists to catch.
+
+    Retune the floor once a real model exists — 0.90 was chosen against an undersized
+    smoke model, so the shape of the finding is trustworthy and the number is not."""
+
     @staticmethod
     def from_yaml(path: str | Path) -> "TrainConfig":
         import yaml
@@ -463,7 +478,12 @@ class Trainer:
             temperature = self.fit_temperature(self.config.context_eval).tolist()
             scores, truths = self._collect_context(self.config.context_eval)
             if len(truths):
-                thresholds = select_thresholds(truths, scores, objective="f1")
+                thresholds = select_thresholds(
+                    truths,
+                    scores,
+                    objective=self.config.threshold_objective,
+                    min_precision=self.config.threshold_min_precision,
+                )
 
         final = self.evaluate(thresholds)
         self.save(

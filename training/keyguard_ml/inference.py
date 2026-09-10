@@ -55,7 +55,18 @@ class Prediction:
                 continue
 
             prefix, entity = tag[:1], tag[2:]
-            if prefix == "I" and current and current[2] == entity:
+            if current and current[2] == entity and (
+                prefix == "I"
+                # A `B-` on a wordpiece continuation is a model slip, not a new entity:
+                # nothing can *begin* in the middle of a word. Seen in practice on
+                # out-of-vocabulary street names — "cranbrook" tokenises as "cr" +
+                # "##anbrook" and an undertrained model tags both B-STREET, which the
+                # strict reading decodes as two findings and underlines as two.
+                # Merging only when there is no character gap keeps genuinely adjacent
+                # same-type entities ("24 Oak St, 26 Oak St") apart, since a space
+                # between them is a gap.
+                or start == current[1]
+            ):
                 current[1] = end
                 continue
             if current:

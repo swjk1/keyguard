@@ -85,6 +85,7 @@ $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/child_safety/test.jsonl \
     --thresholds-from datasets/child_safety/validation.jsonl \
+    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_test.json
 
 banner "Milestone 7 — evaluation on the human-curated gold set"
@@ -96,6 +97,7 @@ $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/gold_test/gold_v1.jsonl \
     --thresholds-from datasets/child_safety/validation.jsonl \
+    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_gold.json
 
 # ------------------------------------------------------------- milestone 8: ONNX export

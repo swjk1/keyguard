@@ -111,9 +111,15 @@ generators can supervise it, and "at 5:30" is a span the risk engine wants to po
 64–128 token window. Training on 500-character administrative documents teaches a length
 and register distribution that does not occur at inference.
 
-**Wordpiece continuations are `IGNORE`, not `I-`.** A nine-wordpiece email address
-labelled through would become nine easy correct predictions and inflate every token
-metric by an order of magnitude. Only first subwords carry supervision.
+**Wordpiece continuations get `I-` tags, and span decoding merges mid-word runs.** An
+earlier version left continuations as `IGNORE`, reasoning that labelling them inflates
+token-level metrics. True, but the headline metric here is entity-level, and the cost was
+that the model had no way to express where an entity *ends* — it emitted `B-` on every
+subword, so "604-555-0182" decoded as three TELEPHONENUM spans and "24 oak street" as
+two. The risk engine tolerated that (it only asks whether `contact_info` is present) but
+the UI underlines the span. Decoding additionally merges two same-type spans with no
+character gap between them, because nothing can *begin* mid-word: that is what turns an
+undertrained model's `cr` + `##anbrook ave` back into one `cranbrook ave`.
 
 **Splitting is by signal signature, not by template family alone.** §18 says hold out
 whole families, which is right but cannot be applied naively — several families are the
@@ -148,6 +154,22 @@ thresholds selected on validation it was 0.906. `alone` went 0.42 → 0.92 and `
 0.57 → 0.91 — their ranking was always good (PR-AUC 0.93+), the operating point was
 simply wrong. `pos_weight` buys recall at precision's expense and threshold selection
 gives it back.
+
+**But selecting those thresholds by F1 is the wrong objective**, and §21 is what caught
+it. The risk engine ORs eight signals together, so each label's false positives compound
+at the product level. On the gold set:
+
+| threshold objective | macro-F1 | Level 3 recall | false warnings / 1k safe |
+|---|---|---|---|
+| maximise F1 | 0.732 | 0.818 | 141 |
+| maximise recall, precision ≥ 0.80 | 0.747 | 0.818 | 167 |
+| maximise recall, precision ≥ 0.90 | 0.668 | 0.818 | **51** |
+
+Per-label macro-F1 got *worse* while the metric a parent would notice improved 2.7× for
+no loss of Level 3 recall. `threshold_objective: recall` with
+`threshold_min_precision: 0.90` is now the default in `TrainConfig`. The floor itself was
+picked against an undersized model — the shape of the finding is trustworthy, the exact
+number is not, so retune it once a real model exists.
 
 **§24's error analysis names two specific gaps**, both of which are template work rather
 than modelling work:
