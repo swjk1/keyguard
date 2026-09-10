@@ -36,3 +36,6 @@ training/models/
 
 # Keep the hand-authored gold set - it cannot be regenerated.
 !training/datasets/gold_test/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
