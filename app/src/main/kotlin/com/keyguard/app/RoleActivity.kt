@@ -10,6 +10,7 @@ import com.keyguard.app.family.Supervision
 import com.keyguard.app.settings.DeviceRole
 import com.keyguard.app.settings.RolePolicy
 import com.keyguard.app.settings.RoleStore
+import com.keyguard.app.ui.applySystemBarInsets
 
 /**
  * The launcher activity, and the whole of the parent/child split as a user experiences it.
@@ -57,6 +58,7 @@ class RoleActivity : AppCompatActivity() {
     private fun renderChooser() {
         binding = ActivityRoleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarInsets(binding.root)
         binding.childCard.setOnClickListener { choose(DeviceRole.CHILD) }
         binding.parentCard.setOnClickListener { choose(DeviceRole.PARENT) }
     }

@@ -12,6 +12,7 @@ import com.keyguard.app.overlay.OverlayPermissions
 import com.keyguard.app.settings.OnboardingProgress
 import com.keyguard.app.settings.OnboardingStep
 import com.keyguard.app.settings.Settings
+import com.keyguard.app.ui.applySystemBarInsets
 
 /**
  * The three things a user has to do before this keyboard does anything, one screen at a time.
@@ -44,6 +45,7 @@ class OnboardingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarInsets(binding.root)
         settings = Settings(this)
         disclosureTicked = settings.disclosureAccepted
 

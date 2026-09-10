@@ -18,6 +18,7 @@ import com.keyguard.app.ui.parent.ChildrenFragment
 import com.keyguard.app.ui.parent.ParentHost
 import com.keyguard.app.ui.parent.ReportsFragment
 import com.keyguard.app.ui.parent.RulesFragment
+import com.keyguard.app.ui.applySystemBarInsets
 import java.util.concurrent.Executors
 
 /**
@@ -56,6 +57,7 @@ class ParentActivity : AppCompatActivity(), ParentHost {
         super.onCreate(savedInstanceState)
         binding = ActivityParentBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarInsets(binding.root)
         supervision = Supervision(this)
 
         val endpoint = getString(R.string.verify_base_url)

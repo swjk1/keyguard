@@ -18,6 +18,7 @@ import com.keyguard.app.ui.child.AppearanceFragment
 import com.keyguard.app.ui.child.FamilyFragment
 import com.keyguard.app.ui.child.PrivacyFragment
 import com.keyguard.app.ui.child.ProtectionFragment
+import com.keyguard.app.ui.applySystemBarInsets
 
 /**
  * The child app.
@@ -45,6 +46,7 @@ class SetupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarInsets(binding.root)
 
         settings = Settings(this)
         supervision = Supervision(this)
