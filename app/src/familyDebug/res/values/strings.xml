@@ -5,12 +5,15 @@
       soloDebug must keep the blank value from the main source set; a variant source set is what
       makes that hold without a runtime check.
 
-      Reachable from both an emulator and a physical device once you run:
+      Points at the deployed backend, which is what makes two-device testing practical: both
+      phones reach it over WiFi with no USB tether, no `adb reverse`, and no cleartext
+      exception, because it is HTTPS. `res/xml/network_security_config.xml` is still here for
+      local work - swap this value for `http://localhost:3000` and run
+      `adb reverse tcp:3000 tcp:3000` (per device: `adb -s <serial> reverse ...`) to point at a
+      dev server instead.
 
-          adb reverse tcp:3000 tcp:3000
-
-      Release builds keep the blank value too, so a release APK cannot make a network request
-      until a real endpoint is configured.
+      Release builds keep the blank value from the main source set, so a release APK cannot
+      make a network request until a real endpoint is configured deliberately.
     -->
-    <string name="verify_base_url" translatable="false">http://localhost:3000</string>
+    <string name="verify_base_url" translatable="false">https://keyguard-backend-two.vercel.app</string>
 </resources>
