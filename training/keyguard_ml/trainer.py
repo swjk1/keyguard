@@ -318,7 +318,9 @@ class Trainer:
 
                 seen += 1
                 for key in running:
-                    running[key] += float(losses[key])
+                    # .detach(): `losses['loss']` still carries grad, and float() on a
+                    # grad-tracking tensor warns. The other two are already detached.
+                    running[key] += float(losses[key].detach())
                 if step % self.config.log_every == 0:
                     avg = {k: round(v / seen, 4) for k, v in running.items()}
                     print(f"  epoch {epoch} step {step}/{len(loader)} {avg} lr={scheduler.get_last_lr()[0]:.2e}")
