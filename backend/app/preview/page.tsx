@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { notFound } from 'next/navigation';
+
 import { Harness } from './Harness';
 import type { RulePack, TermRule, SuppressorRule, CoOccurrenceRule } from './detect';
 
@@ -48,5 +50,9 @@ function loadPack(): RulePack {
 }
 
 export default function PreviewPage() {
+  // Developer tooling. 404 in production rather than serving an internal design tool from a
+  // public deployment — see the note in `app/page.tsx`. The `/preview/api/score` proxy under
+  // this folder guards itself the same way.
+  if (process.env.NODE_ENV === 'production') notFound();
   return <Harness pack={loadPack()} />;
 }
