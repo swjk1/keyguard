@@ -1,0 +1,29 @@
+# Phase A — PII adaptation on OpenPII (§16).
+name: phase_a_pii
+phase: a
+
+pii_train: datasets/openpii/train.jsonl
+pii_eval: datasets/openpii/validation.jsonl
+context_train: null
+context_eval: null
+pii_ratio: 1.0
+max_length: 128
+
+encoder_name: google/bert_uncased_L-4_H-512_A-8
+dropout: 0.1
+pooling: mean
+
+epochs: 3
+batch_size: 64
+eval_batch_size: 128
+learning_rate: 5.0e-5
+warmup_ratio: 0.1
+# Only the token head is supervised in this phase, so beta is 0 rather than small:
+# a nonzero beta against all-unsupervised rows contributes exactly nothing but does
+# make the logged context_loss look like a number that means something.
+alpha: 1.0
+beta: 0.0
+
+seed: 20260909
+output_dir: models/phase_a
+select_metric: entity_micro_f1

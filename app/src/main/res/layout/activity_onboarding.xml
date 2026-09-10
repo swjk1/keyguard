@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One screen, re-rendered per step, rather than four layouts or a pager.
+
+  The steps differ only in their text and which of three optional controls is showing, and a
+  pager would additionally let a user swipe past a step they have not actually completed -
+  which is the one thing this flow must not allow, since every step is a system action that
+  either happened or did not.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/stepText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/accent"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/headingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/on_surface"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/bodyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="3dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="14sp" />
+
+        <!-- Step 1 only. The gate on every other step, so it is checked before it is shown. -->
+        <CheckBox
+            android:id="@+id/disclosureCheckbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/setup_disclosure_accept"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <!--
+          Final step only, and deliberately a plain field rather than the settings screen's
+          rendered preview: by this point the real keyboard is the active one, so typing here
+          exercises the actual IME instead of a copy of it.
+        -->
+        <EditText
+            android:id="@+id/tryField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:autofillHints=""
+            android:hint="@string/setup_try_placeholder"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:textColor="@color/on_surface"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/primaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" />
+
+        <Button
+            android:id="@+id/skipButton"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/onboarding_skip" />
+    </LinearLayout>
+</ScrollView>

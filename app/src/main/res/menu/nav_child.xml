@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The child app's four sections.
+
+  Four is the ceiling worth having: a fifth item makes the labels truncate on a narrow phone,
+  and everything that would have been a fifth belongs inside one of these anyway.
+
+  The order is by how often someone opens it. "Protection" is the answer to the only question
+  most users ever come back to ask — am I actually covered — so it is first and it is the start
+  destination. "Family" is last of the always-visible three because most devices are never
+  paired; it is hidden entirely on a build with no server and no pairing, rather than sitting
+  there offering a form that cannot submit.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_protection"
+        android:icon="@drawable/ic_nav_protection"
+        android:title="@string/nav_protection" />
+
+    <item
+        android:id="@+id/nav_appearance"
+        android:icon="@drawable/ic_nav_appearance"
+        android:title="@string/nav_appearance" />
+
+    <item
+        android:id="@+id/nav_family"
+        android:icon="@drawable/ic_nav_family"
+        android:title="@string/nav_family" />
+
+    <item
+        android:id="@+id/nav_privacy"
+        android:icon="@drawable/ic_nav_privacy"
+        android:title="@string/nav_privacy" />
+</menu>

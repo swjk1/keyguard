@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The parent app's four sections.
+
+  Ordered by what a parent opens the app to do. Almost always that is "check on them", which is
+  Children; occasionally it is "read the summary", which is Reports. Rules and Account are
+  configuration — visited once at setup and then rarely — so they sit at the end rather than
+  competing with the two that answer questions.
+
+  Splitting Rules out of Children is the single biggest change from the old screen, where the
+  policy editor sat directly above the activity feed. That put six radio groups between a parent
+  and the thing they opened the app to see, and made every visit feel like a settings screen.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_children"
+        android:icon="@drawable/ic_nav_family"
+        android:title="@string/nav_children" />
+
+    <item
+        android:id="@+id/nav_reports"
+        android:icon="@drawable/ic_nav_reports"
+        android:title="@string/nav_reports" />
+
+    <item
+        android:id="@+id/nav_rules"
+        android:icon="@drawable/ic_nav_rules"
+        android:title="@string/nav_rules" />
+
+    <item
+        android:id="@+id/nav_account"
+        android:icon="@drawable/ic_nav_account"
+        android:title="@string/nav_account" />
+</menu>

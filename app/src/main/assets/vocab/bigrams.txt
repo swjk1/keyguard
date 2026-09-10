@@ -1,0 +1,124 @@
+# Next-word predictions: "<word> <next1> <next2> <next3> ..."
+# Order within a line is prediction rank. Lines starting with # are ignored.
+#
+# Only the head of the distribution is worth shipping. Beyond the most common openers, a
+# static table stops being useful and the learned user bigrams do a better job, because they
+# reflect how this particular person actually writes.
+
+i am was will have had think know want need feel dont cant love got would
+im not going gonna so just really at in a the on ok
+you are can do have want know need to too the a be
+we are can should will have need got
+they are will have can dont
+he is was has will
+she is was has will
+it is was will has
+that is was would s
+this is was one
+what are is do you time about the
+where are is do you
+when are is do you did
+who is are do
+how are is do you much many about
+why are is do you not
+are you we they going
+is it that this he she
+do you we they it
+did you he she they it
+can you i we they it
+could you i we
+should i you we
+would you i be
+will you i be
+have you i we they
+has it he she been
+had a to been
+was a the just so it
+were you a
+be a there able
+been a the to
+going to be out
+gonna be do go get
+wanna go do be get
+gotta go do be get
+need to a help
+want to a some
+like to it that this
+love you it that this
+hate it that this
+think i it that so
+know what if that
+feel like so bad better
+got to a it
+get to a some
+give me it you
+take it a the
+make it a sure
+say that it something
+tell me you him her
+ask me you him her
+see you it what
+look at like for
+come to over here
+go to the home
+happy birthday to new
+good morning night luck job
+thank you so
+thanks for so much
+sorry for about i
+please dont stop help
+lets go do get
+at the a school home
+in the a my
+on the my a
+to the be a
+of the my a
+for the a you
+with the my you
+from the my a
+about it the you
+my name phone address mom dad friend
+your name phone address mom
+the same best other first
+a lot little bit few
+lot of
+kind of
+sort of
+out of to there
+up to the with
+just a the got
+really good bad want
+very good bad much
+so much many good bad
+too much many bad
+much more better
+more than of
+most of the
+some of the
+all of the
+none of
+one of the
+because i it you the
+if you i it
+when you i it
+after that school i
+before i you that
+see you later tomorrow soon
+talk to you later
+send me it the your
+meet me at up
+call me you back later
+text me you back
+add me on
+follow me back on
+dont tell know want worry
+cant wait believe do
+wait for me up
+right now there here
+oh my god no
+what the heck
+idk what if
+lol i that yeah
+yeah i that no
+no i not way
+ok i so cool

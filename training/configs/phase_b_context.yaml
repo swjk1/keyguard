@@ -1,0 +1,35 @@
+# Phase B — contextual head on the synthetic child-safety corpus (§16).
+name: phase_b_context
+phase: b
+
+pii_train: null
+pii_eval: datasets/openpii/validation.jsonl
+context_train: datasets/child_safety/train.jsonl
+context_eval: datasets/child_safety/validation.jsonl
+pii_ratio: 0.0
+max_length: 128
+
+encoder_name: google/bert_uncased_L-4_H-512_A-8
+init_from: models/phase_a/best.pt
+dropout: 0.1
+pooling: mean
+# §16 suggests freezing lower layers here. Left at 0: with four layers, freezing two
+# removes half the model's capacity to adapt to chat register, which is the main thing
+# this phase is for. Kept as a config knob so the ablation is one line, not a code edit.
+freeze_layers: 0
+
+epochs: 4
+batch_size: 64
+eval_batch_size: 128
+learning_rate: 3.0e-5
+head_learning_rate: 1.0e-4
+warmup_ratio: 0.1
+# The synthetic corpus carries real token spans, so the token head keeps a small weight
+# to stop phase A's entity recognition decaying while the encoder moves.
+alpha: 0.2
+beta: 1.0
+pos_weight_cap: 8.0
+
+seed: 20260909
+output_dir: models/phase_b
+select_metric: context_macro_f1

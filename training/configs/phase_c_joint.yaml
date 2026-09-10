@@ -1,0 +1,32 @@
+# Phase C — joint fine-tuning on mixed batches (§16).
+name: phase_c_joint
+phase: c
+
+pii_train: datasets/openpii/train.jsonl
+pii_eval: datasets/openpii/validation.jsonl
+context_train: datasets/child_safety/train.jsonl
+context_eval: datasets/child_safety/validation.jsonl
+# 0.35 rather than 0.5: the synthetic corpus is the in-domain one and the OpenPII slice
+# is here to stop entity recognition decaying, not to dominate. Sweep it.
+pii_ratio: 0.35
+max_length: 128
+
+encoder_name: google/bert_uncased_L-4_H-512_A-8
+init_from: models/phase_b/best.pt
+dropout: 0.1
+pooling: mean
+
+epochs: 3
+batch_size: 64
+eval_batch_size: 128
+learning_rate: 2.0e-5
+head_learning_rate: 5.0e-5
+warmup_ratio: 0.06
+# §16's starting point.
+alpha: 0.4
+beta: 0.6
+pos_weight_cap: 8.0
+
+seed: 20260909
+output_dir: models/phase_c
+select_metric: context_macro_f1

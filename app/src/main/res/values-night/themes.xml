@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The theme carried a DayNight parent but no night resources at all, so the app chrome stayed
+  light in dark mode - and `windowLightStatusBar` was pinned true, which asks for dark status
+  bar icons over what is then a dark status bar. Both halves of that are fixed here.
+-->
+<resources>
+    <style name="Theme.Keyguard" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Matches the bottom navigation bar, which sits directly above it. -->
+        <item name="android:navigationBarColor">@color/card_surface</item>
+    </style>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      `familyDebug` only - not `debug`. The solo flavor has no supervision and no AI, so
+      soloDebug must keep the blank value from the main source set; a variant source set is what
+      makes that hold without a runtime check.
+
+      Reachable from both an emulator and a physical device once you run:
+
+          adb reverse tcp:3000 tcp:3000
+
+      Release builds keep the blank value too, so a release APK cannot make a network request
+      until a real endpoint is configured.
+    -->
+    <string name="verify_base_url" translatable="false">http://localhost:3000</string>
+</resources>

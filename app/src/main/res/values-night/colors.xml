@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Only the app chrome has a night variant, and deliberately only these three.
+
+  The keyboard's palette - key faces, strip, and the warn_* highlight colours - is dark in both
+  modes on purpose. Those greys are also what warn_medium and warn_high were contrast-tuned
+  against, so giving them a night variant would retune the flagged-text highlight to a
+  background it never actually appears on.
+-->
+<resources>
+    <color name="surface">#FF15171C</color>
+    <color name="card_surface">#FF1E2127</color>
+    <color name="card_stroke">#FF2E333C</color>
+    <color name="on_surface">#FFF2F4F7</color>
+    <color name="on_surface_muted">#FFAAB2BF</color>
+    <color name="status_ok">#FF4ADE80</color>
+    <color name="status_ok_surface">#FF14301F</color>
+    <color name="status_pending">#FFFBBF24</color>
+    <color name="status_pending_surface">#FF33270B</color>
+    <color name="chip_surface">#FF2A2F37</color>
+    <color name="chip_text">#FFD3D8E0</color>
+</resources>

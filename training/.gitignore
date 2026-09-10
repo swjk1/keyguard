@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Generated corpora. Reproducible from the generators plus a seed, and large.
+datasets/openpii/*.jsonl
+datasets/openpii/manifest.json
+datasets/child_safety/*.jsonl
+datasets/child_safety/manifest.json
+datasets/label_contract.json
+datasets/risk_rules.json
+
+# The gold set IS tracked - it is hand-authored and cannot be regenerated.
+!datasets/gold_test/author_gold.py
+!datasets/gold_test/gold_v1.jsonl
+!datasets/gold_test/gold_status.json
+
+# Checkpoints and exports.
+models/

@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Keyguard</string>
+    <string name="ime_label">Keyguard Keyboard</string>
+    <string name="subtype_label_en_us">English (US)</string>
+
+    <!-- Keys -->
+    <string name="key_backspace">⌫</string>
+    <string name="key_enter">↵</string>
+    <string name="key_shift">⇧</string>
+    <string name="key_shift_active">⬆</string>
+    <string name="key_shift_locked">⇪</string>
+    <string name="key_next_keyboard">🌐</string>
+    <string name="key_space_description">Space</string>
+
+    <!-- Idle toolbar -->
+    <string name="toolbar_emoji">🙂</string>
+    <string name="toolbar_emoji_description">Emoji</string>
+    <string name="toolbar_paste">📋</string>
+    <string name="toolbar_paste_description">Paste</string>
+    <string name="toolbar_select_all">⬚</string>
+    <string name="toolbar_select_all_description">Select all</string>
+    <string name="toolbar_cursor_left">◀</string>
+    <string name="toolbar_cursor_left_description">Move cursor left</string>
+    <string name="toolbar_cursor_right">▶</string>
+    <string name="toolbar_cursor_right_description">Move cursor right</string>
+    <string name="emoji_close">ABC</string>
+    <string name="emoji_close_description">Back to keyboard</string>
+    <string name="key_backspace_description">Backspace</string>
+
+    <!-- Warning strip -->
+    <string name="action_rewrite">Remove it</string>
+    <string name="action_dismiss">Ignore</string>
+    <string name="action_get_help">Get help now</string>
+    <string name="action_send_anyway">Send anyway</string>
+    <string name="action_go_back">Let me fix it</string>
+    <!-- The highlighted preview already shows which text was flagged, so the detail line
+         only needs to name the category. -->
+    <string name="warning_detail">Flagged as: %1$s</string>
+    <!-- Shown when a high-severity finding has stopped the keys. It has to name both ways
+         out, because the only thing worse than a keyboard that stops typing is one that
+         stops typing without saying how to start again. -->
+    <string name="warning_blocked">Typing paused. Delete the highlighted text, or tap Ignore to carry on.</string>
+    <string name="confirm_send_title">Are you sure you want to send this?</string>
+
+    <!--
+      Self-harm copy is deliberately supportive and never mentions reporting. A young person
+      typing this needs help offered, not a privacy warning or a threat that an adult will
+      be told.
+    -->
+    <string name="crisis_summary">It sounds like you\'re going through something really hard.</string>
+    <!-- %1$s is the region-appropriate helpline name, so nobody is handed an anonymous number. -->
+    <string name="crisis_detail">You don\'t have to deal with this alone. You can talk to someone right now, any time, for free — %1$s.</string>
+
+    <!-- Categories -->
+    <string name="category_pii">Personal information</string>
+    <string name="category_harassment">This could hurt someone</string>
+    <string name="category_solicitation">Safety concern</string>
+    <string name="category_self_harm">Support</string>
+    <string name="category_violence">Reads as a threat</string>
+    <string name="category_meetup">Meeting in person</string>
+    <string name="category_substance">Substances</string>
+
+    <!-- Setup -->
+    <string name="setup_progress_privacy">Step 1 of 3 · Read how your typing is protected</string>
+    <string name="setup_progress_enable">Step 2 of 3 · Turn on the Keyguard keyboard</string>
+    <string name="setup_progress_choose">Step 3 of 3 · Choose Keyguard while typing</string>
+    <string name="setup_progress_ready">All set · Keyguard is ready to use</string>
+
+    <string name="setup_disclosure_heading">What this keyboard can see</string>
+    <string name="setup_disclosure_body">To warn you as you type, Keyguard reads the text you type on its own keyboard.\n\nWhat happens to it:\n\n• Checking happens on this device, using a built-in list of patterns. No network is involved.\n• Nothing you type is saved. Text is held in memory only while you\'re typing and is discarded when you switch fields.\n• Password fields are never checked. Detection and network activity are switched off completely for them.\n• Nothing you type is ever written to logs or crash reports.\n\nKeyguard can only see what you type on its own keyboard. It cannot read messages you receive, and it cannot see what you type on any other keyboard.</string>
+    <!--
+      The one paragraph of the disclosure that is not true of every build, so it is the one
+      string the solo flavor overrides. Keep both versions accurate to their own flavor: this
+      text is what a user consents to, and it is what store review reads.
+    -->
+    <string name="setup_disclosure_network">Double-checking (optional, off by default) is the one exception. If you turn it on, a flagged phrase and up to a few recent messages are sent to a server to be reviewed by an AI — this is what tells “I want to die of embarrassment” apart from something serious. Even then, your full typing is never sent, and nothing is sent from password fields. You can turn it off at any time.</string>
+    <string name="setup_disclosure_accept">I\'ve read what this keyboard can see</string>
+
+    <!--
+      Onboarding.
+
+      The same three steps the setup screen already derives from OnboardingProgress, given one
+      screen each instead of a status line. Nothing here is a second source of truth about where
+      the user is: the step is still computed, so a user who turns the keyboard off later is
+      walked back to that step rather than told they are finished.
+    -->
+    <string name="onboarding_enable_heading">Turn on the keyboard</string>
+    <string name="onboarding_enable_body">Android keeps keyboards switched off until you allow them. This opens the system list — turn on Keyguard there, then come back.</string>
+    <string name="onboarding_choose_heading">Switch to Keyguard</string>
+    <string name="onboarding_choose_body">Keyguard is allowed, but something else is still your active keyboard. Choose Keyguard from the list to start using it.</string>
+    <string name="onboarding_ready_heading">Try it</string>
+    <string name="onboarding_ready_body">Keyguard is ready. Type in the box below — try “my address is 123 Main Street” to see what a warning looks like.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_done">Done</string>
+    <string name="onboarding_skip">Skip for now</string>
+    <string name="onboarding_settings">All settings</string>
+
+    <string name="setup_enable_button">Open keyboard settings</string>
+    <string name="setup_switch_button">Choose keyboard</string>
+
+    <string name="setup_status_enabled">Keyguard is turned on.</string>
+    <string name="setup_status_disabled">Keyguard is not turned on yet.</string>
+
+    <string name="setup_intensity_heading">How forceful should warnings be?</string>
+    <string name="setup_intensity_subtle">Subtle — show a small warning, never block sending</string>
+    <string name="setup_intensity_standard">Standard — expand serious warnings and confirm before sending</string>
+    <string name="setup_intensity_insistent">Insistent — expand and confirm for anything concerning</string>
+
+    <string name="setup_try_placeholder">Type something like “my address is 123 Main Street”</string>
+
+    <!-- Outcomes -->
+    <string name="stats_heading">Is it working?</string>
+    <string name="stats_hint">Counts only — never the text you typed. “Changed” means a warning appeared and the message was deleted instead of sent.</string>
+    <string name="stats_none">No warnings shown yet.</string>
+    <!-- 1: warnings shown, 2: changed, 3: sent anyway, 4: heed rate or a dash -->
+    <string name="stats_body">Warnings shown   %1$d\nChanged          %2$d\nSent anyway      %3$d\nChange rate      %4$s</string>
+    <!-- 1: pack version, 2: revision, 3: term count. Also a quick check that the release
+         build did not break rule-pack deserialization under R8. -->
+    <string name="stats_engine">Rule pack v%1$d (%2$s) · %3$d terms · on-device only, no network</string>
+    <string name="stats_reset">Reset counts</string>
+
+    <!-- Sizing -->
+    <string name="appearance_keyboard_heading">Keyboard size</string>
+    <string name="appearance_keyboard_hint">Changes apply the next time the keyboard opens. The preview below updates as you drag.</string>
+    <string name="appearance_keyboard_height">Keyboard height</string>
+    <string name="appearance_key_text">Letter size</string>
+    <string name="appearance_key_gap">Space between keys</string>
+    <string name="appearance_side_padding">Side padding</string>
+    <string name="appearance_bottom_padding">Bottom padding</string>
+    <string name="appearance_haptics">Vibrate on keypress</string>
+    <string name="appearance_autocorrect">Suggestions and autocorrect</string>
+
+    <!-- AI verification -->
+    <string name="ai_heading">Double-checking (optional)</string>
+    <string name="ai_hint">Sends a flagged phrase, plus up to a few recent messages, to be reviewed by an AI. It catches things the built-in list misses — and, just as importantly, it recognises when you were joking. Off by default. Your full typing is never sent, and nothing is ever sent from a password field.</string>
+    <string name="ai_toggle">Turn on double-checking</string>
+
+    <!--
+      Verification endpoint. Blank means no client is created and no request is possible, which
+      is why the default build cannot phone home even if the toggle is switched on.
+    -->
+    <string name="verify_base_url" translatable="false"></string>
+
+    <string name="appearance_alarm_heading">Alarm size</string>
+    <string name="appearance_alarm_hint">How large the warning above the keys appears. A warning too small to notice is a warning that does nothing.</string>
+    <string name="appearance_alarm_text">Warning text size</string>
+    <string name="appearance_alarm_lines">Message lines shown</string>
+
+    <string name="appearance_preview_heading">Preview</string>
+    <string name="appearance_preview_sample">my address is 123 Main Street</string>
+    <string name="appearance_preview_detail">Flagged as: Personal information</string>
+    <string name="appearance_reset">Reset to defaults</string>
+
+    <!-- Label and current value for one sizing slider, e.g. "Keyboard height — 228dp" -->
+    <string name="appearance_value">%1$s — %2$d%3$s</string>
+
+    <!--
+      Family supervision, child side.
+
+      Every claim below is enforced somewhere in family/ and asserted in a test. If any of it
+      stops being true the copy is a lie told to a child about what an adult can see, which is
+      a worse failure than any bug in this app.
+    -->
+    <string name="supervision_heading">Family supervision</string>
+    <string name="supervision_unpaired_hint">If a parent has asked you to set this up, they can give you a code. Nothing is shared until you enter one.</string>
+    <string name="supervision_label_hint">What should this phone be called?</string>
+    <string name="supervision_code_hint">Pairing code</string>
+    <string name="supervision_pair_button">Pair with a parent</string>
+    <string name="supervision_pairing">Pairing…</string>
+    <string name="supervision_code_invalid">That code isn\'t right, or it has expired. Ask for a new one.</string>
+    <string name="supervision_pair_failed">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="supervision_notification_required">Supervision needs notifications so this phone always shows that monitoring is on. Allow notifications, then pairing will continue.</string>
+    <string name="supervision_restore_notification">Turn supervision notification back on</string>
+    <string name="supervision_not_configured">No server is configured in this build, so supervision can\'t be set up yet.</string>
+
+    <string name="supervision_active_title">This device is supervised</string>
+    <string name="supervision_active_body">A parent can always see:\n\n• The kind of warning you got, and how serious it was\n• Whether you deleted the message or sent it anyway\n• The time it happened\n\nThey can never see:\n\n• Who you were talking to, or which app you were using\n• Anything you type in a password field\n• Messages you receive\n\nHow much else they can see is a setting they choose. The line below says which one is switched on right now, and it will change here if they change it.\n\nWarnings about hurting yourself are included in what they see.\n\nThey can also change how forceful warnings are, whether you are able to dismiss a warning at all, and whether double-checking is switched on.\n\nOnly your parent can end this from their phone. Removing Keyguard also ends it, and they will see that this phone stopped reporting.</string>
+    <!-- 1: a relative time such as "12 minutes ago" -->
+    <string name="supervision_last_sync">Last sent %1$s</string>
+    <string name="supervision_never_synced">Nothing sent yet</string>
+    <!-- 1: the number of warnings still queued on this device -->
+    <string name="supervision_queued">%1$d waiting to send</string>
+    <string name="supervision_locked_by_parent">Set by your parent</string>
+
+    <!-- The standing notice a monitored person is owed. Plain, not alarming. -->
+    <string name="supervision_channel_name">Supervision</string>
+    <string name="supervision_channel_description">Shows while this device is supervised by a parent.</string>
+    <string name="supervision_notice_title">Keyguard supervision is on</string>
+    <string name="supervision_notice_text">A parent can see the warnings you get.</string>
+    <string name="supervision_notice_detail">A parent can see what kind of warnings you get and whether you sent the message. They cannot see what you typed. Tap for details.</string>
+    <string name="supervision_notice_detail_themes">A parent can see what kind of warnings you get, whether you sent the message, and a weekly picture of what you talk about. They cannot see what you typed. Tap for details.</string>
+    <string name="supervision_notice_detail_full">A parent can read what you type on this phone, as well as the warnings you get. Tap for details.</string>
+    <string name="supervision_notice_text_full">A parent can read what you type.</string>
+
+    <!-- Parent mode -->
+    <string name="parent_title">Parent</string>
+    <string name="parent_sign_in_heading">Parent account</string>
+    <string name="parent_sign_in_hint">Sign in to manage your family from this or another phone. New accounts receive a recovery code—save it somewhere private.</string>
+    <string name="parent_email_hint">Parent email</string>
+    <string name="parent_password_hint">Password (12 characters or more)</string>
+    <string name="parent_login">Sign in</string>
+    <string name="parent_register">Create account</string>
+    <string name="parent_recovery_hint">Recovery code (only if you lost access)</string>
+    <string name="parent_recover">Recover account and set this password</string>
+    <string name="parent_recovery_code">Save this recovery code now. It is shown once:\n%1$s</string>
+    <string name="parent_signed_in">Signed in as %1$s</string>
+    <string name="parent_sign_out">Sign out</string>
+    <string name="parent_delete_account">Delete account</string>
+    <string name="parent_delete_account_confirm">Delete this parent account, its family, paired devices, and all activity? This cannot be undone.</string>
+    <string name="parent_invite_caregiver">Invite another parent or caregiver</string>
+    <string name="parent_join_code_hint">Caregiver invite code</string>
+    <string name="parent_join_family">Join an existing family</string>
+    <string name="parent_auth_invalid">Check the email, password, or recovery code and try again.</string>
+    <string name="parent_auth_email_used">An account already uses that email. Sign in instead.</string>
+    <string name="parent_auth_rate_limited">Too many attempts. Wait a while and try again.</string>
+    <string name="parent_auth_failed">Couldn\'t reach the account service.</string>
+    <string name="parent_add_child">Add a child</string>
+    <string name="parent_code_instructions">Read this code out on the child\'s phone, under Family supervision. It works once, and expires in 10 minutes.</string>
+    <string name="parent_refresh">Refresh</string>
+    <string name="parent_failed">Couldn\'t reach the server.</string>
+    <!-- 1: device label, 2: relative time such as "4 minutes ago" -->
+    <string name="parent_child_quiet">No warnings in the last 30 days.</string>
+    <!-- 1: count, 2: category, 3: what they did, 4: relative time -->
+    <string name="parent_event_line">%1$s · %2$s · %3$s</string>
+    <string name="parent_outcome_heeded">deleted it</string>
+    <string name="parent_outcome_sent">sent anyway</string>
+    <string name="parent_outcome_abandoned">left it unsent</string>
+    <string name="parent_remove_child">Unpair this device</string>
+    <string name="parent_remove_confirm">Unpair? Their warning history is deleted and their keyboard goes back to their own settings.</string>
+
+    <string name="parent_policy_min_intensity">Least forceful warnings allowed</string>
+    <string name="parent_policy_min_intensity_hint">A floor, not a setting. They can choose something stronger; they can\'t go below this.</string>
+    <string name="parent_policy_lock">Don\'t let them change it</string>
+    <string name="parent_policy_block">Stop typing on serious warnings</string>
+    <string name="parent_policy_ai">Double-checking by AI</string>
+    <string name="parent_policy_ai_hint">Double-checking sends flagged phrases to a server. The child must choose whether to send their text; a parent may turn transmission off, but cannot force it on.</string>
+    <string name="parent_policy_ai_child">Let them choose</string>
+    <string name="parent_policy_ai_off">Always off</string>
+    <string name="parent_policy_save">Save</string>
+    <string name="parent_policy_saved">Saved. Their phone picks it up within about 15 minutes.</string>
+
+    <!-- Relative times, deliberately coarse -->
+    <string name="time_just_now">just now</string>
+    <!-- 1: whole minutes -->
+    <string name="time_minutes">%1$d min ago</string>
+    <string name="time_hours">%1$d h ago</string>
+    <string name="time_days">%1$d d ago</string>
+    <!--
+      The overlay: the monitoring surface that replaced the keyboard.
+
+      Wording rule for everything below: the child is the reader. Not the parent, and not a
+      compliance reviewer. "Typing is paused" is what is actually happening from where they are
+      sitting; "input gating is active" is what is happening from where we are sitting, and
+      nobody has ever been helped by the second one.
+    -->
+    <string name="overlay_ignore">Ignore</string>
+    <string name="overlay_remove">Remove it</string>
+    <string name="overlay_get_help">Get help</string>
+    <string name="overlay_typing_paused">Typing is paused until this is removed.</string>
+    <!-- e.g. "Samaritans is free and open now." -->
+    <string name="overlay_crisis_detail">%1$s can help, and it\'s free.</string>
+
+    <!--
+      Shown in the system accessibility settings list, which is the one place a user reads a
+      description of this app that we do not control the layout of. It has to say what the
+      service does in the plainest possible terms, because a vague description here is exactly
+      what makes an accessibility service feel like malware.
+    -->
+    <string name="accessibility_service_label">Keyguard safety warnings</string>
+    <string name="accessibility_service_summary">Warns before you send something risky</string>
+    <string name="accessibility_service_description">Keyguard reads the text you are typing so it can warn you before you send personal information, or something that could hurt you or someone else. It never reads password fields. It does not record which app you are using. If this device is supervised, what a parent can see is listed on the Keyguard setup screen.</string>
+
+    <!-- Overlay setup, child side -->
+    <string name="overlay_setup_hint">Keyguard now works on top of the keyboard you already use, so typing stays exactly as smooth as it is today. It needs two permissions to do that.</string>
+    <string name="overlay_grant_accessibility">Allow Keyguard to see what you type</string>
+    <string name="overlay_grant_accessibility_hint">In the list that opens, find “Keyguard safety warnings” and turn it on.</string>
+    <string name="overlay_grant_draw">Allow Keyguard to show warnings</string>
+    <string name="overlay_grant_draw_hint">Without this, Keyguard could watch your typing and have no way to warn you. It will not run until this is on.</string>
+    <string name="overlay_status_missing_accessibility">Not running: Keyguard cannot see what you type yet.</string>
+    <string name="overlay_status_missing_draw">Not running: Keyguard cannot show warnings yet.</string>
+    <string name="overlay_position_heading">Where warnings appear</string>
+    <string name="overlay_position_above">Above the keyboard</string>
+    <string name="overlay_position_top">Top of the screen</string>
+    <string name="overlay_opacity">Warning opacity</string>
+    <string name="overlay_enabled_toggle">Show warnings while typing</string>
+
+    <!-- Role chooser -->
+    <string name="role_heading">Who is this phone for?</string>
+    <string name="role_hint">This decides which half of Keyguard you see. You can change it later, unless a parent is supervising this phone.</string>
+    <string name="role_child">This is the phone being protected</string>
+    <string name="role_child_hint">Warnings while typing, and pairing with a parent if they ask.</string>
+    <string name="role_parent">I\'m a parent setting up supervision</string>
+    <string name="role_parent_hint">Pair a child\'s phone, see their activity, and read daily and weekly reports.</string>
+    <string name="role_locked_supervised">This phone is supervised. Only the parent who set it up can change this.</string>
+    <string name="role_locked_parent">Sign out of the parent account first.</string>
+
+    <!-- Parent-side policy controls added for permissions and review scope -->
+    <string name="parent_override_heading">What they can do with a warning</string>
+    <string name="parent_override_full">Ignore any warning</string>
+    <string name="parent_override_full_hint">They see the warning and decide for themselves. Same as an unsupervised phone.</string>
+    <string name="parent_override_limited">Ignore small ones only</string>
+    <string name="parent_override_limited_hint">Serious warnings have to be dealt with; smaller nudges can be waved away.</string>
+    <string name="parent_override_none">Nothing can be ignored</string>
+    <string name="parent_override_none_hint">Typing stays paused until the flagged words are removed. There is no Ignore button.</string>
+
+    <string name="parent_scope_heading">What you can see</string>
+    <string name="parent_scope_concerning">Only concerning messages</string>
+    <string name="parent_scope_concerning_hint">You see that a warning happened, what kind, and what they did about it. You never see any text.</string>
+    <string name="parent_scope_themes">Topics and mood</string>
+    <string name="parent_scope_themes_hint">Every message adds a topic and a mood to the weekly picture — school, friends, anxious, excited. You still never see any text.</string>
+    <string name="parent_scope_full">Everything they type</string>
+    <string name="parent_scope_full_hint">You can read their messages. This is a big step and they will be told about it in as many words. Most families do not need it.</string>
+    <string name="parent_scope_full_confirm">Your child will be told that you can read everything they type. Turn this on?</string>
+    <string name="parent_reports_toggle">Write daily and weekly reports</string>
+
+    <!-- Reports -->
+    <string name="parent_report_daily">Today</string>
+    <string name="parent_report_weekly">This week</string>
+    <string name="parent_report_empty">Nothing to report yet. Reports appear once their phone has been used for a while.</string>
+    <string name="parent_report_basis_concerning">Based on warnings only — no messages were collected.</string>
+    <string name="parent_report_basis_themes">Based on topics and mood — no messages were collected.</string>
+    <string name="parent_report_basis_full">Based on their messages.</string>
+    <string name="parent_report_themes">What they talked about</string>
+    <string name="parent_report_emotions">How they seemed</string>
+    <string name="parent_report_concerns">Worth a look</string>
+    <string name="parent_report_interests">What they are into</string>
+    <string name="parent_report_counts">%1$d messages · %2$d flagged</string>
+    <string name="parent_report_generated">Written %1$s</string>
+    <string name="parent_report_failed">Could not load the report.</string>
+
+    <!-- Child-facing disclosure of the review scope currently in force -->
+    <string name="supervision_scope_concerning">Your parent can see when a warning happens — what kind and what you did about it. They cannot see anything you type.</string>
+    <string name="supervision_scope_themes">Your parent can see when a warning happens, and a weekly picture of the topics you talk about and how you seem. They cannot see anything you type.</string>
+    <string name="supervision_scope_full">Your parent has turned on full message review. They can read what you type on this phone.</string>
+    <string name="warning_blocked_locked">Typing is paused. Remove the highlighted text to carry on.</string>
+    <!--
+      Theme and mood labels for the report.
+
+      Written as things a parent would say, not as the enum names. "A falling-out" rather than
+      CONFLICT, "making things" rather than CREATIVE. The report is meant to read like an
+      observation about a person; a list of shouty constants reads like a diagnosis.
+    -->
+    <string name="theme_school">School</string>
+    <string name="theme_friendship">Friends</string>
+    <string name="theme_family">Family</string>
+    <string name="theme_romance">Relationships</string>
+    <string name="theme_gaming">Gaming</string>
+    <string name="theme_sport">Sport</string>
+    <string name="theme_music">Music and shows</string>
+    <string name="theme_online">Social media</string>
+    <string name="theme_money">Money</string>
+    <string name="theme_food">Food</string>
+    <string name="theme_health">Health</string>
+    <string name="theme_appearance">How they look</string>
+    <string name="theme_future">Plans for the future</string>
+    <string name="theme_travel">Travel</string>
+    <string name="theme_pets">Pets</string>
+    <string name="theme_creative">Making things</string>
+    <string name="theme_conflict">A falling-out</string>
+
+    <string name="emotion_happy">Happy</string>
+    <string name="emotion_excited">Excited</string>
+    <string name="emotion_affectionate">Affectionate</string>
+    <string name="emotion_sad">Sad</string>
+    <string name="emotion_anxious">Anxious</string>
+    <string name="emotion_angry">Angry</string>
+    <string name="emotion_lonely">Lonely</string>
+    <string name="emotion_stressed">Stressed</string>
+    <string name="emotion_tired">Tired</string>
+
+    <string name="parent_report_loading">Loading…</string>
+    <string name="setup_progress_accessibility">Step 2 of 3 — let Keyguard see what you type</string>
+    <string name="setup_progress_overlay">Step 3 of 3 — let Keyguard show warnings</string>
+    <string name="onboarding_accessibility_heading">Let Keyguard see what you type</string>
+    <string name="onboarding_accessibility_body">Keyguard works on top of the keyboard you already use, so typing stays exactly as it is. To warn you, it needs to see the text as you write it. It never looks at password fields, and it does not record which app you are in.
+
+In the list that opens, find “Keyguard safety warnings” and turn it on.</string>
+    <string name="onboarding_overlay_heading">Let Keyguard show warnings</string>
+    <string name="onboarding_overlay_body">One more. Keyguard needs permission to draw over other apps so the warning can appear above your keyboard.
+
+Without it Keyguard would be able to see what you type and have no way to warn you, so it will not run until this is on.</string>
+    <!-- ==================== Navigation ==================== -->
+    <string name="nav_protection">Protection</string>
+    <string name="nav_appearance">Look</string>
+    <string name="nav_family">Family</string>
+    <string name="nav_privacy">Privacy</string>
+
+    <string name="nav_children">Children</string>
+    <string name="nav_reports">Reports</string>
+    <string name="nav_rules">Rules</string>
+    <string name="nav_account">Account</string>
+
+    <!--
+      The protection banner.
+
+      Three states, not two. "Partly set up" exists because the half-granted overlay - able to
+      read what you type, unable to warn you about it - is the one configuration that must never
+      be reported as working, and it is exactly the state someone lands in if they grant one
+      permission and get distracted.
+    -->
+    <string name="protection_on_title">You\'re protected</string>
+    <string name="protection_on_body">Keyguard is watching what you type and will warn you before you send something risky. It never looks at password fields.</string>
+    <string name="protection_partial_title">Almost there</string>
+    <string name="protection_partial_body">Keyguard can\'t warn you yet. Finish the step below to turn protection on.</string>
+    <string name="protection_off_title">Not protected yet</string>
+    <string name="protection_off_body">Keyguard isn\'t watching anything. Two quick permissions and it will warn you before you send something you might regret.</string>
+
+    <string name="protection_steps_title">Setup</string>
+    <string name="protection_step_disclosure">Read what Keyguard can see</string>
+    <string name="protection_step_disclosure_hint">Takes a minute. Everything else is switched off until you have.</string>
+    <string name="protection_step_disclosure_action">Read it</string>
+    <string name="protection_step_done">Done</string>
+
+    <string name="protection_intensity_hint">How forcefully warnings interrupt you. Stronger settings expand the warning and ask before you send.</string>
+
+    <string name="protection_keyboard_title">Or use the Keyguard keyboard</string>
+    <string name="protection_keyboard_hint">An older way to run Keyguard: replace your keyboard instead of running on top of it. You don\'t need this if protection is already on above.</string>
+
+    <!-- ==================== Look ==================== -->
+    <string name="appearance_position_hint">Above the keyboard is where you\'re already looking. Move it to the top if it covers messages you\'re replying to.</string>
+    <string name="appearance_preview_hint">The real warning, at your current settings.</string>
+    <!-- e.g. "Warning opacity — 96%" -->
+    <string name="appearance_opacity_value">%1$s — %2$d%%</string>
+
+    <!-- ==================== Parent ==================== -->
+    <string name="parent_add_child_button">Get a pairing code</string>
+    <string name="parent_children_heading">Children</string>
+    <string name="parent_caregiver_hint">Another parent or carer can join this family and see the same thing you do.</string>
+    <string name="parent_invite_caregiver_button">Create an invite code</string>
+    <string name="parent_danger_heading">Account</string>
+    <string name="parent_recover_submit">Reset password</string>
+    <string name="parent_child_last_seen">Last seen %1$s</string>
+    <string name="parent_child_never_seen">Hasn\'t reported yet</string>
+    <string name="parent_child_events_heading">Recent warnings</string>
+    <string name="parent_children_empty">No children paired yet. Get a pairing code above and type it into their phone.</string>
+    <string name="parent_report_no_children">Pair a child\'s phone first, then their reports appear here.</string>
+
+    <!-- Report section headings that read as sentences rather than field names -->
+    <string name="protection_step_open_settings">Open settings</string>
+    <string name="parent_child_more_events">and %1$d more</string>
+    <!-- e.g. "School 12" on a report chip -->
+    <string name="parent_report_chip">%1$s  %2$d</string>
+    <string name="onboarding_ready_body_overlay">Keyguard is ready. Open any app and start typing — try “my address is 123 Main Street” to see what a warning looks like. Keyguard deliberately ignores its own screens, so it won\'t fire in here.</string>
+</resources>

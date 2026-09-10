@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      INTERNET is the only permission requested, and it is used for exactly one thing: the
+      optional AI verification call, which is OFF by default.
+
+      With verification disabled the app makes no network requests at all. When it is enabled,
+      only the flagged sentence and a bounded slice of prior conversation are sent - never the
+      full keystream, and never anything from a password field. The Play Data Safety
+      declaration must describe this accurately.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+      Only for the standing "this device is supervised" notice a monitored user is owed. No
+      other notification is ever posted, and a child who declines this keeps the in-app
+      supervision screen, which carries the same disclosure and cannot be dismissed.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--
+      Draws the warning over whatever app the user is typing in.
+
+      This is the permission that makes the overlay design possible, and it is also the one that
+      makes it honest. Without it the accessibility service would be able to read what someone
+      types and have no way to warn them - monitoring with no visible surface, which is the
+      exact arrangement this product exists not to be. KeyguardAccessibilityService therefore
+      refuses to run when it is missing, rather than degrading to a silent watcher.
+    -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Keyguard">
+
+        <!--
+          Declares the app as a monitoring tool, which puts it under Play's Stalkerware policy.
+          That is the correct and unavoidable consequence of a parent being able to see their
+          child's warnings, and the obligations it brings - a persistent notice to the
+          monitored user, no hiding the app's presence - are ones this design already meets on
+          purpose rather than by compliance. See SupervisionNotice.
+
+          Written as meta-data, NOT as android:isMonitoringTool. Play's documentation describes
+          it as an attribute on <application>, but no such attribute exists in the platform and
+          AAPT rejects it outright; meta-data is the form that actually builds. Values are
+          child_monitoring / enterprise_management / other, and child_monitoring is the
+          accurate one here.
+
+          UNVERIFIED against an actual submission. If review rejects the app for a missing
+          flag, this element is the first thing to check.
+        -->
+        <meta-data
+            android:name="isMonitoringTool"
+            android:value="child_monitoring" />
+
+        <!--
+          No longer the launcher activity. RoleActivity is, and it routes here or to
+          ParentActivity depending on which side of the product this phone is - see DeviceRole.
+          Still exported, because the supervision notification's content intent targets it
+          directly and a child tapping that notice must land on the disclosure it refers to.
+        -->
+        <activity
+            android:name=".SetupActivity"
+            android:exported="true"
+            android:label="@string/app_name" />
+
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:parentActivityName=".SetupActivity" />
+
+        <activity
+            android:name=".ParentActivity"
+            android:exported="false"
+            android:label="@string/parent_title"
+            android:parentActivityName=".SetupActivity" />
+
+        <!--
+          The sync deliberately runs here rather than in the IME. On Android that is the same
+          process either way; on iOS a keyboard extension may not do this at all, so the shape
+          is built now instead of discovered at port time.
+        -->
+        <service
+            android:name=".family.SupervisionJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <!--
+          The monitoring path.
+
+          The keyboard below still builds and still works; this is what replaced it as the
+          thing users are pointed at, because a keyboard we wrote will never feel as good as
+          the one they already have, and typing feel is not a problem worth competing on when
+          the actual product is the warning.
+
+          BIND_ACCESSIBILITY_SERVICE is a signature-level permission the system holds, and
+          declaring it is what stops any other app from binding this service.
+
+          Play reviews an app with this element under the Accessibility API policy, which is
+          stricter than the keyboard policy the app was previously under and is an UNVERIFIED
+          risk - see the class doc. The prominent-disclosure and monitoring-tool obligations
+          the app already meets are the same ones that policy asks for, but whether the
+          declared purpose is accepted is not something that can be established before a
+          submission comes back.
+        -->
+        <service
+            android:name=".overlay.KeyguardAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <activity
+            android:name=".RoleActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".KeyguardInputMethodService"
+            android:exported="true"
+            android:label="@string/ime_label"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+    </application>
+</manifest>

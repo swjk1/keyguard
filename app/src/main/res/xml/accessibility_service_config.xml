@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What the accessibility service is allowed to see, declared as narrowly as the job permits.
+
+  This file is read by Play review as much as by the platform, so every widening here needs a
+  reason that survives being asked about.
+
+  `accessibilityEventTypes` is an explicit list rather than `typeAllMask`. The mask is the
+  default people reach for and it subscribes to view clicks, scrolls, selections, hover, window
+  content changes and notifications - a vastly larger surveillance surface than this needs. The
+  three types below are the minimum: text changing is the signal, focus tells us which field
+  owns it, and window state tells us the conversation ended.
+
+  `canRetrieveWindowContent` is the genuinely powerful flag and there is no way to avoid it: the
+  text of a field is window content. It is what MonitoredField's password checks exist to
+  constrain, since the flag itself cannot be scoped to "only fields that are not passwords".
+
+  `flagRetrieveInteractiveWindows` is what lets the service find the keyboard's own window and
+  place the warning exactly on top of it - the whole "overlay on the existing keyboard" design
+  rests on this one flag. Without it the overlay falls back to a fixed offset and the shade
+  cannot be positioned at all.
+
+  `packageNames` is deliberately absent, which means every app. An allow-list of messaging apps
+  would be the obvious narrowing and it fails in both directions: it misses whichever app a
+  teenager moved to last month - precisely the one a grooming conversation migrates to - and it
+  breaks silently when an app changes its package name. The narrowing that actually works is by
+  kind of field, and that is done in code, in MonitoredField.
+
+  `notificationTimeout` is 50ms rather than 0. Text-changed events arrive per keystroke and a
+  zero timeout delivers every single one; 50ms coalesces a fast typist's burst into one scan
+  without ever being slow enough to notice. The local scan is ~130us, so this is about event
+  volume rather than scan cost.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewTextChanged|typeViewFocused|typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="50"
+    android:summary="@string/accessibility_service_summary" />

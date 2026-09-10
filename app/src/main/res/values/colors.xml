@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="keyboard_background">#FF1E2127</color>
+    <color name="key_face">#FF3C424C</color>
+    <color name="key_face_modifier">#FF2A2F37</color>
+    <color name="key_face_pressed">#FF4E5561</color>
+    <color name="key_text">#FFF2F4F7</color>
+    <color name="accent">#FF1D4ED8</color>
+
+    <!--
+      Flagged content is highlighted in red, at the explicit request of the product owner.
+
+      Worth knowing the trade-off that was accepted: red is also every platform's spellcheck
+      colour, so there is a real chance users read a safety warning as a typo and skim past
+      it. Two severities are kept distinguishable so the serious cases still stand out, and
+      the strip carries a worded message rather than relying on colour alone - colour is
+      never the only signal, which also keeps this usable for red-green colour blindness.
+    -->
+    <color name="warn_medium">#FFDC2626</color>
+    <color name="warn_high">#FF991B1B</color>
+    <color name="warn_text">#FFFFFFFF</color>
+
+    <!-- The strip itself stays neutral so the red highlight on the flagged span is what
+         draws the eye, rather than the whole bar going red. -->
+    <color name="strip_background">#FF2A2F37</color>
+    <color name="strip_text">#FFF2F4F7</color>
+    <color name="strip_text_muted">#FFAAB2BF</color>
+    <color name="action_face">#33FFFFFF</color>
+
+    <!--
+      Deliberately NOT red. A self-harm signal is a support message, not problematic content,
+      and dressing it up as an error would be the wrong thing to show a struggling teenager.
+    -->
+    <color name="crisis_background">#FF115E59</color>
+
+    <!--
+      The floating overlay's own palette.
+
+      Dark in both modes, with no night variant, for the same reason the keyboard's palette has
+      none: this surface floats over an arbitrary app whose background we do not control and
+      cannot sample. Following the system theme would mean a light warning over a light chat in
+      the daytime and no contrast at all. A fixed dark bar with `strip_text` on it reads against
+      every host, which is worth more here than matching the phone's theme.
+
+      These are darker and more saturated than `warn_medium`/`warn_high`, which are highlight
+      colours applied to short spans of text. A whole bar at those values is oppressive; a whole
+      bar has to carry the severity by weight instead.
+    -->
+    <color name="overlay_medium_background">#FF7F1D1D</color>
+    <color name="overlay_high_background">#FF991B1B</color>
+
+    <!--
+      The sheet that covers the keyboard while typing is blocked.
+
+      Deliberately translucent rather than solid. The child needs to see that their keyboard is
+      still there and merely covered - a solid black rectangle where the keyboard was reads as a
+      crash, which is the failure mode the IME's dimmed-but-visible keys were designed to avoid.
+    -->
+    <color name="overlay_shade">#D91E2127</color>
+
+    <color name="surface">#FFF4F5F7</color>
+    <!--
+      Cards sit on `surface`, so the two cannot be the same value or the grouping disappears.
+      The page ground is the darker of the pair in light mode and the lighter of the pair in
+      dark mode, which is what keeps the cards reading as raised in both.
+    -->
+    <color name="card_surface">#FFFFFFFF</color>
+    <color name="card_stroke">#FFE2E5EA</color>
+    <color name="on_surface">#FF16181D</color>
+    <color name="on_surface_muted">#FF5B6472</color>
+    <!--
+      Status colours for the setup checklist and the protection banner.
+
+      Green and amber rather than green and red, deliberately. "Not set up yet" is an unfinished
+      task, not a failure, and painting it red makes an app that has never been opened look
+      broken. Red stays reserved for the warning surface, where it means something.
+    -->
+    <color name="status_ok">#FF15803D</color>
+    <color name="status_ok_surface">#FFDCFCE7</color>
+    <color name="status_pending">#FFB45309</color>
+    <color name="status_pending_surface">#FFFEF3C7</color>
+
+    <!-- Chip backgrounds in the report. Neutral: a theme is an observation, not a verdict. -->
+    <color name="chip_surface">#FFE8EAEE</color>
+    <color name="chip_text">#FF31384A</color>
+</resources>

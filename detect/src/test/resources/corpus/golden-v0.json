@@ -1,0 +1,685 @@
+{
+  "notes": "Golden corpus for the local engine. Positives assert the expected category is found at or above the expected severity. Negatives assert ordinary chat produces nothing at MEDIUM or above - severity 0/1 hits are allowed there, since those are informational and route to AI verification rather than showing a warning. Extended alongside pack v1: the added negatives deliberately target the ambiguous half of the new lexicon (coke, lean, kms, addy, plug, nic, fag, gaming trash talk) rather than the obvious half, because those are the terms whose suppressors decide whether the expansion cost precision. READ THESE NUMBERS WITH SUSPICION: rules and corpus were still authored together, so they measure internal consistency, not real-world quality. Held-out data the engine's author never saw remains a prerequisite for trusting them.",
+  "positives": [
+    {
+      "text": "my address is 123 Main Street",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "home address, the highest-stakes disclosure"
+    },
+    {
+      "text": "you can reach me at john.doe@example.com",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "email"
+    },
+    {
+      "text": "call me at 555-123-4567",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "NANP phone"
+    },
+    {
+      "text": "my ssn is 123-45-6789",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "SSN"
+    },
+    {
+      "text": "my card is 4111 1111 1111 1111",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "Luhn-valid card"
+    },
+    {
+      "text": "i live in a small town outside Portland",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "location self-disclosure"
+    },
+    {
+      "text": "im 14 and i love drawing",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "minor stating age"
+    },
+    {
+      "text": "my password is hunter2",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "credential"
+    },
+    {
+      "text": "my name is Priya",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "name disclosure"
+    },
+    {
+      "text": "i go to Lincoln Middle School",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "school disclosure"
+    },
+    {
+      "text": "send nudes",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "plain"
+    },
+    {
+      "text": "s3nd nud3s",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "leetspeak evasion"
+    },
+    {
+      "text": "s.e.n.d n.u.d.e.s",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "separator evasion"
+    },
+    {
+      "text": "seeeend nuuuudes",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "character-padding evasion"
+    },
+    {
+      "text": "dont tell your parents about this",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "missing apostrophe still caught via evasion form"
+    },
+    {
+      "text": "this is our little secret ok",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "secrecy grooming pattern"
+    },
+    {
+      "text": "you're so mature for your age",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "classic grooming flattery"
+    },
+    {
+      "text": "you should delete this chat after",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "evidence destruction"
+    },
+    {
+      "text": "what is your address",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "address request"
+    },
+    {
+      "text": "where do you live",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 2,
+      "note": "location probe"
+    },
+    {
+      "text": "send me your location right now",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "location request"
+    },
+    {
+      "text": "we should meet alone",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "isolation"
+    },
+    {
+      "text": "i want to kill myself",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "must route to crisis response"
+    },
+    {
+      "text": "i just want to die",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "ideation"
+    },
+    {
+      "text": "i have been cutting myself again",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "self-injury"
+    },
+    {
+      "text": "there is no reason to live anymore",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "ideation"
+    },
+    {
+      "text": "kill yourself",
+      "category": "HARASSMENT",
+      "minSeverity": 3,
+      "note": "directed at another person"
+    },
+    {
+      "text": "kys",
+      "category": "HARASSMENT",
+      "minSeverity": 3,
+      "note": "abbreviation"
+    },
+    {
+      "text": "nobody likes you",
+      "category": "HARASSMENT",
+      "minSeverity": 2,
+      "note": "bullying"
+    },
+    {
+      "text": "no one cares about you",
+      "category": "HARASSMENT",
+      "minSeverity": 2,
+      "note": "bullying"
+    },
+    {
+      "text": "ill kill you",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "threat, apostrophe dropped"
+    },
+    {
+      "text": "i know where you live",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "intimidation"
+    },
+    {
+      "text": "im gonna beat you up after school",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 2,
+      "note": "threat"
+    },
+    {
+      "text": "i live at 42 Oakfield Road",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "explicit street address"
+    },
+    {
+      "text": "my postcode is SW1A 1AA",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "UK postcode disclosure"
+    },
+    {
+      "text": "my email is priya.k@example.com",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "email intro phrase"
+    },
+    {
+      "text": "my full name is Priya Kaur",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "full name"
+    },
+    {
+      "text": "my pin is 4829",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "credential"
+    },
+    {
+      "text": "the verification code is 883021",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "OTP relay, how accounts get stolen"
+    },
+    {
+      "text": "my card number is 4111 1111 1111 1111",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 3,
+      "note": "card intro plus Luhn"
+    },
+    {
+      "text": "my kik is bluefox88",
+      "category": "PII_DISCLOSURE",
+      "minSeverity": 2,
+      "note": "kik is a known grooming platform"
+    },
+    {
+      "text": "how old are you really",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "private age check"
+    },
+    {
+      "text": "you act older than you are",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "grooming flattery variant"
+    },
+    {
+      "text": "promise you wont tell anyone",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "secrecy, apostrophe dropped"
+    },
+    {
+      "text": "add me on telegram instead",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "platform migration"
+    },
+    {
+      "text": "lets talk somewhere else",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "platform migration"
+    },
+    {
+      "text": "no one understands you like i do",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "isolation tactic"
+    },
+    {
+      "text": "you should clear your history after",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "evidence destruction"
+    },
+    {
+      "text": "take your clothes off for me",
+      "category": "SEXUAL_SOLICITATION",
+      "minSeverity": 3,
+      "note": "explicit request"
+    },
+    {
+      "text": "what school do you go to",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "school probe"
+    },
+    {
+      "text": "just sneak out after they go to bed",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "leaving without parents knowing"
+    },
+    {
+      "text": "get in the car ill take you",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "vehicle"
+    },
+    {
+      "text": "send me your address and ill come",
+      "category": "IN_PERSON_MEETUP",
+      "minSeverity": 3,
+      "note": "address request"
+    },
+    {
+      "text": "everyone would be better off without me",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "ideation"
+    },
+    {
+      "text": "i dont want to wake up tomorrow",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "ideation, apostrophe dropped"
+    },
+    {
+      "text": "im going to hang myself",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "method"
+    },
+    {
+      "text": "i took an overdose last night",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "method"
+    },
+    {
+      "text": "nobody would miss me if i went",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "ideation"
+    },
+    {
+      "text": "i want to unalive myself",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "platform euphemism"
+    },
+    {
+      "text": "ive been starving myself to lose weight",
+      "category": "SELF_HARM",
+      "minSeverity": 3,
+      "note": "disordered eating"
+    },
+    {
+      "text": "go die already",
+      "category": "HARASSMENT",
+      "minSeverity": 3,
+      "note": "directed"
+    },
+    {
+      "text": "neck yourself",
+      "category": "HARASSMENT",
+      "minSeverity": 3,
+      "note": "UK slang, as serious as kys"
+    },
+    {
+      "text": "you have no friends and everyone knows",
+      "category": "HARASSMENT",
+      "minSeverity": 2,
+      "note": "bullying"
+    },
+    {
+      "text": "youre pathetic",
+      "category": "HARASSMENT",
+      "minSeverity": 2,
+      "note": "bullying, apostrophe dropped"
+    },
+    {
+      "text": "im going to stab you",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "weapon threat"
+    },
+    {
+      "text": "ill wait outside your house",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "stalking threat"
+    },
+    {
+      "text": "im coming for you",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "threat"
+    },
+    {
+      "text": "bring a knife tomorrow",
+      "category": "VIOLENCE_THREAT",
+      "minSeverity": 3,
+      "note": "weapon"
+    },
+    {
+      "text": "want to smoke weed after school",
+      "category": "SUBSTANCE",
+      "minSeverity": 2,
+      "note": "drugs plus school context"
+    },
+    {
+      "text": "i got some xanax off him",
+      "category": "SUBSTANCE",
+      "minSeverity": 2,
+      "note": "prescription misuse"
+    },
+    {
+      "text": "bringing edibles to the party",
+      "category": "SUBSTANCE",
+      "minSeverity": 2,
+      "note": "drugs"
+    }
+  ],
+  "negatives": [
+    {
+      "text": "hey what are you doing tonight",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "that movie was so cool",
+      "note": "doubled letters must survive run-collapsing"
+    },
+    {
+      "text": "my favorite class is history",
+      "note": "substring of a slur inside an innocent word"
+    },
+    {
+      "text": "can you send me the homework please",
+      "note": "'send me' without a solicitation object"
+    },
+    {
+      "text": "i passed the test with a 92",
+      "note": "bare number"
+    },
+    {
+      "text": "the answer is 42",
+      "note": "bare number"
+    },
+    {
+      "text": "lets meet at the library after school",
+      "note": "public place, not isolation"
+    },
+    {
+      "text": "call me when you get home",
+      "note": "'call me' is not a name disclosure"
+    },
+    {
+      "text": "im 25 and i work downtown",
+      "note": "adult age is out of the minor range"
+    },
+    {
+      "text": "the game starts at 7 30",
+      "note": "not a phone number"
+    },
+    {
+      "text": "he scored 3 goals in the first half",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "i need to buy a new charger",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "she said the assignment is due friday",
+      "note": "'ass' inside 'assignment'"
+    },
+    {
+      "text": "this grass needs cutting",
+      "note": "'cutting' without self-reference"
+    },
+    {
+      "text": "we passed a tweed shop on the way",
+      "note": "'weed' inside 'tweed'"
+    },
+    {
+      "text": "my brother is being annoying again",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "did you watch the stream last night",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "the wifi keeps dropping",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "i got a new keyboard for my birthday",
+      "note": "ordinary chat"
+    },
+    {
+      "text": "meet me at the mall food court at noon",
+      "note": "public meetup is fine"
+    },
+    {
+      "text": "this heat makes me want to die",
+      "note": "hyperbole must not trigger a crisis intervention"
+    },
+    {
+      "text": "i want to die of embarrassment",
+      "note": "hyperbole"
+    },
+    {
+      "text": "that joke made me want to die laughing",
+      "note": "hyperbole"
+    },
+    {
+      "text": "i want to die of boredom in this class",
+      "note": "hyperbole"
+    },
+    {
+      "text": "i could kill myself for forgetting the tickets",
+      "note": "hyperbole"
+    },
+    {
+      "text": "i keep cutting myself shaving",
+      "note": "benign literal context"
+    },
+    {
+      "text": "im cutting myself on this paper edge",
+      "note": "benign literal context"
+    },
+    {
+      "text": "that was so cringe i want to die",
+      "note": "hyperbole"
+    },
+    {
+      "text": "can you grab me a diet coke",
+      "note": "coke as a soft drink"
+    },
+    {
+      "text": "theres a bottle of coke in the fridge",
+      "note": "coke as a soft drink"
+    },
+    {
+      "text": "we ran about 5 kms today",
+      "note": "kms as kilometres, not self-harm slang"
+    },
+    {
+      "text": "its only 3 kms away from the station",
+      "note": "kms as kilometres"
+    },
+    {
+      "text": "just lean back and relax",
+      "note": "lean as a verb"
+    },
+    {
+      "text": "i got some lean beef for dinner",
+      "note": "lean as an adjective"
+    },
+    {
+      "text": "can you plug in my charger",
+      "note": "plug as electrical"
+    },
+    {
+      "text": "whats your addy so i can post it",
+      "note": "addy as address, not adderall"
+    },
+    {
+      "text": "molly said shes coming later",
+      "note": "Molly as a name"
+    },
+    {
+      "text": "im trying to get high grades this term",
+      "note": "high as achievement"
+    },
+    {
+      "text": "that album is such a classic",
+      "note": "class substring must not fire SCHOOL or a term"
+    },
+    {
+      "text": "i could murder a pizza right now",
+      "note": "violent idiom about food"
+    },
+    {
+      "text": "this heat is killing me",
+      "note": "hyperbole"
+    },
+    {
+      "text": "that lesson nearly killed me",
+      "note": "hyperbole about school"
+    },
+    {
+      "text": "i cant do this anymore, three essays in one week",
+      "note": "exhaustion about coursework, not ideation"
+    },
+    {
+      "text": "i hate myself for saying that out loud",
+      "note": "regret, not self-hatred"
+    },
+    {
+      "text": "i want to disappear into a good book",
+      "note": "figurative"
+    },
+    {
+      "text": "ive stopped eating crisps before the game",
+      "note": "diet, not disordered eating"
+    },
+    {
+      "text": "my mum is going to pick you up at six",
+      "note": "lift from a parent"
+    },
+    {
+      "text": "meet me at practice at four",
+      "note": "ordinary arrangement"
+    },
+    {
+      "text": "what are you wearing to the party",
+      "note": "ordinary question between friends"
+    },
+    {
+      "text": "can you turn your camera on for the homework call",
+      "note": "school video call"
+    },
+    {
+      "text": "hes such a fag for smoking that cigarette",
+      "note": "British 'fag' as cigarette"
+    },
+    {
+      "text": "ill kill you in the game later",
+      "note": "gaming trash talk"
+    },
+    {
+      "text": "im going to jump you on the trampoline",
+      "note": "play, not assault"
+    },
+    {
+      "text": "youre dead funny",
+      "note": "British idiom, not a threat"
+    },
+    {
+      "text": "im dead tired after training",
+      "note": "idiom"
+    },
+    {
+      "text": "we had a fight in fortnite and lost the lobby",
+      "note": "gaming conflict"
+    },
+    {
+      "text": "the school trip is next tuesday",
+      "note": "school logistics"
+    },
+    {
+      "text": "shut up thats so funny",
+      "note": "banter register"
+    },
+    {
+      "text": "i hate you lol youre the worst",
+      "note": "affectionate banter"
+    },
+    {
+      "text": "my nic level is way too high on this vape",
+      "note": "vaping self-report, informational not alarming"
+    },
+    {
+      "text": "the security code on the door is broken again",
+      "note": "not a credential"
+    },
+    {
+      "text": "i was born on a tuesday apparently",
+      "note": "birthday trivia"
+    },
+    {
+      "text": "my number is 7 on the team shirt",
+      "note": "number as a shirt number"
+    }
+  ]
+}

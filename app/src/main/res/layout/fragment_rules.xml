@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What the parent has decided.
+
+  Split out of the dashboard so a parent checking on their child does not walk past six
+  radio groups to get there. Every option carries its own one-line hint - these are
+  decisions with real consequences for someone else, and a label alone does not carry
+  enough for 'Nothing can be ignored' or 'Everything they type'.
+
+  Save is explicit rather than per-control, because several of these interact and a
+  half-applied policy is worse than an unsaved one. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/screen_margin"
+    android:paddingEnd="@dimen/screen_margin"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingBottom="@dimen/scroll_bottom_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_policy_min_intensity"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/parent_policy_min_intensity_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <RadioGroup
+                    android:id="@+id/minIntensityGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/minIntensitySubtle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_intensity_subtle"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <RadioButton
+                        android:id="@+id/minIntensityStandard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_intensity_standard"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <RadioButton
+                        android:id="@+id/minIntensityInsistent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_intensity_insistent"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                </RadioGroup>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/lockSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:text="@string/parent_policy_lock"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/blockSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_policy_block"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_override_heading"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <RadioGroup
+                    android:id="@+id/overrideGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/overrideFull"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_override_full"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_override_full_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+
+                    <RadioButton
+                        android:id="@+id/overrideLimited"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_override_limited"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_override_limited_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+
+                    <RadioButton
+                        android:id="@+id/overrideNone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_override_none"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_override_none_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_scope_heading"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <RadioGroup
+                    android:id="@+id/scopeGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/scopeConcerning"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_scope_concerning"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_scope_concerning_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+
+                    <RadioButton
+                        android:id="@+id/scopeThemes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_scope_themes"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_scope_themes_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+
+                    <RadioButton
+                        android:id="@+id/scopeFull"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_scope_full"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_xl"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:text="@string/parent_scope_full_hint"
+                        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+                </RadioGroup>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/reportsSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:text="@string/parent_reports_toggle"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/aiCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_policy_ai"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/parent_policy_ai_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <RadioGroup
+                    android:id="@+id/aiGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/aiChildChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_policy_ai_child"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <RadioButton
+                        android:id="@+id/aiForcedOff"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_policy_ai_off"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/rulesStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_sm"
+            android:textAppearance="@style/TextAppearance.Keyguard.Body"
+            android:textColor="@color/warn_medium"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/parent_policy_save" />
+    </LinearLayout>
+</ScrollView>

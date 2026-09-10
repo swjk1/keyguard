@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Keyboard and warning-strip sizing is user-adjustable and lives in
+      com.keyguard.app.settings.Appearance, not here. Only genuinely fixed values remain.
+    -->
+    <dimen name="key_corner_radius">8dp</dimen>
+    <!--
+      One spacing scale, used by every screen.
+
+      The old layouts picked margins ad hoc - 4dp here, 6dp there, 28dp somewhere else - which
+      is most of why they read as a demo. Consistent vertical rhythm is the cheapest thing that
+      makes an interface look built rather than assembled.
+    -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">16dp</dimen>
+    <dimen name="space_lg">24dp</dimen>
+    <dimen name="space_xl">32dp</dimen>
+
+    <dimen name="screen_margin">20dp</dimen>
+    <dimen name="card_padding">18dp</dimen>
+    <dimen name="card_radius">16dp</dimen>
+
+    <!-- Clears the bottom navigation bar so the last card is never half-hidden behind it. -->
+    <dimen name="scroll_bottom_padding">96dp</dimen>
+</resources>

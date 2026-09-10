@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The standalone keyboard.
+
+  Everything removed here belongs to parent supervision, and the point of removing it is the
+  Play declarations rather than the bytes. A build that declares `isMonitoringTool` falls under
+  Play's Stalkerware policy and is reviewed as a monitoring app; a build that requests
+  POST_NOTIFICATIONS has to justify it on the data-safety form. The solo flavor has no
+  supervision to justify, so it says nothing rather than saying "unused".
+
+  The Kotlin for supervision still compiles into this variant - only its manifest entries are
+  gone. Nothing can reach it: `verify_base_url` is blank here, and SetupActivity hides the whole
+  supervision card when it is (see `renderSupervision`). Both gates are deliberate. The manifest
+  is what review sees; the runtime check is what protects a user.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      INTERNET goes too, and it is the most valuable removal here.
+
+      With no endpoint configured this build already made no requests, but that is a property of
+      a string resource - true, and invisible to anyone reviewing the app. Dropping the
+      permission makes it a property of the package instead: the OS will not let this build open
+      a socket regardless of what its code does, which is what turns "we do not transmit your
+      typing" from a promise into something a user can verify from the store listing.
+
+      The networking classes still compile into this variant and are still unreachable behind the
+      blank endpoint. If one were ever reached it would throw rather than transmit, which is the
+      correct failure for a keyboard that has told its users it has no network.
+    -->
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
+
+    <!--
+      SYSTEM_ALERT_WINDOW stays.
+
+      It is the one permission this flavor keeps, and the claim it makes has changed shape
+      rather than weakened. Solo used to say "this app declares no permissions at all"; it now
+      says "this app can draw a warning over other apps, and still cannot open a socket". The
+      second is a narrower claim but it is the one that matters, because the thing a user of a
+      safety keyboard is actually worried about is where their typing goes, not whether a bar
+      can appear on screen.
+
+      The accessibility service is also kept, and its presence is the honest cost of the overlay
+      design: a solo build now reads text in other apps where before it only saw what was typed
+      on its own keys. Dropping INTERNET is what keeps that defensible - the OS will not let
+      this build transmit any of it regardless of what its code does.
+    -->
+
+
+    <application>
+        <meta-data
+            android:name="isMonitoringTool"
+            tools:node="remove" />
+
+        <activity
+            android:name=".ParentActivity"
+            tools:node="remove" />
+
+        <service
+            android:name=".family.SupervisionJobService"
+            tools:node="remove" />
+    </application>
+</manifest>

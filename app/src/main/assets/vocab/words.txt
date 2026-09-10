@@ -1,0 +1,103 @@
+# Frequency-ordered English vocabulary for completion and prediction.
+# Order IS the frequency rank - earlier is more common. Lines starting with # are ignored.
+#
+# The platform spell checker corrects misspellings but cannot predict or complete, so this
+# has to ship. Kept deliberately small: ~1000 words covers the large majority of everyday
+# typing, the user dictionary learns the rest, and a bigger list would cost APK size and
+# lookup time for diminishing return.
+#
+# Includes ordinary chat and teen vocabulary on purpose - this product's users type "gonna"
+# and "lol" far more often than they type "whereas".
+
+the be to of and a in that have i it for not on with he as you do at
+this but his by from they we say her she or an will my one all would there their
+what so up out if about who get which go me when make can like time no just him know
+take people into year your good some could them see other than then now look only come
+its over think also back after use two how our work first well way even new want because
+any these give day most us is are was were been has had did does doing done being am
+
+i'm you're it's that's don't didn't doesn't can't won't wouldn't shouldn't couldn't
+isn't aren't wasn't weren't haven't hasn't hadn't i've you've we've they've i'll you'll
+we'll they'll he'll she'll i'd you'd we'd they'd let's here's there's what's who's
+
+yeah yes no ok okay yep nope sure maybe idk lol lmao omg wtf tbh imo btw nvm brb
+thanks thank please sorry hey hi hello bye goodbye night morning afternoon evening
+gonna wanna gotta kinda sorta dunno cuz because tho though anyway anyways actually
+really very much many more less least better best worse worst little big small large
+great awesome cool nice bad good fine alright terrible amazing perfect weird funny
+stupid crazy boring tired hungry happy sad angry mad upset scared excited nervous
+sick fun sleepy busy free ready done finished
+
+today tomorrow yesterday tonight morning week weekend month year hour minute second
+monday tuesday wednesday thursday friday saturday sunday january february march april
+may june july august september october november december january
+
+school class homework test exam quiz teacher student grade math science english
+history art music gym lunch recess library locker bus assignment project essay
+study studying studied learn learned reading writing question answer
+
+mom dad mum mother father parent parents brother sister sibling family grandma grandpa
+aunt uncle cousin friend friends bestie bff boyfriend girlfriend crush people person
+someone somebody anyone anybody everyone everybody nobody no-one
+
+phone text texting call calling message messages chat chatting snap snapchat insta
+instagram tiktok discord roblox minecraft youtube video videos game games gaming
+play playing played stream streaming online offline post posted comment like liked
+follow followed dm dms group server channel
+
+home house room bedroom kitchen bathroom outside inside upstairs downstairs street
+road park store shop mall restaurant cafe city town neighborhood place places
+
+eat eating ate food breakfast lunch dinner snack pizza burger fries chicken rice
+pasta sandwich salad soup bread cheese milk water juice soda coffee tea candy
+chocolate cake cookie ice cream hungry thirsty
+
+go going went come coming came get getting got give giving gave take taking took
+make making made do doing did say saying said tell telling told ask asking asked
+want wanted need needed like liked love loved hate hated feel feeling felt
+think thinking thought know knew knows understand understood remember forgot forget
+see seeing saw look looking looked watch watching watched hear heard listen listening
+talk talking talked speak spoke read write wrote wrote send sending sent
+help helping helped try trying tried work working worked start started stop stopped
+finish finished keep keeping kept leave leaving left stay staying stayed
+wait waiting waited meet meeting met bring bringing brought put putting
+find finding found lose lost win won play played run running ran walk walking walked
+sit sitting sat stand standing stood sleep sleeping slept wake woke buy bought
+pay paid cost spend spent save saved
+
+happen happened happening believe believed hope hoping hoped wish wished
+promise promised guess guessed mean meant matter mattered care cared
+wonder wondered worry worried decide decided choose chose change changed
+learn taught teach show showed explain explained mention mentioned
+
+good great fine bad okay better best cool nice sweet lit fire dope
+new old young little big huge tiny long short high low hot cold warm cool
+easy hard difficult simple important different same other another
+first last next previous final only real true false right wrong sure
+
+not never always sometimes often usually rarely already still yet again
+too very really quite pretty almost just about maybe probably definitely
+here there where everywhere anywhere somewhere nowhere
+now then soon later early late before after while during until since
+because so but and or if unless although however therefore also
+what who where when why how which whose whom
+all some none any both each every few many much more most several
+this that these those it its they them their there theirs
+my your his her our mine yours hers ours
+
+one two three four five six seven eight nine ten eleven twelve twenty thirty
+forty fifty hundred thousand million first second third half quarter
+
+yeah nah nope yup uhh umm hmm oh ah eh wow ugh yay aww huh oops
+please thanks thx ty yw np sorry apologies excuse pardon
+congrats congratulations welcome cheers
+
+address phone number email password account username login school name
+birthday age old year years born live living lives moved moving
+
+safe unsafe careful dangerous scary trust trusted stranger strangers
+block blocked report reported delete deleted private public secret
+tell told adult adults grown grownup teacher counselor police help
+
+love like hate miss missed sorry angry upset annoyed frustrated
+lonely alone together apart close far away back forth

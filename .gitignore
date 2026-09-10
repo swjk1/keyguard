@@ -1,0 +1,38 @@
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Never commit signing material or API keys
+*.jks
+*.keystore
+.env
+.env.local
+.vercel/
+node_modules/
+
+# Backend
+backend/.next/
+backend/next-env.d.ts
+
+# Python / ML training
+training/.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Generated corpora and checkpoints. Reproducible from the generators plus a seed.
+training/datasets/openpii/
+training/datasets/child_safety/
+training/datasets/label_contract.json
+training/datasets/risk_rules.json
+training/models/
+
+# Keep the hand-authored gold set - it cannot be regenerated.
+!training/datasets/gold_test/

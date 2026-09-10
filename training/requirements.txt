@@ -1,0 +1,38 @@
+# Keyguard V1 model training — pinned environment.
+#
+# Install order matters on a GPU box: torch must come from the CUDA index, everything else
+# from PyPI. `scripts/setup_cloud.sh` does this in the right order; if you are installing
+# by hand, see the comment on the torch line.
+#
+# Deliberately absent: torchvision and torchaudio. Nothing here is vision or audio, and a
+# torchvision whose build does not match the torch build breaks `import transformers`
+# outright (it registers a fake kernel for an operator that no longer exists). Leaving
+# them out is not tidiness, it is the fix for a real failure.
+
+# ---- core ----
+# CPU:  pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
+# CUDA: pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu124
+torch==2.9.1
+
+transformers==4.57.6
+tokenizers==0.22.2
+huggingface-hub==0.36.2
+datasets==5.0.1
+accelerate==1.10.1
+
+# ---- data generation ----
+Faker==38.2.0
+
+# ---- evaluation ----
+scikit-learn==1.8.0
+seqeval==1.2.2
+numpy==2.4.2
+
+# ---- export / deployment ----
+onnx==1.20.0
+onnxruntime==1.24.1
+
+# ---- misc ----
+PyYAML==6.0.3
+tqdm==4.67.1
+onnxscript==0.7.2

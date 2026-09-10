@@ -1,0 +1,962 @@
+/*
+ * The design harness stylesheet.
+ *
+ * Every custom property below is the same value as the corresponding Android resource in
+ * `app/src/main/res/values/`, so what you see in the browser is what the phone draws. The
+ * mapping is one-to-one and the Android resource name is in the comment beside each group,
+ * because the whole point of this harness is that a change made here can be carried back
+ * mechanically rather than eyeballed.
+ *
+ * Dark mode mirrors `values-night/` exactly: only the app chrome has a night variant. The
+ * keyboard palette, the warning colours and the overlay surfaces are dark in both themes on
+ * purpose — they are drawn over other apps, or over a dark keyboard, and following the system
+ * theme would leave a light warning on a light chat with no contrast at all.
+ */
+
+:root {
+  /*
+   * colors.xml — keyboard palette. No night variant, by design.
+   *
+   * Written as 6-digit hex, not the 8-digit values in the resource file: Android's #AARRGGBB
+   * puts alpha first and CSS's #RRGGBBAA puts it last, so pasting a resource value across
+   * silently reinterprets the alpha byte as red. Every colour here is opaque, so the byte is
+   * dropped rather than moved.
+   */
+  --keyboard-background: #1e2127;
+  --key-face: #3c424c;
+  --key-face-modifier: #2a2f37;
+  --key-face-pressed: #4e5561;
+  --key-text: #f2f4f7;
+  --accent: #1d4ed8;
+
+  /* Flagged-content highlight. Two weights so serious stays distinguishable from moderate. */
+  --warn-medium: #dc2626;
+  --warn-high: #991b1b;
+  --warn-text: #ffffff;
+
+  --strip-background: #2a2f37;
+  --strip-text: #f2f4f7;
+  --strip-text-muted: #aab2bf;
+
+  /* Never red: a self-harm signal is a support message, not problematic content. */
+  --crisis-background: #115e59;
+
+  /* The floating overlay's own palette. Dark in both themes — see colors.xml. */
+  --overlay-medium-background: #7f1d1d;
+  --overlay-high-background: #991b1b;
+  --overlay-shade: rgba(30, 33, 39, 0.85);
+
+  /* App chrome. These are the ones values-night overrides. */
+  --surface: #f4f5f7;
+  --card-surface: #ffffff;
+  --card-stroke: #e2e5ea;
+  --on-surface: #16181d;
+  --on-surface-muted: #5b6472;
+
+  /* Status. Green and amber, never green and red — "not set up yet" is a task, not a failure. */
+  --status-ok: #15803d;
+  --status-ok-surface: #dcfce7;
+  --status-pending: #b45309;
+  --status-pending-surface: #fef3c7;
+
+  --chip-surface: #e8eaee;
+  --chip-text: #31384a;
+
+  /* dimens.xml — the one spacing scale. */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --screen-margin: 20px;
+  --card-padding: 18px;
+  --card-radius: 16px;
+}
+
+[data-theme='dark'] {
+  /* values-night/colors.xml */
+  --surface: #15171c;
+  --card-surface: #1e2127;
+  --card-stroke: #2e333c;
+  --on-surface: #f2f4f7;
+  --on-surface-muted: #aab2bf;
+  --status-ok: #4ade80;
+  --status-ok-surface: #14301f;
+  --status-pending: #fbbf24;
+  --status-pending-surface: #33270b;
+  --chip-surface: #2a2f37;
+  --chip-text: #d3d8e0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: #0d1015;
+  color: #e6e9ef;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- harness chrome */
+
+.kg-harness {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 28px 20px 60px;
+  flex-wrap: wrap;
+}
+
+.kg-controls {
+  width: 300px;
+  flex: 0 0 auto;
+  background: #161a21;
+  border: 1px solid #262c36;
+  border-radius: 14px;
+  padding: 18px;
+  position: sticky;
+  top: 28px;
+}
+
+.kg-controls h1 {
+  font-size: 15px;
+  margin: 0 0 4px;
+  letter-spacing: 0.02em;
+}
+
+.kg-controls .kg-sub {
+  font-size: 12px;
+  color: #8d95a4;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.kg-control-group {
+  margin-bottom: 16px;
+}
+
+/* Scoped to the group heading only. A bare `> label` also matched the checkbox rows, which
+   are labels too, and uppercased every one of them. */
+.kg-group-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7d8595;
+  margin-bottom: 6px;
+}
+
+.kg-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.kg-seg button {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 7px 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid #2c333f;
+  background: #1b2029;
+  color: #b9c0cc;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.kg-seg button[data-on='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.kg-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #b9c0cc;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.kg-note {
+  font-size: 11px;
+  line-height: 1.55;
+  color: #79808e;
+  border-top: 1px solid #262c36;
+  padding-top: 12px;
+  margin-top: 16px;
+}
+
+/* ---------------------------------------------------------------- the phone */
+
+.kg-stage {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+/* The little scene picker above each phone. Per-device, because the two have different
+   scenes: the child can be in three apps, the parent only ever in one. */
+.kg-device-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.kg-device-tabs button {
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: 7px;
+  border: 1px solid #2c333f;
+  background: #1b2029;
+  color: #b9c0cc;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.kg-device-tabs button[data-on='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.kg-device-tabs--spacer {
+  height: 26px;
+}
+
+.kg-device-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9aa2b1;
+  margin: 0 0 6px;
+}
+
+/* The one-line status under each phone: what it is enforcing, what it has queued. */
+.kg-device-state {
+  font-size: 11px;
+  color: #6d7482;
+  text-align: center;
+  max-width: 393px;
+  line-height: 1.5;
+}
+
+.kg-device-state b {
+  color: #9aa2b1;
+  font-weight: 600;
+}
+
+.kg-stale {
+  color: var(--status-pending);
+}
+
+.kg-phone-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /*
+   * A full-size phone is 872px tall with its bezel, which does not fit a laptop window. The
+   * scale is computed in Harness and applied here, so the frame shrinks to fit rather than
+   * being cut off at the bottom - the bottom being exactly where the navigation bar and the
+   * overlay live, which are the two things most worth looking at.
+   */
+  transform: scale(var(--phone-scale, 1));
+  transform-origin: top center;
+  margin-bottom: calc((1 - var(--phone-scale, 1)) * -880px);
+}
+
+/*
+ * 393x852 is a Pixel-class logical viewport in dp, which is what Android lays out against —
+ * so a card that fits here fits on the device, and one that overflows here overflows there.
+ */
+.kg-phone {
+  width: 393px;
+  height: 852px;
+  border-radius: 38px;
+  border: 10px solid #23282f;
+  background: var(--surface);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  color: var(--on-surface);
+}
+
+.kg-phone-label {
+  font-size: 11px;
+  color: #6d7482;
+}
+
+.kg-statusbar {
+  height: 28px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  font-size: 11px;
+  color: var(--on-surface-muted);
+  background: var(--surface);
+}
+
+.kg-toolbar {
+  height: 56px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--screen-margin);
+  font-size: 20px;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--on-surface);
+}
+
+.kg-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--space-sm) var(--screen-margin) 96px;
+  background: var(--surface);
+}
+
+.kg-body::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ---------------------------------------------------------------- bottom nav */
+
+.kg-bottomnav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 68px;
+  display: flex;
+  background: var(--card-surface);
+  border-top: 1px solid var(--card-stroke);
+}
+
+.kg-bottomnav button {
+  flex: 1;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--on-surface-muted);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.kg-bottomnav button[data-on='true'] {
+  color: var(--accent);
+}
+
+.kg-bottomnav svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------- cards & text */
+
+.kg-card {
+  background: var(--card-surface);
+  border: 1px solid var(--card-stroke);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  margin-bottom: var(--space-md);
+}
+
+.kg-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 0;
+}
+
+.kg-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.kg-body-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--on-surface-muted);
+  margin: var(--space-sm) 0 0;
+}
+
+.kg-label {
+  font-size: 15px;
+  color: var(--on-surface);
+  margin: 0;
+}
+
+.kg-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+  margin: 2px 0 0;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.kg-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: var(--space-sm);
+}
+
+.kg-btn--tonal {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.kg-btn--text {
+  background: none;
+  color: var(--accent);
+}
+
+.kg-btn--danger {
+  background: none;
+  color: var(--warn-medium);
+}
+
+.kg-btn--outline {
+  background: none;
+  border: 1px solid var(--card-stroke);
+  color: var(--accent);
+  width: auto;
+  padding: 8px 16px;
+}
+
+.kg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kg-radio {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 7px 0;
+  cursor: pointer;
+}
+
+.kg-radio input {
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.kg-switchrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  cursor: pointer;
+}
+
+.kg-switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--card-stroke);
+  position: relative;
+  flex: 0 0 auto;
+  transition: background 120ms;
+}
+
+.kg-switch[data-on='true'] {
+  background: var(--accent);
+}
+
+.kg-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 120ms;
+}
+
+.kg-switch[data-on='true']::after {
+  transform: translateX(20px);
+}
+
+.kg-field {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-stroke);
+  background: transparent;
+  color: var(--on-surface);
+  font-size: 15px;
+  font-family: inherit;
+  margin-top: var(--space-sm);
+}
+
+.kg-field::placeholder {
+  color: var(--on-surface-muted);
+}
+
+.kg-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  margin: 6px 0 2px;
+}
+
+.kg-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: var(--chip-surface);
+  color: var(--chip-text);
+  font-size: 13px;
+  margin: 0 6px 6px 0;
+}
+
+.kg-chip--pick {
+  cursor: pointer;
+  border: 1px solid var(--card-stroke);
+}
+
+.kg-chip--pick[data-on='true'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.kg-seg-toggle {
+  display: flex;
+  margin-bottom: var(--space-md);
+}
+
+.kg-seg-toggle button {
+  flex: 1;
+  padding: 11px;
+  font-size: 14px;
+  border: 1px solid var(--card-stroke);
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.kg-seg-toggle button:first-child {
+  border-radius: 20px 0 0 20px;
+}
+
+.kg-seg-toggle button:last-child {
+  border-radius: 0 20px 20px 0;
+  border-left: 0;
+}
+
+.kg-seg-toggle button[data-on='true'] {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* ---------------------------------------------------------------- checklist */
+
+.kg-step {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  align-items: flex-start;
+}
+
+.kg-step-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.kg-step-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kg-step--done .kg-step-title {
+  color: var(--status-ok);
+}
+
+.kg-step-title {
+  font-size: 15px;
+  color: var(--on-surface);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- overlay scene */
+
+.kg-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0b141a;
+}
+
+.kg-scene-bar {
+  height: 56px;
+  flex: 0 0 auto;
+  background: #1f2c34;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  color: #e9edef;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kg-scene-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3b4a54;
+}
+
+.kg-scene-thread {
+  flex: 1 1 auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.kg-bubble {
+  max-width: 76%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #e9edef;
+}
+
+.kg-bubble--them {
+  background: #1f2c34;
+  align-self: flex-start;
+}
+
+.kg-bubble--me {
+  background: #005c4b;
+  align-self: flex-end;
+}
+
+.kg-composer {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: #0b141a;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.kg-composer input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 22px;
+  border: 0;
+  background: #1f2c34;
+  color: #e9edef;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.kg-composer input:focus {
+  outline: 2px solid #2a3942;
+}
+
+.kg-send {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 0;
+  background: #00a884;
+  color: #0b141a;
+  font-size: 17px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* The floating warning. Positioned exactly where OverlayAnchor puts it. */
+.kg-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 10px 14px;
+  z-index: 3;
+  color: var(--strip-text);
+}
+
+.kg-overlay--warn-medium {
+  background: var(--overlay-medium-background);
+}
+
+.kg-overlay--warn-high {
+  background: var(--overlay-high-background);
+}
+
+.kg-overlay--crisis {
+  background: var(--crisis-background);
+}
+
+.kg-overlay-summary {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0;
+}
+
+.kg-overlay-detail {
+  font-size: 13px;
+  color: var(--strip-text-muted);
+  margin: 4px 0 0;
+}
+
+.kg-overlay-paused {
+  font-weight: 700;
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+
+.kg-overlay-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.kg-overlay-actions button {
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* The shade that absorbs touches over the keyboard. */
+.kg-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-shade);
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------- document editor */
+
+.kg-scene--docs {
+  background: var(--card-surface);
+}
+
+.kg-docs-bar {
+  height: 56px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: var(--card-surface);
+  border-bottom: 1px solid var(--card-stroke);
+}
+
+.kg-docs-back {
+  color: var(--on-surface-muted);
+  font-size: 20px;
+}
+
+.kg-docs-title {
+  flex: 1;
+  border: 0;
+  background: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--on-surface);
+  font-family: inherit;
+  padding: 0;
+}
+
+.kg-docs-title:focus {
+  outline: none;
+}
+
+.kg-docs-save {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.kg-docs-tools {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--card-stroke);
+  background: var(--card-surface);
+}
+
+.kg-docs-tool {
+  min-width: 32px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--on-surface-muted);
+  background: var(--surface);
+}
+
+/*
+ * The field is most of the screen, which is the whole reason this scene exists: it is the case
+ * where anchoring the warning above the field would push it off the top.
+ */
+.kg-docs-body {
+  flex: 1 1 auto;
+  border: 0;
+  resize: none;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: inherit;
+  color: var(--on-surface);
+  background: var(--card-surface);
+}
+
+.kg-docs-body:focus {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------- keyboard */
+
+.kg-keyboard {
+  flex: 0 0 auto;
+  background: var(--keyboard-background);
+  padding: 6px 3px;
+  user-select: none;
+}
+
+.kg-krow {
+  display: flex;
+  gap: 5px;
+  padding: 3px 4px;
+  justify-content: center;
+}
+
+.kg-key {
+  flex: 1 1 0;
+  height: 42px;
+  border-radius: 6px;
+  background: var(--key-face);
+  color: var(--key-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.kg-key--mod {
+  background: var(--key-face-modifier);
+  font-size: 13px;
+  flex: 1.5 1 0;
+}
+
+.kg-key--space {
+  flex: 5 1 0;
+}
+
+.kg-strip {
+  background: var(--strip-background);
+  padding: 10px 12px;
+  color: var(--strip-text);
+}
+
+/* ---------------------------------------------------------------- misc */
+
+.kg-empty {
+  font-size: 14px;
+  color: var(--on-surface-muted);
+  padding: 10px 0;
+  line-height: 1.55;
+}
+
+.kg-code {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  margin: var(--space-md) 0 0;
+}
+
+.kg-scope-line {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: var(--space-sm) 0 0;
+  line-height: 1.5;
+}
+
+.kg-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.kg-event {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+  padding: 3px 0;
+  margin: 0;
+}
+
+.kg-event--high {
+  color: var(--warn-medium);
+}

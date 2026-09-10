@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solo flavor string overrides.
+
+  This build has no AI verification and no supervision, so it has no network path at all - and
+  no INTERNET permission either. The disclosure says that plainly rather than describing an
+  optional feature that is not present: a disclosure a user cannot act on teaches them to skim
+  the next one.
+-->
+<resources>
+    <string name="setup_disclosure_network">Nothing you type leaves this phone. There is no account and nothing is uploaded — checking is done entirely by the pattern list built into the app. Keyguard does not even ask for internet permission, so you can verify that yourself in the Android app settings rather than taking our word for it.</string>
+</resources>
