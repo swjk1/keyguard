@@ -1,0 +1,4402 @@
+{
+  "version": 2,
+  "revision": "v1-2026-09-06",
+  "notes": "Second pack. Harm lexicon expanded from 43 to 210 terms, suppressors from 12 to 73, co-occurrence from 5 to 9. Adds a separate topic and mood vocabulary (themes/emotions) which never reaches the person typing and exists only for the parent report; see Themes.kt for why those are coarse by design. Severity: 3=immediate serious risk, 2=real concern, 1=subtle nudge, 0=informational (AI decides). Every term whose innocent use is common is marked context_dependent and routed to AI verification rather than shown with confidence, and the suppressor list grew alongside the term list rather than after it - roughly one suppressor per ambiguous term is what keeps the false-positive rate under the corpus gate. Term coverage is still representative, not exhaustive: the production lexicon should be expanded from published sources (Presidio recognizers for PII, Perspective API taxonomy plus OLID/HateXplain for harassment, PAN12 for solicitation) and clinically reviewed for SELF_HARM. The slur list in particular is a placeholder for a published taxonomy, not a curated set. Two omissions are deliberate rather than oversights: 'kms' is not in the pack despite being real self-harm slang, because requiresCrisisResponse fires at any severity and the term collides completely with kilometres - there is no severity at which it is safe, only a suppressor that would have to be exhaustive. Any SELF_HARM term added here inherits that constraint and must be unambiguous or reliably suppressed.",
+  "grooming_context_categories": [
+    "SEXUAL_SOLICITATION",
+    "IN_PERSON_MEETUP"
+  ],
+  "terms": [
+    {
+      "id": "pii.lex.address_intro",
+      "term": "my address is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "You're about to share your home address."
+    },
+    {
+      "id": "pii.lex.phone_intro",
+      "term": "my phone number is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're about to share your phone number."
+    },
+    {
+      "id": "pii.lex.password_intro",
+      "term": "my password is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share a password, even with someone you trust."
+    },
+    {
+      "id": "pii.lex.snapchat",
+      "term": "my snap is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.instagram",
+      "term": "my insta is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.school_name",
+      "term": "i go to school at",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing where you go to school."
+    },
+    {
+      "id": "meetup.where_do_you_live",
+      "term": "where do you live",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "message": "Someone is asking where you live."
+    },
+    {
+      "id": "meetup.whats_your_address",
+      "term": "what is your address",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking for your address."
+    },
+    {
+      "id": "meetup.send_location",
+      "term": "send me your location",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking for your location."
+    },
+    {
+      "id": "meetup.pick_you_up",
+      "term": "pick you up",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This mentions someone collecting you in person."
+    },
+    {
+      "id": "meetup.come_over",
+      "term": "come over",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This mentions meeting in person."
+    },
+    {
+      "id": "meetup.meet_alone",
+      "term": "meet alone",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Meeting someone alone can be unsafe."
+    },
+    {
+      "id": "meetup.are_you_alone",
+      "term": "are you alone",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is a question people ask for concerning reasons."
+    },
+    {
+      "id": "meetup.parents_home",
+      "term": "are your parents home",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is a question people ask for concerning reasons."
+    },
+    {
+      "id": "solicit.send_nudes",
+      "term": "send nudes",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "check_evasion": true,
+      "message": "This is a request for sexual images. You never have to send anything."
+    },
+    {
+      "id": "solicit.send_pic_body",
+      "term": "send me a pic of your",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is a request for a photo of your body."
+    },
+    {
+      "id": "solicit.dont_tell_parents",
+      "term": "don't tell your parents",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "check_evasion": true,
+      "message": "Anyone asking you to hide a conversation from your parents is a warning sign."
+    },
+    {
+      "id": "solicit.dont_tell_anyone",
+      "term": "don't tell anyone",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "check_evasion": true,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign."
+    },
+    {
+      "id": "solicit.our_secret",
+      "term": "our little secret",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to keep a secret from adults you trust is a warning sign."
+    },
+    {
+      "id": "solicit.keep_between_us",
+      "term": "keep this between us",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign."
+    },
+    {
+      "id": "solicit.delete_chat",
+      "term": "delete this chat",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to delete a conversation is a warning sign."
+    },
+    {
+      "id": "solicit.mature_for_your_age",
+      "term": "mature for your age",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is a common way adults try to build trust with a minor."
+    },
+    {
+      "id": "selfharm.kill_myself",
+      "term": "kill myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "check_evasion": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.want_to_die",
+      "term": "want to die",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.end_it_all",
+      "term": "end it all",
+      "category": "SELF_HARM",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.no_reason_to_live",
+      "term": "no reason to live",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.hurt_myself",
+      "term": "hurt myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.cutting_myself",
+      "term": "cutting myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "harass.kill_yourself",
+      "term": "kill yourself",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "check_evasion": true,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.kys",
+      "term": "kys",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.nobody_likes_you",
+      "term": "nobody likes you",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.worthless",
+      "term": "you're worthless",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "check_evasion": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.no_one_cares",
+      "term": "no one cares about you",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.loser",
+      "term": "loser",
+      "category": "HARASSMENT",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This might read as an insult."
+    },
+    {
+      "id": "harass.ugly",
+      "term": "ugly",
+      "category": "HARASSMENT",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This might read as an insult."
+    },
+    {
+      "id": "violence.ill_kill_you",
+      "term": "i'll kill you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "check_evasion": true,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences."
+    },
+    {
+      "id": "violence.beat_you_up",
+      "term": "beat you up",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.shoot_up",
+      "term": "shoot up the",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat of violence and can involve police, even as a joke."
+    },
+    {
+      "id": "violence.find_you",
+      "term": "i know where you live",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "substance.get_drunk",
+      "term": "get drunk",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This mentions alcohol."
+    },
+    {
+      "id": "substance.vape",
+      "term": "vape",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This mentions vaping."
+    },
+    {
+      "id": "substance.weed",
+      "term": "weed",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This might mention drugs."
+    },
+    {
+      "id": "substance.pills",
+      "term": "pills",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This might mention drugs."
+    },
+    {
+      "id": "pii.lex.i_live_at",
+      "term": "i live at",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "You're sharing where you can be found in person."
+    },
+    {
+      "id": "pii.lex.i_live_on",
+      "term": "i live on",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "You're sharing where you can be found in person."
+    },
+    {
+      "id": "pii.lex.house_number",
+      "term": "my house number is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "You're sharing where you can be found in person."
+    },
+    {
+      "id": "pii.lex.postcode",
+      "term": "my postcode is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "You're sharing where you can be found in person."
+    },
+    {
+      "id": "pii.lex.zip",
+      "term": "my zip code is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "You're sharing where you can be found in person."
+    },
+    {
+      "id": "pii.lex.number_is",
+      "term": "my number is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.email_is",
+      "term": "my email is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.full_name",
+      "term": "my full name is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.last_name",
+      "term": "my last name is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.surname",
+      "term": "my surname is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.birthday",
+      "term": "my birthday is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.born_on",
+      "term": "i was born on",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.discord",
+      "term": "my discord is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.tiktok",
+      "term": "my tiktok is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.snapchat_full",
+      "term": "my snapchat is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.add_me_snap",
+      "term": "add me on snap",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.kik",
+      "term": "my kik is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.gamertag",
+      "term": "my gamertag is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.username_is",
+      "term": "my username is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a way to contact you privately."
+    },
+    {
+      "id": "pii.lex.school_is",
+      "term": "my school is",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing where you go to school."
+    },
+    {
+      "id": "pii.lex.school_called",
+      "term": "my school is called",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing where you go to school."
+    },
+    {
+      "id": "pii.lex.my_teacher",
+      "term": "my teacher is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "You're sharing a personal detail that identifies you."
+    },
+    {
+      "id": "pii.lex.pin_is",
+      "term": "my pin is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share a code or password, even with someone you trust.",
+      "check_evasion": true
+    },
+    {
+      "id": "pii.lex.passcode",
+      "term": "my passcode is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share a code or password, even with someone you trust.",
+      "check_evasion": true
+    },
+    {
+      "id": "pii.lex.the_code_is",
+      "term": "the code is",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "Never share a code or password, even with someone you trust."
+    },
+    {
+      "id": "pii.lex.verification_code",
+      "term": "verification code",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never pass on a verification code. This is how accounts get stolen."
+    },
+    {
+      "id": "pii.lex.one_time_code",
+      "term": "one time code",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never pass on a one-time code. This is how accounts get stolen."
+    },
+    {
+      "id": "pii.lex.security_code",
+      "term": "security code",
+      "category": "PII_DISCLOSURE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "Never share a code or password, even with someone you trust."
+    },
+    {
+      "id": "pii.lex.card_number",
+      "term": "my card number is",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share card details."
+    },
+    {
+      "id": "pii.lex.bank_details",
+      "term": "my bank details",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share bank details."
+    },
+    {
+      "id": "pii.lex.parents_card",
+      "term": "my mum's card",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share card details."
+    },
+    {
+      "id": "pii.lex.parents_card_us",
+      "term": "my mom's card",
+      "category": "PII_DISCLOSURE",
+      "severity": 3,
+      "message": "Never share card details."
+    },
+    {
+      "id": "pii.lex.parents_number",
+      "term": "my mum's number",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a way to contact you privately.",
+      "check_evasion": true
+    },
+    {
+      "id": "pii.lex.parents_number_us",
+      "term": "my mom's number",
+      "category": "PII_DISCLOSURE",
+      "severity": 2,
+      "message": "You're sharing a way to contact you privately.",
+      "check_evasion": true
+    },
+    {
+      "id": "meetup.where_are_you_now",
+      "term": "where are you right now",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.what_school",
+      "term": "what school do you go to",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.which_school",
+      "term": "which school do you go to",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.send_address",
+      "term": "send me your address",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.whats_your_postcode",
+      "term": "what is your postcode",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.drop_a_pin",
+      "term": "drop a pin",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.share_location",
+      "term": "share your location",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "meetup.meet_me_at",
+      "term": "meet me at",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.meet_in_person",
+      "term": "meet in person",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.meet_up_alone",
+      "term": "meet up alone",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Meeting someone alone can be unsafe."
+    },
+    {
+      "id": "meetup.come_get_you",
+      "term": "come get you",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.give_you_a_lift",
+      "term": "give you a lift",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.get_in_the_car",
+      "term": "get in the car",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "This is about getting into a vehicle with someone."
+    },
+    {
+      "id": "meetup.ill_drive_you",
+      "term": "i'll drive you",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.sneak_out",
+      "term": "sneak out",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "This is about leaving without your parents knowing."
+    },
+    {
+      "id": "meetup.come_to_my_house",
+      "term": "come to my house",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.my_parents_are_out",
+      "term": "my parents are out",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person."
+    },
+    {
+      "id": "meetup.parents_wont_be_home",
+      "term": "my parents won't be home",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about meeting someone in person.",
+      "check_evasion": true
+    },
+    {
+      "id": "meetup.nobody_will_know",
+      "term": "nobody will know",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign."
+    },
+    {
+      "id": "meetup.what_town",
+      "term": "what town do you live in",
+      "category": "IN_PERSON_MEETUP",
+      "severity": 3,
+      "message": "Someone is asking where you are or how to reach you in person."
+    },
+    {
+      "id": "solicit.nudes",
+      "term": "nudes",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is about sexual images. You never have to send anything.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.nude_pic",
+      "term": "nude pic",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is about sexual images. You never have to send anything.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.send_pics",
+      "term": "send me pics",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about sexual images. You never have to send anything."
+    },
+    {
+      "id": "solicit.send_a_photo",
+      "term": "send me a photo of you",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about sexual images. You never have to send anything."
+    },
+    {
+      "id": "solicit.what_are_you_wearing",
+      "term": "what are you wearing",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is a question people ask for concerning reasons."
+    },
+    {
+      "id": "solicit.take_clothes_off",
+      "term": "take your clothes off",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is about sexual images. You never have to send anything."
+    },
+    {
+      "id": "solicit.turn_camera_on",
+      "term": "turn your camera on",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Someone is asking you to go on camera."
+    },
+    {
+      "id": "solicit.go_on_video",
+      "term": "go on video",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "Someone is asking you to go on camera."
+    },
+    {
+      "id": "solicit.how_old_really",
+      "term": "how old are you really",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Someone checking your real age privately is a warning sign."
+    },
+    {
+      "id": "solicit.dont_look_your_age",
+      "term": "you don't look your age",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is a common way adults try to build trust with a minor.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.act_older",
+      "term": "you act older than you are",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is a common way adults try to build trust with a minor."
+    },
+    {
+      "id": "solicit.our_secret_short",
+      "term": "our secret",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign."
+    },
+    {
+      "id": "solicit.just_between_us",
+      "term": "just between us",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign."
+    },
+    {
+      "id": "solicit.promise_not_tell",
+      "term": "promise you won't tell",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to keep a conversation secret is a warning sign.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.i_wont_tell",
+      "term": "i won't tell anyone",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to keep a conversation secret is a warning sign.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.delete_messages",
+      "term": "delete these messages",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to delete a conversation is a warning sign."
+    },
+    {
+      "id": "solicit.clear_history",
+      "term": "clear your history",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to hide a conversation is a warning sign."
+    },
+    {
+      "id": "solicit.disappearing",
+      "term": "disappearing messages",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to hide a conversation is a warning sign."
+    },
+    {
+      "id": "solicit.move_to_telegram",
+      "term": "add me on telegram",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to move to another app is a common grooming step."
+    },
+    {
+      "id": "solicit.move_to_whatsapp",
+      "term": "message me on whatsapp",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to move to another app is a common grooming step."
+    },
+    {
+      "id": "solicit.talk_somewhere_else",
+      "term": "let's talk somewhere else",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "Being asked to move to another app is a common grooming step.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.switch_to_snap",
+      "term": "switch to snap",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Being asked to move to another app is a common grooming step."
+    },
+    {
+      "id": "solicit.you_can_trust_me",
+      "term": "you can trust me",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "Someone insisting you trust them is worth a second thought."
+    },
+    {
+      "id": "solicit.do_you_trust_me",
+      "term": "do you trust me",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "Someone insisting you trust them is worth a second thought."
+    },
+    {
+      "id": "solicit.special_relationship",
+      "term": "you're different from other girls",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is a common way adults try to build trust with a minor.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.no_one_understands",
+      "term": "no one understands you like i do",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is a common way adults try to isolate a young person."
+    },
+    {
+      "id": "solicit.sexting",
+      "term": "sext",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This is about sexual images. You never have to send anything."
+    },
+    {
+      "id": "solicit.dick_pic",
+      "term": "dick pic",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is about sexual images. You never have to send anything.",
+      "check_evasion": true
+    },
+    {
+      "id": "solicit.body_pic",
+      "term": "pic of your body",
+      "category": "SEXUAL_SOLICITATION",
+      "severity": 3,
+      "message": "This is about sexual images. You never have to send anything."
+    },
+    {
+      "id": "selfharm.want_to_kill_myself",
+      "term": "want to kill myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.better_off_dead",
+      "term": "better off dead",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.better_without_me",
+      "term": "better off without me",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.dont_want_to_be_here",
+      "term": "don't want to be here anymore",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.dont_want_to_wake_up",
+      "term": "don't want to wake up",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.want_to_disappear",
+      "term": "want to disappear",
+      "category": "SELF_HARM",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.hate_myself",
+      "term": "i hate myself",
+      "category": "SELF_HARM",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.self_harm",
+      "term": "self harm",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.harm_myself",
+      "term": "harm myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.overdose",
+      "term": "overdose",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.take_all_the_pills",
+      "term": "take all the pills",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.slit_my_wrists",
+      "term": "slit my wrists",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.hang_myself",
+      "term": "hang myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.nobody_would_miss_me",
+      "term": "nobody would miss me",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.goodbye_forever",
+      "term": "goodbye forever",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.cant_do_this_anymore",
+      "term": "can't do this anymore",
+      "category": "SELF_HARM",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.tired_of_living",
+      "term": "tired of living",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.give_up_on_life",
+      "term": "give up on life",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.unalive_myself",
+      "term": "unalive myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard.",
+      "check_evasion": true
+    },
+    {
+      "id": "selfharm.starve_myself",
+      "term": "starve myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.starving_myself",
+      "term": "starving myself",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.not_eating",
+      "term": "stopped eating",
+      "category": "SELF_HARM",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "selfharm.make_myself_sick",
+      "term": "make myself sick",
+      "category": "SELF_HARM",
+      "severity": 3,
+      "message": "It sounds like you're going through something really hard."
+    },
+    {
+      "id": "harass.kill_urself",
+      "term": "kill urself",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.unalive_yourself",
+      "term": "unalive yourself",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.go_die",
+      "term": "go die",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.you_should_die",
+      "term": "you should die",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.neck_yourself",
+      "term": "neck yourself",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.rope_yourself",
+      "term": "rope yourself",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.no_friends",
+      "term": "you have no friends",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.everyone_hates_you",
+      "term": "everyone hates you",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.nobody_wants_you",
+      "term": "nobody wants you here",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.youre_pathetic",
+      "term": "you're pathetic",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.youre_disgusting",
+      "term": "you're disgusting",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.youre_a_freak",
+      "term": "you're a freak",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.youre_stupid",
+      "term": "you're stupid",
+      "category": "HARASSMENT",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.i_hate_you",
+      "term": "i hate you",
+      "category": "HARASSMENT",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.shut_up",
+      "term": "shut up",
+      "category": "HARASSMENT",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.cry_about_it",
+      "term": "cry about it",
+      "category": "HARASSMENT",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.fat",
+      "term": "you're fat",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "message": "This might land harder than you intend.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.slur.retard",
+      "term": "retard",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.slur.faggot",
+      "term": "faggot",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.slur.fag",
+      "term": "fag",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "harass.slur.tranny",
+      "term": "tranny",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.slur.nigger",
+      "term": "nigger",
+      "category": "HARASSMENT",
+      "severity": 3,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned.",
+      "check_evasion": true
+    },
+    {
+      "id": "harass.slur.nigga",
+      "term": "nigga",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This might land harder than you intend."
+    },
+    {
+      "id": "harass.slur.spastic",
+      "term": "spastic",
+      "category": "HARASSMENT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This could seriously hurt someone. Messages like this can also get you banned."
+    },
+    {
+      "id": "violence.hurt_you",
+      "term": "i'll hurt you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat.",
+      "check_evasion": true
+    },
+    {
+      "id": "violence.youre_dead",
+      "term": "you're dead",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.im_coming_for_you",
+      "term": "i'm coming for you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat.",
+      "check_evasion": true
+    },
+    {
+      "id": "violence.ill_find_you",
+      "term": "i'll find you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.watch_your_back",
+      "term": "watch your back",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.stab_you",
+      "term": "stab you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences.",
+      "check_evasion": true
+    },
+    {
+      "id": "violence.shoot_you",
+      "term": "shoot you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences.",
+      "check_evasion": true
+    },
+    {
+      "id": "violence.jump_you",
+      "term": "jump you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.bring_a_knife",
+      "term": "bring a knife",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences."
+    },
+    {
+      "id": "violence.bring_a_gun",
+      "term": "bring a gun",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences."
+    },
+    {
+      "id": "violence.square_up",
+      "term": "square up",
+      "category": "VIOLENCE_THREAT",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.catch_you_outside",
+      "term": "catch you outside",
+      "category": "VIOLENCE_THREAT",
+      "severity": 2,
+      "context_dependent": true,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.wait_outside",
+      "term": "wait outside your",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat."
+    },
+    {
+      "id": "violence.beat_the_shit",
+      "term": "beat the shit out of you",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences.",
+      "check_evasion": true
+    },
+    {
+      "id": "violence.smash_your_head",
+      "term": "smash your head",
+      "category": "VIOLENCE_THREAT",
+      "severity": 3,
+      "message": "This reads as a threat. Even as a joke, this can have real consequences."
+    },
+    {
+      "id": "substance.get_high",
+      "term": "get high",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.smoke_weed",
+      "term": "smoke weed",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.edibles",
+      "term": "edibles",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.molly",
+      "term": "molly",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.mdma",
+      "term": "mdma",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.xanax",
+      "term": "xanax",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.xans",
+      "term": "xans",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.percs",
+      "term": "percs",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.lean",
+      "term": "lean",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.shrooms",
+      "term": "shrooms",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.acid_tab",
+      "term": "tab of acid",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.coke",
+      "term": "coke",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.adderall",
+      "term": "adderall",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.addy",
+      "term": "addy",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.plug",
+      "term": "the plug",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.zaza",
+      "term": "zaza",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.juul",
+      "term": "juul",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "message": "This mentions vaping."
+    },
+    {
+      "id": "substance.dab_pen",
+      "term": "dab pen",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This is about drugs."
+    },
+    {
+      "id": "substance.nic",
+      "term": "nic",
+      "category": "SUBSTANCE",
+      "severity": 0,
+      "context_dependent": true,
+      "message": "This mentions vaping."
+    },
+    {
+      "id": "substance.blackout",
+      "term": "blackout drunk",
+      "category": "SUBSTANCE",
+      "severity": 2,
+      "message": "This mentions drugs or alcohol."
+    },
+    {
+      "id": "substance.shots",
+      "term": "do shots",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This mentions drugs or alcohol."
+    },
+    {
+      "id": "substance.vodka",
+      "term": "vodka",
+      "category": "SUBSTANCE",
+      "severity": 1,
+      "context_dependent": true,
+      "message": "This mentions drugs or alcohol."
+    }
+  ],
+  "suppressors": [
+    {
+      "id": "sup.die.laughing",
+      "category": "SELF_HARM",
+      "phrase": "laughing",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.want_to_die"
+    },
+    {
+      "id": "sup.die.embarrassment",
+      "category": "SELF_HARM",
+      "phrase": "embarrass",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.die.cringe",
+      "category": "SELF_HARM",
+      "phrase": "cringe",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.die.boredom",
+      "category": "SELF_HARM",
+      "phrase": "bored",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.want_to_die"
+    },
+    {
+      "id": "sup.die.heat",
+      "category": "SELF_HARM",
+      "phrase": "heat",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.want_to_die"
+    },
+    {
+      "id": "sup.die.shame",
+      "category": "SELF_HARM",
+      "phrase": "of shame",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.cutting.shaving",
+      "category": "SELF_HARM",
+      "phrase": "shav",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cutting_myself"
+    },
+    {
+      "id": "sup.cutting.paper",
+      "category": "SELF_HARM",
+      "phrase": "paper",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cutting_myself"
+    },
+    {
+      "id": "sup.cutting.kitchen",
+      "category": "SELF_HARM",
+      "phrase": "knife in the kitchen",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cutting_myself"
+    },
+    {
+      "id": "sup.kill.forgetting",
+      "category": "SELF_HARM",
+      "phrase": "for forgetting",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.kill_myself"
+    },
+    {
+      "id": "sup.kill.laughing",
+      "category": "SELF_HARM",
+      "phrase": "laughing",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.kill_myself"
+    },
+    {
+      "id": "sup.harass.quoted_game",
+      "category": "HARASSMENT",
+      "phrase": "in the game",
+      "within_chars": 30,
+      "only_rule_id": "harass.loser"
+    },
+    {
+      "id": "sup.die.hunger",
+      "category": "SELF_HARM",
+      "phrase": "hungry",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.want_to_die"
+    },
+    {
+      "id": "sup.die.song",
+      "category": "SELF_HARM",
+      "phrase": "this song",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.die.concert",
+      "category": "SELF_HARM",
+      "phrase": "concert",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.die.cute",
+      "category": "SELF_HARM",
+      "phrase": "so cute",
+      "within_chars": 30
+    },
+    {
+      "id": "sup.disappear.magic",
+      "category": "SELF_HARM",
+      "phrase": "magic",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.want_to_disappear"
+    },
+    {
+      "id": "sup.hate.haircut",
+      "category": "SELF_HARM",
+      "phrase": "haircut",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.hate_myself"
+    },
+    {
+      "id": "sup.hate.for_saying",
+      "category": "SELF_HARM",
+      "phrase": "for saying",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.hate_myself"
+    },
+    {
+      "id": "sup.hate.in_photos",
+      "category": "SELF_HARM",
+      "phrase": "in photos",
+      "within_chars": 30,
+      "only_rule_id": "selfharm.hate_myself"
+    },
+    {
+      "id": "sup.cant.homework",
+      "category": "SELF_HARM",
+      "phrase": "homework",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cant_do_this_anymore"
+    },
+    {
+      "id": "sup.cant.revision",
+      "category": "SELF_HARM",
+      "phrase": "revision",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cant_do_this_anymore"
+    },
+    {
+      "id": "sup.cant.essay",
+      "category": "SELF_HARM",
+      "phrase": "essay",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cant_do_this_anymore"
+    },
+    {
+      "id": "sup.cant.level",
+      "category": "SELF_HARM",
+      "phrase": "level",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.cant_do_this_anymore"
+    },
+    {
+      "id": "sup.overdose.caffeine",
+      "category": "SELF_HARM",
+      "phrase": "caffeine",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.overdose"
+    },
+    {
+      "id": "sup.overdose.sugar",
+      "category": "SELF_HARM",
+      "phrase": "sugar",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.overdose"
+    },
+    {
+      "id": "sup.eating.diet",
+      "category": "SELF_HARM",
+      "phrase": "before the game",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.not_eating"
+    },
+    {
+      "id": "sup.sick.travel",
+      "category": "SELF_HARM",
+      "phrase": "on the bus",
+      "within_chars": 40,
+      "only_rule_id": "selfharm.make_myself_sick"
+    },
+    {
+      "id": "sup.coke.diet",
+      "category": "SUBSTANCE",
+      "phrase": "diet",
+      "within_chars": 24,
+      "only_rule_id": "substance.coke"
+    },
+    {
+      "id": "sup.coke.zero",
+      "category": "SUBSTANCE",
+      "phrase": "zero",
+      "within_chars": 24,
+      "only_rule_id": "substance.coke"
+    },
+    {
+      "id": "sup.coke.can",
+      "category": "SUBSTANCE",
+      "phrase": "can of",
+      "within_chars": 24,
+      "only_rule_id": "substance.coke"
+    },
+    {
+      "id": "sup.coke.bottle",
+      "category": "SUBSTANCE",
+      "phrase": "bottle",
+      "within_chars": 24,
+      "only_rule_id": "substance.coke"
+    },
+    {
+      "id": "sup.lean.against",
+      "category": "SUBSTANCE",
+      "phrase": "against",
+      "within_chars": 24,
+      "only_rule_id": "substance.lean"
+    },
+    {
+      "id": "sup.lean.back",
+      "category": "SUBSTANCE",
+      "phrase": "back",
+      "within_chars": 20,
+      "only_rule_id": "substance.lean"
+    },
+    {
+      "id": "sup.lean.beef",
+      "category": "SUBSTANCE",
+      "phrase": "beef",
+      "within_chars": 24,
+      "only_rule_id": "substance.lean"
+    },
+    {
+      "id": "sup.plug.charger",
+      "category": "SUBSTANCE",
+      "phrase": "charger",
+      "within_chars": 30,
+      "only_rule_id": "substance.plug"
+    },
+    {
+      "id": "sup.plug.socket",
+      "category": "SUBSTANCE",
+      "phrase": "socket",
+      "within_chars": 30,
+      "only_rule_id": "substance.plug"
+    },
+    {
+      "id": "sup.nic.name",
+      "category": "SUBSTANCE",
+      "phrase": "nic and",
+      "within_chars": 20,
+      "only_rule_id": "substance.nic"
+    },
+    {
+      "id": "sup.addy.address",
+      "category": "SUBSTANCE",
+      "phrase": "address",
+      "within_chars": 24,
+      "only_rule_id": "substance.addy"
+    },
+    {
+      "id": "sup.molly.name",
+      "category": "SUBSTANCE",
+      "phrase": "molly said",
+      "within_chars": 24,
+      "only_rule_id": "substance.molly"
+    },
+    {
+      "id": "sup.molly.and",
+      "category": "SUBSTANCE",
+      "phrase": "molly and",
+      "within_chars": 24,
+      "only_rule_id": "substance.molly"
+    },
+    {
+      "id": "sup.high.grades",
+      "category": "SUBSTANCE",
+      "phrase": "grades",
+      "within_chars": 30,
+      "only_rule_id": "substance.get_high"
+    },
+    {
+      "id": "sup.high.score",
+      "category": "SUBSTANCE",
+      "phrase": "score",
+      "within_chars": 30,
+      "only_rule_id": "substance.get_high"
+    },
+    {
+      "id": "sup.slur.lyrics",
+      "category": "HARASSMENT",
+      "phrase": "lyrics",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.slur.song",
+      "category": "HARASSMENT",
+      "phrase": "the song",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.harass.hate_you_jk",
+      "category": "HARASSMENT",
+      "phrase": "jk",
+      "within_chars": 20,
+      "only_rule_id": "harass.i_hate_you"
+    },
+    {
+      "id": "sup.harass.hate_you_lol",
+      "category": "HARASSMENT",
+      "phrase": "lol",
+      "within_chars": 20,
+      "only_rule_id": "harass.i_hate_you"
+    },
+    {
+      "id": "sup.harass.stupid_thing",
+      "category": "HARASSMENT",
+      "phrase": "thing",
+      "within_chars": 24,
+      "only_rule_id": "harass.youre_stupid"
+    },
+    {
+      "id": "sup.harass.fag.cigarette",
+      "category": "HARASSMENT",
+      "phrase": "cigarette",
+      "within_chars": 30,
+      "only_rule_id": "harass.slur.fag"
+    },
+    {
+      "id": "sup.harass.ugly_cry",
+      "category": "HARASSMENT",
+      "phrase": "cry",
+      "within_chars": 20,
+      "only_rule_id": "harass.ugly"
+    },
+    {
+      "id": "sup.harass.ugly_weather",
+      "category": "HARASSMENT",
+      "phrase": "weather",
+      "within_chars": 24,
+      "only_rule_id": "harass.ugly"
+    },
+    {
+      "id": "sup.violence.game",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "in the game",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.violence.fortnite",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "fortnite",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.violence.minecraft",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "minecraft",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.violence.respawn",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "respawn",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.violence.lobby",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "lobby",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.violence.dead_tired",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "tired",
+      "within_chars": 24,
+      "only_rule_id": "violence.youre_dead"
+    },
+    {
+      "id": "sup.violence.dead_funny",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "funny",
+      "within_chars": 24,
+      "only_rule_id": "violence.youre_dead"
+    },
+    {
+      "id": "sup.violence.jump_trampoline",
+      "category": "VIOLENCE_THREAT",
+      "phrase": "trampoline",
+      "within_chars": 30,
+      "only_rule_id": "violence.jump_you"
+    },
+    {
+      "id": "sup.meetup.mum",
+      "category": "IN_PERSON_MEETUP",
+      "phrase": "my mum",
+      "within_chars": 40,
+      "only_rule_id": "meetup.pick_you_up"
+    },
+    {
+      "id": "sup.meetup.mom",
+      "category": "IN_PERSON_MEETUP",
+      "phrase": "my mom",
+      "within_chars": 40,
+      "only_rule_id": "meetup.pick_you_up"
+    },
+    {
+      "id": "sup.meetup.dad",
+      "category": "IN_PERSON_MEETUP",
+      "phrase": "my dad",
+      "within_chars": 40,
+      "only_rule_id": "meetup.pick_you_up"
+    },
+    {
+      "id": "sup.meetup.school_trip",
+      "category": "IN_PERSON_MEETUP",
+      "phrase": "school trip",
+      "within_chars": 40
+    },
+    {
+      "id": "sup.meetup.practice",
+      "category": "IN_PERSON_MEETUP",
+      "phrase": "practice",
+      "within_chars": 40,
+      "only_rule_id": "meetup.meet_me_at"
+    },
+    {
+      "id": "sup.solicit.wearing_uniform",
+      "category": "SEXUAL_SOLICITATION",
+      "phrase": "uniform",
+      "within_chars": 40,
+      "only_rule_id": "solicit.what_are_you_wearing"
+    },
+    {
+      "id": "sup.solicit.wearing_party",
+      "category": "SEXUAL_SOLICITATION",
+      "phrase": "to the party",
+      "within_chars": 40,
+      "only_rule_id": "solicit.what_are_you_wearing"
+    },
+    {
+      "id": "sup.solicit.camera_homework",
+      "category": "SEXUAL_SOLICITATION",
+      "phrase": "homework",
+      "within_chars": 40,
+      "only_rule_id": "solicit.turn_camera_on"
+    },
+    {
+      "id": "sup.solicit.camera_class",
+      "category": "SEXUAL_SOLICITATION",
+      "phrase": "class",
+      "within_chars": 30,
+      "only_rule_id": "solicit.turn_camera_on"
+    },
+    {
+      "id": "sup.disappear.into",
+      "category": "SELF_HARM",
+      "phrase": "into",
+      "within_chars": 14,
+      "only_rule_id": "selfharm.want_to_disappear"
+    }
+  ],
+  "co_occurrence": [
+    {
+      "id": "cooc.pii_with_meetup",
+      "when_category": "PII_DISCLOSURE",
+      "with_category": "IN_PERSON_MEETUP",
+      "within_chars": 240,
+      "result_severity": 3,
+      "message": "You're sharing personal details in a conversation about meeting in person."
+    },
+    {
+      "id": "cooc.pii_with_solicitation",
+      "when_category": "PII_DISCLOSURE",
+      "with_category": "SEXUAL_SOLICITATION",
+      "within_chars": 240,
+      "result_severity": 3,
+      "message": "You're sharing personal details in a conversation that raises concerns."
+    },
+    {
+      "id": "cooc.meetup_with_solicitation",
+      "when_category": "IN_PERSON_MEETUP",
+      "with_category": "SEXUAL_SOLICITATION",
+      "within_chars": 240,
+      "result_severity": 3,
+      "message": "This conversation combines meeting in person with concerning requests."
+    },
+    {
+      "id": "cooc.harassment_with_violence",
+      "when_category": "HARASSMENT",
+      "with_category": "VIOLENCE_THREAT",
+      "within_chars": 200,
+      "result_severity": 3,
+      "message": "This combines insults with what reads as a threat."
+    },
+    {
+      "id": "cooc.substance_with_meetup",
+      "when_category": "SUBSTANCE",
+      "with_category": "IN_PERSON_MEETUP",
+      "within_chars": 200,
+      "result_severity": 2,
+      "message": "This combines substances with meeting up."
+    },
+    {
+      "id": "cooc.selfharm_with_harassment",
+      "when_category": "SELF_HARM",
+      "with_category": "HARASSMENT",
+      "within_chars": 240,
+      "result_severity": 3,
+      "message": "This combines being hurt by someone with talk of hurting yourself."
+    },
+    {
+      "id": "cooc.pii_with_substance",
+      "when_category": "PII_DISCLOSURE",
+      "with_category": "SUBSTANCE",
+      "within_chars": 200,
+      "result_severity": 2,
+      "message": "You're sharing personal details in a conversation about drugs."
+    },
+    {
+      "id": "cooc.meetup_with_substance",
+      "when_category": "IN_PERSON_MEETUP",
+      "with_category": "SUBSTANCE",
+      "within_chars": 200,
+      "result_severity": 3,
+      "message": "This combines meeting up with drugs or alcohol."
+    },
+    {
+      "id": "cooc.solicitation_with_violence",
+      "when_category": "SEXUAL_SOLICITATION",
+      "with_category": "VIOLENCE_THREAT",
+      "within_chars": 240,
+      "result_severity": 3,
+      "message": "This combines a concerning request with what reads as a threat."
+    }
+  ],
+  "themes": [
+    {
+      "id": "theme.school.homework",
+      "term": "homework",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.exam",
+      "term": "exam",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.exams",
+      "term": "exams",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.test_tomorrow",
+      "term": "test tomorrow",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.revision",
+      "term": "revision",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.revising",
+      "term": "revising",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.coursework",
+      "term": "coursework",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.assignment",
+      "term": "assignment",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.essay",
+      "term": "essay",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.teacher",
+      "term": "teacher",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.class",
+      "term": "class",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.lesson",
+      "term": "lesson",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.maths",
+      "term": "maths",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.math_class",
+      "term": "math class",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.science",
+      "term": "science",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.history_class",
+      "term": "history class",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.english_class",
+      "term": "english class",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.detention",
+      "term": "detention",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.grades",
+      "term": "grades",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.report_card",
+      "term": "report card",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.gcse",
+      "term": "gcse",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.a_levels",
+      "term": "a levels",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.sats",
+      "term": "sats",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.school_today",
+      "term": "school today",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.at_school",
+      "term": "at school",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.form_tutor",
+      "term": "form tutor",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.assembly",
+      "term": "assembly",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.term",
+      "term": "term",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.half_term",
+      "term": "half term",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.school_trip",
+      "term": "school trip",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.parents_evening",
+      "term": "parents evening",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.principal",
+      "term": "principal",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.head_teacher",
+      "term": "head teacher",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.uniform",
+      "term": "uniform",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.timetable",
+      "term": "timetable",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.study",
+      "term": "study",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.studying",
+      "term": "studying",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.graduation",
+      "term": "graduation",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.school.prom",
+      "term": "prom",
+      "theme": "SCHOOL"
+    },
+    {
+      "id": "theme.friendship.my_friend",
+      "term": "my friend",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.my_best_friend",
+      "term": "my best friend",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.bestie",
+      "term": "bestie",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.bff",
+      "term": "bff",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.friend_group",
+      "term": "friend group",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.the_group_chat",
+      "term": "the group chat",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.hang_out",
+      "term": "hang out",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.hanging_out",
+      "term": "hanging out",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.sleepover",
+      "term": "sleepover",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.we_fell_out",
+      "term": "we fell out",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.not_talking_to_me",
+      "term": "not talking to me",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.left_me_out",
+      "term": "left me out",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.ignoring_me",
+      "term": "ignoring me",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.invited_me",
+      "term": "invited me",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.didn_t_invite",
+      "term": "didn't invite",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.my_mate",
+      "term": "my mate",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.my_mates",
+      "term": "my mates",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.squad",
+      "term": "squad",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.friendship",
+      "term": "friendship",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.made_up",
+      "term": "made up",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.apologised",
+      "term": "apologised",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.friendship.apologized",
+      "term": "apologized",
+      "theme": "FRIENDSHIP"
+    },
+    {
+      "id": "theme.family.my_mum",
+      "term": "my mum",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_mom",
+      "term": "my mom",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_dad",
+      "term": "my dad",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_parents",
+      "term": "my parents",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_brother",
+      "term": "my brother",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_sister",
+      "term": "my sister",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_sibling",
+      "term": "my sibling",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_nan",
+      "term": "my nan",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_gran",
+      "term": "my gran",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.grandma",
+      "term": "grandma",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.grandad",
+      "term": "grandad",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.grandpa",
+      "term": "grandpa",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_cousin",
+      "term": "my cousin",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_aunt",
+      "term": "my aunt",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_uncle",
+      "term": "my uncle",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.at_home",
+      "term": "at home",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.family_dinner",
+      "term": "family dinner",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_stepdad",
+      "term": "my stepdad",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_stepmum",
+      "term": "my stepmum",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_stepmom",
+      "term": "my stepmom",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.grounded",
+      "term": "grounded",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.family.my_family",
+      "term": "my family",
+      "theme": "FAMILY"
+    },
+    {
+      "id": "theme.romance.my_girlfriend",
+      "term": "my girlfriend",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.my_boyfriend",
+      "term": "my boyfriend",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.i_like_him",
+      "term": "i like him",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.i_like_her",
+      "term": "i like her",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.crush",
+      "term": "crush",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.asked_me_out",
+      "term": "asked me out",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.ask_her_out",
+      "term": "ask her out",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.ask_him_out",
+      "term": "ask him out",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.we_broke_up",
+      "term": "we broke up",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.broke_up_with",
+      "term": "broke up with",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.first_date",
+      "term": "first date",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.on_a_date",
+      "term": "on a date",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.we_kissed",
+      "term": "we kissed",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.he_likes_me",
+      "term": "he likes me",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.she_likes_me",
+      "term": "she likes me",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.situationship",
+      "term": "situationship",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.talking_stage",
+      "term": "talking stage",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.valentine",
+      "term": "valentine",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.romance.anniversary",
+      "term": "anniversary",
+      "theme": "ROMANCE"
+    },
+    {
+      "id": "theme.gaming.fortnite",
+      "term": "fortnite",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.minecraft",
+      "term": "minecraft",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.roblox",
+      "term": "roblox",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.valorant",
+      "term": "valorant",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.league_of_legends",
+      "term": "league of legends",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.call_of_duty",
+      "term": "call of duty",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.cod_lobby",
+      "term": "cod lobby",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.fifa",
+      "term": "fifa",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.ea_fc",
+      "term": "ea fc",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.among_us",
+      "term": "among us",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.overwatch",
+      "term": "overwatch",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.apex",
+      "term": "apex",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.genshin",
+      "term": "genshin",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.steam",
+      "term": "steam",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.xbox",
+      "term": "xbox",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.playstation",
+      "term": "playstation",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.ps5",
+      "term": "ps5",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.nintendo",
+      "term": "nintendo",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.switch",
+      "term": "switch",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.my_server",
+      "term": "my server",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.ranked",
+      "term": "ranked",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.queue_up",
+      "term": "queue up",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.grinding",
+      "term": "grinding",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.battle_pass",
+      "term": "battle pass",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.skins",
+      "term": "skins",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.loot",
+      "term": "loot",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.speedrun",
+      "term": "speedrun",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.twitch",
+      "term": "twitch",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.streamer",
+      "term": "streamer",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.game_night",
+      "term": "game night",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.lobby",
+      "term": "lobby",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.respawn",
+      "term": "respawn",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.gaming.gg",
+      "term": "gg",
+      "theme": "GAMING"
+    },
+    {
+      "id": "theme.sport.football",
+      "term": "football",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.soccer",
+      "term": "soccer",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.basketball",
+      "term": "basketball",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.netball",
+      "term": "netball",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.rugby",
+      "term": "rugby",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.cricket",
+      "term": "cricket",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.tennis",
+      "term": "tennis",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.swimming",
+      "term": "swimming",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.athletics",
+      "term": "athletics",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.training",
+      "term": "training",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.practice",
+      "term": "practice",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.the_match",
+      "term": "the match",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.the_game_tonight",
+      "term": "the game tonight",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.our_team",
+      "term": "our team",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.coach",
+      "term": "coach",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.tournament",
+      "term": "tournament",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.gym",
+      "term": "gym",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.workout",
+      "term": "workout",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.running",
+      "term": "running",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.track",
+      "term": "track",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.hockey",
+      "term": "hockey",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.volleyball",
+      "term": "volleyball",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.boxing",
+      "term": "boxing",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.skate",
+      "term": "skate",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.sport.skateboarding",
+      "term": "skateboarding",
+      "theme": "SPORT"
+    },
+    {
+      "id": "theme.music_and_shows.the_album",
+      "term": "the album",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.new_song",
+      "term": "new song",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.spotify",
+      "term": "spotify",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.playlist",
+      "term": "playlist",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.concert",
+      "term": "concert",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.gig",
+      "term": "gig",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.tickets",
+      "term": "tickets",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.tour",
+      "term": "tour",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.netflix",
+      "term": "netflix",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.the_episode",
+      "term": "the episode",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.the_series",
+      "term": "the series",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.new_season",
+      "term": "new season",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.the_film",
+      "term": "the film",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.the_movie",
+      "term": "the movie",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.anime",
+      "term": "anime",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.manga",
+      "term": "manga",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.youtube_video",
+      "term": "youtube video",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.the_trailer",
+      "term": "the trailer",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.band",
+      "term": "band",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.my_favourite_artist",
+      "term": "my favourite artist",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.favorite_artist",
+      "term": "favorite artist",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.music_and_shows.listening_to",
+      "term": "listening to",
+      "theme": "MUSIC_AND_SHOWS"
+    },
+    {
+      "id": "theme.online_life.instagram",
+      "term": "instagram",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.tiktok",
+      "term": "tiktok",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.snapchat",
+      "term": "snapchat",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.snap_streak",
+      "term": "snap streak",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.discord",
+      "term": "discord",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.reddit",
+      "term": "reddit",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.my_post",
+      "term": "my post",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.my_story",
+      "term": "my story",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.went_viral",
+      "term": "went viral",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.followers",
+      "term": "followers",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.my_feed",
+      "term": "my feed",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.dms",
+      "term": "dms",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.comments_on_my",
+      "term": "comments on my",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.posted",
+      "term": "posted",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.unfollowed",
+      "term": "unfollowed",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.blocked_me",
+      "term": "blocked me",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.my_profile",
+      "term": "my profile",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.my_bio",
+      "term": "my bio",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.group_chat",
+      "term": "group chat",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.online_life.server",
+      "term": "server",
+      "theme": "ONLINE_LIFE"
+    },
+    {
+      "id": "theme.money.pocket_money",
+      "term": "pocket money",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.allowance",
+      "term": "allowance",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.my_job",
+      "term": "my job",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.part_time_job",
+      "term": "part time job",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.shift",
+      "term": "shift",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.paid",
+      "term": "paid",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.saving_up",
+      "term": "saving up",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.how_much_it_costs",
+      "term": "how much it costs",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.too_expensive",
+      "term": "too expensive",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.afford",
+      "term": "afford",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.birthday_money",
+      "term": "birthday money",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.my_card",
+      "term": "my card",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.bank_account",
+      "term": "bank account",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.spent_all",
+      "term": "spent all",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.broke_rn",
+      "term": "broke rn",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.money.payday",
+      "term": "payday",
+      "theme": "MONEY"
+    },
+    {
+      "id": "theme.food.dinner",
+      "term": "dinner",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.lunch",
+      "term": "lunch",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.breakfast",
+      "term": "breakfast",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.takeaway",
+      "term": "takeaway",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.takeout",
+      "term": "takeout",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.pizza",
+      "term": "pizza",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.mcdonalds",
+      "term": "mcdonalds",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.nandos",
+      "term": "nandos",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.starbucks",
+      "term": "starbucks",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.cooking",
+      "term": "cooking",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.we_made",
+      "term": "we made",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.hungry",
+      "term": "hungry",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.the_restaurant",
+      "term": "the restaurant",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.snacks",
+      "term": "snacks",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.food.baking",
+      "term": "baking",
+      "theme": "FOOD"
+    },
+    {
+      "id": "theme.health.the_doctor",
+      "term": "the doctor",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.the_dentist",
+      "term": "the dentist",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.my_appointment",
+      "term": "my appointment",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.feeling_ill",
+      "term": "feeling ill",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.i_m_sick",
+      "term": "i'm sick",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.a_cold",
+      "term": "a cold",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.the_flu",
+      "term": "the flu",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.my_medication",
+      "term": "my medication",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.my_meds",
+      "term": "my meds",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.therapy",
+      "term": "therapy",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.my_therapist",
+      "term": "my therapist",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.counsellor",
+      "term": "counsellor",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.counselor",
+      "term": "counselor",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.headache",
+      "term": "headache",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.stomach_ache",
+      "term": "stomach ache",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.sleep",
+      "term": "sleep",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.can_t_sleep",
+      "term": "can't sleep",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.insomnia",
+      "term": "insomnia",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.tired_all",
+      "term": "tired all",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.my_asthma",
+      "term": "my asthma",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.hospital",
+      "term": "hospital",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.a_e",
+      "term": "a&e",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.health.the_er",
+      "term": "the er",
+      "theme": "HEALTH"
+    },
+    {
+      "id": "theme.appearance.my_hair",
+      "term": "my hair",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.my_skin",
+      "term": "my skin",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.acne",
+      "term": "acne",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.spots_on_my",
+      "term": "spots on my",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.my_weight",
+      "term": "my weight",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.my_clothes",
+      "term": "my clothes",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.new_outfit",
+      "term": "new outfit",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.makeup",
+      "term": "makeup",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.how_i_look",
+      "term": "how i look",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.in_the_mirror",
+      "term": "in the mirror",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.my_braces",
+      "term": "my braces",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.haircut",
+      "term": "haircut",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.diet",
+      "term": "diet",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.the_gym",
+      "term": "the gym",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.my_body",
+      "term": "my body",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.appearance.photos_of_me",
+      "term": "photos of me",
+      "theme": "APPEARANCE"
+    },
+    {
+      "id": "theme.future_plans.university",
+      "term": "university",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.uni",
+      "term": "uni",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.college",
+      "term": "college",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.apprenticeship",
+      "term": "apprenticeship",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.my_application",
+      "term": "my application",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.career",
+      "term": "career",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.when_i_m_older",
+      "term": "when i'm older",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.next_year",
+      "term": "next year",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.moving_out",
+      "term": "moving out",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.driving_lessons",
+      "term": "driving lessons",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.my_driving_test",
+      "term": "my driving test",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.work_experience",
+      "term": "work experience",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.internship",
+      "term": "internship",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.future_plans.what_i_want_to_do",
+      "term": "what i want to do",
+      "theme": "FUTURE_PLANS"
+    },
+    {
+      "id": "theme.travel.holiday",
+      "term": "holiday",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.vacation",
+      "term": "vacation",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.the_airport",
+      "term": "the airport",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.our_flight",
+      "term": "our flight",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.the_hotel",
+      "term": "the hotel",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.abroad",
+      "term": "abroad",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.the_beach",
+      "term": "the beach",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.camping",
+      "term": "camping",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.road_trip",
+      "term": "road trip",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.visiting",
+      "term": "visiting",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.we_re_going_to",
+      "term": "we're going to",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.travel.sightseeing",
+      "term": "sightseeing",
+      "theme": "TRAVEL"
+    },
+    {
+      "id": "theme.pets.my_dog",
+      "term": "my dog",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_cat",
+      "term": "my cat",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_puppy",
+      "term": "my puppy",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_kitten",
+      "term": "my kitten",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_hamster",
+      "term": "my hamster",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_rabbit",
+      "term": "my rabbit",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.the_vet",
+      "term": "the vet",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.walking_the_dog",
+      "term": "walking the dog",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_pet",
+      "term": "my pet",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.pets.my_fish",
+      "term": "my fish",
+      "theme": "PETS"
+    },
+    {
+      "id": "theme.creative.my_drawing",
+      "term": "my drawing",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.drawing",
+      "term": "drawing",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.painting",
+      "term": "painting",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.my_art",
+      "term": "my art",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.writing_a_story",
+      "term": "writing a story",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.my_book",
+      "term": "my book",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.photography",
+      "term": "photography",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.editing",
+      "term": "editing",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.my_video",
+      "term": "my video",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.learning_guitar",
+      "term": "learning guitar",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.learning_piano",
+      "term": "learning piano",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.my_song",
+      "term": "my song",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.coding",
+      "term": "coding",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.my_project",
+      "term": "my project",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.building",
+      "term": "building",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.creative.design",
+      "term": "design",
+      "theme": "CREATIVE"
+    },
+    {
+      "id": "theme.conflict.we_argued",
+      "term": "we argued",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.an_argument",
+      "term": "an argument",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.we_had_a_fight",
+      "term": "we had a fight",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.fell_out",
+      "term": "fell out",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.shouted_at_me",
+      "term": "shouted at me",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.yelled_at_me",
+      "term": "yelled at me",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.told_me_off",
+      "term": "told me off",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.she_started_it",
+      "term": "she started it",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.he_started_it",
+      "term": "he started it",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.drama",
+      "term": "drama",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.spreading_rumours",
+      "term": "spreading rumours",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.spreading_rumors",
+      "term": "spreading rumors",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.talking_behind_my_back",
+      "term": "talking behind my back",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.picking_on_me",
+      "term": "picking on me",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.made_fun_of_me",
+      "term": "made fun of me",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.laughed_at_me",
+      "term": "laughed at me",
+      "theme": "CONFLICT"
+    },
+    {
+      "id": "theme.conflict.not_fair",
+      "term": "not fair",
+      "theme": "CONFLICT"
+    }
+  ],
+  "emotions": [
+    {
+      "id": "emotion.happy.so_happy",
+      "term": "so happy",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.i_m_happy",
+      "term": "i'm happy",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.made_my_day",
+      "term": "made my day",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.best_day",
+      "term": "best day",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.so_glad",
+      "term": "so glad",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.love_this",
+      "term": "love this",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.so_good",
+      "term": "so good",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.great_news",
+      "term": "great news",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.i_m_proud",
+      "term": "i'm proud",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.proud_of",
+      "term": "proud of",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.feeling_good",
+      "term": "feeling good",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.smiling",
+      "term": "smiling",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.cheered_me_up",
+      "term": "cheered me up",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.really_fun",
+      "term": "really fun",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.happy.had_a_laugh",
+      "term": "had a laugh",
+      "emotion": "HAPPY"
+    },
+    {
+      "id": "emotion.excited.so_excited",
+      "term": "so excited",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.can_t_wait",
+      "term": "can't wait",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.cannot_wait",
+      "term": "cannot wait",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.hyped",
+      "term": "hyped",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.buzzing",
+      "term": "buzzing",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.so_pumped",
+      "term": "so pumped",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.counting_down",
+      "term": "counting down",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.finally_happening",
+      "term": "finally happening",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.i_m_thrilled",
+      "term": "i'm thrilled",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.excited.omg_yes",
+      "term": "omg yes",
+      "emotion": "EXCITED"
+    },
+    {
+      "id": "emotion.affectionate.love_you",
+      "term": "love you",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.miss_you",
+      "term": "miss you",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.thinking_of_you",
+      "term": "thinking of you",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.you_re_the_best",
+      "term": "you're the best",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.so_grateful",
+      "term": "so grateful",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.thank_you_so_much",
+      "term": "thank you so much",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.means_a_lot",
+      "term": "means a lot",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.appreciate_you",
+      "term": "appreciate you",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.love_them",
+      "term": "love them",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.love_her",
+      "term": "love her",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.affectionate.love_him",
+      "term": "love him",
+      "emotion": "AFFECTIONATE"
+    },
+    {
+      "id": "emotion.sad.so_sad",
+      "term": "so sad",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.i_m_sad",
+      "term": "i'm sad",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.feeling_down",
+      "term": "feeling down",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.been_crying",
+      "term": "been crying",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.i_cried",
+      "term": "i cried",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.upset_about",
+      "term": "upset about",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.gutted",
+      "term": "gutted",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.heartbroken",
+      "term": "heartbroken",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.really_hurt",
+      "term": "really hurt",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.makes_me_sad",
+      "term": "makes me sad",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.feeling_low",
+      "term": "feeling low",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.miserable",
+      "term": "miserable",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.not_okay",
+      "term": "not okay",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.sad.not_ok",
+      "term": "not ok",
+      "emotion": "SAD"
+    },
+    {
+      "id": "emotion.anxious.so_nervous",
+      "term": "so nervous",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.i_m_nervous",
+      "term": "i'm nervous",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.anxious",
+      "term": "anxious",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.anxiety",
+      "term": "anxiety",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.panicking",
+      "term": "panicking",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.panic_attack",
+      "term": "panic attack",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.worried_about",
+      "term": "worried about",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.so_worried",
+      "term": "so worried",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.scared_about",
+      "term": "scared about",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.freaking_out",
+      "term": "freaking out",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.overthinking",
+      "term": "overthinking",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.dreading",
+      "term": "dreading",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.anxious.stomach_in_knots",
+      "term": "stomach in knots",
+      "emotion": "ANXIOUS"
+    },
+    {
+      "id": "emotion.angry.so_angry",
+      "term": "so angry",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.i_m_angry",
+      "term": "i'm angry",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.furious",
+      "term": "furious",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.so_annoyed",
+      "term": "so annoyed",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.pissed_off",
+      "term": "pissed off",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.raging",
+      "term": "raging",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.fed_up_with",
+      "term": "fed up with",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.sick_of",
+      "term": "sick of",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.makes_me_so_mad",
+      "term": "makes me so mad",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.so_mad",
+      "term": "so mad",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.hate_when",
+      "term": "hate when",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.angry.not_talking_to",
+      "term": "not talking to",
+      "emotion": "ANGRY"
+    },
+    {
+      "id": "emotion.lonely.so_lonely",
+      "term": "so lonely",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.i_m_lonely",
+      "term": "i'm lonely",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.on_my_own",
+      "term": "on my own",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.by_myself",
+      "term": "by myself",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.no_one_to_talk_to",
+      "term": "no one to talk to",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.nobody_talks_to_me",
+      "term": "nobody talks to me",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.left_out",
+      "term": "left out",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.excluded",
+      "term": "excluded",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.no_one_gets_it",
+      "term": "no one gets it",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.feel_invisible",
+      "term": "feel invisible",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.eating_alone",
+      "term": "eating alone",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.lonely.sitting_alone",
+      "term": "sitting alone",
+      "emotion": "LONELY"
+    },
+    {
+      "id": "emotion.stressed.so_stressed",
+      "term": "so stressed",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.stressed_out",
+      "term": "stressed out",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.under_pressure",
+      "term": "under pressure",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.too_much_going_on",
+      "term": "too much going on",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.overwhelmed",
+      "term": "overwhelmed",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.can_t_cope",
+      "term": "can't cope",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.burnt_out",
+      "term": "burnt out",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.burned_out",
+      "term": "burned out",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.so_much_work",
+      "term": "so much work",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.no_time",
+      "term": "no time",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.stressed.falling_behind",
+      "term": "falling behind",
+      "emotion": "STRESSED"
+    },
+    {
+      "id": "emotion.tired.so_tired",
+      "term": "so tired",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.exhausted",
+      "term": "exhausted",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.knackered",
+      "term": "knackered",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.shattered",
+      "term": "shattered",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.no_energy",
+      "term": "no energy",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.didn_t_sleep",
+      "term": "didn't sleep",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.barely_slept",
+      "term": "barely slept",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.up_all_night",
+      "term": "up all night",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.need_a_nap",
+      "term": "need a nap",
+      "emotion": "TIRED"
+    },
+    {
+      "id": "emotion.tired.drained",
+      "term": "drained",
+      "emotion": "TIRED"
+    }
+  ]
+}

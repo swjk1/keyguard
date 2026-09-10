@@ -9,7 +9,8 @@
     "start": "next start",
     "smoke": "node scripts/smoke.mjs",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prebuild": "node scripts/sync-rule-pack.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.27",
