@@ -13,9 +13,35 @@ import { Redis } from '@upstash/redis';
 
 let client: Redis | null = null;
 
+/**
+ * The REST credentials, under whichever names the platform happened to use.
+ *
+ * Vercel's Upstash Marketplace integration provisions `KV_REST_API_URL` / `KV_REST_API_TOKEN`;
+ * a hand-configured Upstash project uses `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`,
+ * which is also what `Redis.fromEnv()` looks for. Both are the same REST endpoint.
+ *
+ * Reading either is deliberate, rather than aliasing one to the other in the environment.
+ * An alias duplicates a live credential across two variables and goes stale the moment the
+ * integration rotates the original — which fails as a 401 at request time, in the one
+ * subsystem that fails closed. Accepting both names has no such failure mode.
+ *
+ * Note this must NOT fall back to `REDIS_URL`: the integration sets that too, but it is the
+ * wire-protocol URL and this client speaks REST.
+ */
+function credentials(): { url: string; token: string } | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+export function storeConfigured(): boolean {
+  return credentials() !== null;
+}
+
 export function store(): Redis | null {
-  if (!process.env.UPSTASH_REDIS_REST_URL) return null;
-  if (!client) client = Redis.fromEnv();
+  const config = credentials();
+  if (!config) return null;
+  if (!client) client = new Redis(config);
   return client;
 }
 

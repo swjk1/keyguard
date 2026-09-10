@@ -1,4 +1,5 @@
 import { isModelConfigured } from '@/lib/model';
+import { storeConfigured } from '@/lib/store';
 
 /**
  * Reports what is and is not configured.
@@ -11,9 +12,9 @@ export async function GET() {
   const checks = {
     tokenSecret: Boolean(process.env.KEYGUARD_TOKEN_SECRET),
     model: isModelConfigured(),
-    redis: Boolean(
-      process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
-    ),
+    // Via the store itself, so health cannot report ready while `store()` returns null —
+    // two copies of "is Redis configured" is exactly how a health check starts lying.
+    redis: storeConfigured(),
   };
 
   const ok = checks.tokenSecret && checks.redis;
