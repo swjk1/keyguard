@@ -3,6 +3,16 @@
     <style name="Theme.Keyguard" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorSecondary">@color/accent</item>
+        <!--
+          Set explicitly because `colorPrimary` is overridden. Material3's dark palette pairs a
+          *light* primary (tone 80) with a dark `colorOnPrimary` (tone 20); `@color/accent` is
+          #1D4ED8, a dark blue, and has no night variant. Inheriting the M3 default therefore
+          painted dark text on a dark blue fill — the "Sign in" button on the parent screen was
+          barely legible on a real device in dark mode. White is correct against this accent in
+          both themes.
+        -->
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnSecondary">@android:color/white</item>
         <item name="android:statusBarColor">@color/surface</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">@color/card_surface</item>
