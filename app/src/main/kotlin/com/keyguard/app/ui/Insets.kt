@@ -22,13 +22,35 @@ import androidx.core.view.WindowInsetsCompat
  *
  * The `displayCutout` type is included alongside `systemBars` because a landscape phone with a
  * punch-hole or notch puts the cutout on the side, where the status bar inset is zero.
+ *
+ * The insets are *added* to whatever padding the layout already declares rather than replacing
+ * it. Replacing it is the obvious implementation and it is wrong: a root view that carries its
+ * own `paddingStart`/`paddingEnd` — `activity_role.xml` is one — loses that margin entirely in
+ * portrait, where the left and right system bar insets are both zero. The role chooser then
+ * renders its heading and both cards flush against the screen edges, which is how this was
+ * found on the device.
  */
 fun applySystemBarInsets(root: View) {
+    // Captured once, before any inset pass has run, and reused on every pass. Reading the
+    // view's padding inside the listener would add the insets to the previous pass's result
+    // and grow the padding on every rotation or bar visibility change.
+    val initial = Insets.of(
+        root.paddingLeft,
+        root.paddingTop,
+        root.paddingRight,
+        root.paddingBottom,
+    )
+
     ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
         val bars: Insets = windowInsets.getInsets(
             WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
         )
-        view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+        view.setPadding(
+            initial.left + bars.left,
+            initial.top + bars.top,
+            initial.right + bars.right,
+            initial.bottom + bars.bottom,
+        )
 
         // Consumed, not passed on. The root has absorbed the whole inset as padding, so a child
         // that applied it again would double the gap — and the bottom navigation in `Shell` is
