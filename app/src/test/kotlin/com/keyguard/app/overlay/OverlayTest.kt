@@ -343,6 +343,31 @@ class OverlayTest {
     }
 
     @Test
+    fun `a document editor anchors to the keyboard, not above the document`() {
+        // Real geometry, measured from Google Docs on a Pixel 9 Pro: a 2142px screen, the
+        // keyboard reporting its top at 1352, and a field running from y=297 to the bottom.
+        //
+        // The previous rule compared the field height above the keyboard (1055) against half
+        // the screen (1071) and missed by sixteen pixels, so the warning anchored above the
+        // document and rendered over the status bar. Nothing about that was visible in the
+        // browser harness, which has no status bar and no real IME to report a top edge.
+        val docsScreenHeight = 2142
+        val docsKeyboard = OverlayAnchor.Bounds(0, 1352, 960, 2142)
+        val document = OverlayAnchor.Bounds(0, 297, 960, 2142)
+
+        val placement = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            docsScreenHeight,
+            docsKeyboard,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = document,
+        )
+
+        assertEquals(docsScreenHeight - docsKeyboard.top, placement.bottomMarginPx)
+        assertFalse(placement.fromTop, "a document editor must not pin the warning to the top")
+    }
+
+    @Test
     fun `the top position ignores the keyboard entirely`() {
         val placement = OverlayAnchor.placeWarning(
             OverlayAnchor.Position.SCREEN_TOP,

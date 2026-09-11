@@ -96,9 +96,17 @@ object OverlayAnchor {
         val anchorTop = when {
             fieldTop == null -> keyboardTop
             fieldTop <= 0 || fieldTop > keyboardTop -> keyboardTop
-            // A field taller than half the screen is a full-screen editor, not a composer;
-            // anchoring above it would push the warning off the top.
-            keyboardTop - fieldTop > screenHeight / 2 -> keyboardTop
+            // A field filling most of the space above the keyboard is a document, not a
+            // composer, and anchoring above it puts the warning off the top of the screen.
+            //
+            // Measured against the space above the keyboard rather than against the screen,
+            // because the screen is the wrong yardstick and was wrong by a hair: Google Docs
+            // on a 2142px screen reports a field from y=297 with the keyboard at y=1352, so
+            // the old `> screenHeight / 2` test compared 1055 against 1071, missed by sixteen
+            // pixels, and anchored the warning above the *document* — which put it over the
+            // status bar. The space above the keyboard is what the warning actually has to fit
+            // into, so that is what the field is now measured against.
+            keyboardTop - fieldTop > keyboardTop / 2 -> keyboardTop
             else -> fieldTop
         }
         return Placement(bottomMarginPx = screenHeight - anchorTop, fromTop = false)
