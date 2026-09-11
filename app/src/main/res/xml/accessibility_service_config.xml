@@ -6,10 +6,21 @@
   reason that survives being asked about.
 
   `accessibilityEventTypes` is an explicit list rather than `typeAllMask`. The mask is the
-  default people reach for and it subscribes to view clicks, scrolls, selections, hover, window
-  content changes and notifications - a vastly larger surveillance surface than this needs. The
-  three types below are the minimum: text changing is the signal, focus tells us which field
-  owns it, and window state tells us the conversation ended.
+  default people reach for and it subscribes to view clicks, scrolls, selections, hover and
+  notifications - a vastly larger surveillance surface than this needs. Text changing is the
+  signal, focus tells us which field owns it, and window state tells us the conversation ended.
+
+  `typeWindowContentChanged` is the fourth, and it is here reluctantly. Editors that draw their
+  own text on a canvas rather than using a widget emit no text-changed event at all: Google Docs
+  emits only this one, with a source node that carries neither the text nor an editable flag. So
+  without it the service covers every ordinary chat app and covers a document editor not at all,
+  silently - which is the worst way for a safety tool to be incomplete, because nothing says so.
+
+  It is the noisiest type in the list by a wide margin, and it is treated as a wake-up rather
+  than as data: the handler reads the *input-focused* node and nothing else, so the same
+  password gates in MonitoredField apply, and it is rate limited so an animating screen cannot
+  turn into a scan loop. It carries no extra capability - `canRetrieveWindowContent` below is
+  what grants the reading, and that was already required.
 
   `canRetrieveWindowContent` is the genuinely powerful flag and there is no way to avoid it: the
   text of a field is window content. It is what MonitoredField's password checks exist to
@@ -32,7 +43,7 @@
   volume rather than scan cost.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeViewTextChanged|typeViewFocused|typeWindowStateChanged"
+    android:accessibilityEventTypes="typeViewTextChanged|typeViewFocused|typeWindowStateChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
     android:canRetrieveWindowContent="true"

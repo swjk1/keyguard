@@ -77,7 +77,60 @@ class KeyguardAccessibilityService : AccessibilityService() {
     private lateinit var effective: SupervisedSettings
     private lateinit var outcomeLog: OutcomeLog
 
-    private var host: OverlayHost? = null
+    private var overlayHost: OverlayHost? = null
+
+    /** Uptime of the last focused-node resolve, for the content-changed rate limit. */
+    private var lastContentScanAt = 0L
+
+    private companion object {
+        /**
+         * Floor between focused-node resolves on the content-changed path.
+         *
+         * Chosen to sit just above `notificationTimeout` (50ms) in the service config, so a
+         * fast typist's burst still produces one scan per coalesced batch rather than one per
+         * frame of whatever else on screen happens to be animating.
+         */
+        const val CONTENT_SCAN_INTERVAL_MS = 60L
+    }
+
+    /**
+     * The overlay windows, created on first use and only while the draw-over-other-apps grant
+     * actually exists.
+     *
+     * This was previously built once in [onServiceConnected] and never revisited, which sampled
+     * the permission at exactly one moment — when the service was switched on. The setup screen
+     * asks for accessibility *before* draw-over-other-apps, so the ordinary path through
+     * onboarding guaranteed the bad case: the service connected while the second grant was
+     * still missing, the field stayed null, and it stayed null until the app was force-stopped
+     * or the phone rebooted. Granting the permission changed nothing, because nothing looked
+     * again. Found on a Pixel 9 Pro, where the overlay simply never appeared.
+     *
+     * Checking on access picks the grant up as soon as it is given. The steady state — a host
+     * that already exists — costs nothing, because the binder call only happens while there is
+     * no overlay to show.
+     */
+    private val host: OverlayHost?
+        get() {
+            overlayHost?.let { return it }
+            if (!OverlayPermissions.canDrawOverlays(this)) return null
+            return OverlayHost(this, actions).also {
+                it.updateAppearance(settings.appearance, settings.overlayOpacityPercent)
+                overlayHost = it
+            }
+        }
+
+    /**
+     * Drops the windows if the grant was taken away while they were up.
+     *
+     * Called on window changes rather than on every keystroke: revocation is rare, and the
+     * check costs a binder call that the typing path should not be paying.
+     */
+    private fun releaseHostIfRevoked() {
+        if (overlayHost != null && !OverlayPermissions.canDrawOverlays(this)) {
+            overlayHost?.destroy()
+            overlayHost = null
+        }
+    }
     private var eventQueue: EventQueue? = null
     private var sampleQueue: SampleQueue? = null
 
@@ -121,21 +174,15 @@ class KeyguardAccessibilityService : AccessibilityService() {
         eventQueue = if (supervision.isSupervised) EventQueue(this) else null
         sampleQueue = if (supervision.isSupervised) SampleQueue(this) else null
 
-        // Without the draw-over permission the service would watch everything and be able to
-        // say nothing, which is the one configuration this product must never run in. Better
-        // to do no monitoring at all than monitoring with no visible warning surface.
-        host = if (OverlayPermissions.canDrawOverlays(this)) {
-            OverlayHost(this, actions).also {
-                it.updateAppearance(settings.appearance, settings.overlayOpacityPercent)
-            }
-        } else {
-            null
-        }
+        // Deliberately not created here — see [host]. The draw-over grant routinely arrives
+        // after this point, and deciding once at connect time is what used to leave the
+        // service permanently unable to warn.
+        overlayHost = null
     }
 
     override fun onDestroy() {
-        host?.destroy()
-        host = null
+        overlayHost?.destroy()
+        overlayHost = null
         clearTarget()
         super.onDestroy()
     }
@@ -149,10 +196,20 @@ class KeyguardAccessibilityService : AccessibilityService() {
         if (!settings.overlayEnabled) return
         if (event.packageName == packageName) return
 
+        // No warning surface means no monitoring at all. Checked here rather than only at
+        // render time because scanning, the outcome log and the parent's event queue all sit
+        // on the way there: `render` returning early stopped the warning from being drawn and
+        // left everything else running, which is monitoring with nothing visible to the person
+        // being monitored — the one arrangement this product exists not to be.
+        if (host == null) return
+
         when (event.eventType) {
             // A new window is a new conversation as far as we are concerned. Context must not
             // survive it, or a theme from one app would colour a scan in the next.
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> finishComposition(switched = true)
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                releaseHostIfRevoked()
+                finishComposition(switched = true)
+            }
 
             AccessibilityEvent.TYPE_VIEW_FOCUSED -> {
                 finishComposition(switched = true)
@@ -160,6 +217,8 @@ class KeyguardAccessibilityService : AccessibilityService() {
             }
 
             AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> onTextChanged(event)
+
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> onWindowContentChanged()
 
             else -> Unit
         }
@@ -191,6 +250,46 @@ class KeyguardAccessibilityService : AccessibilityService() {
             // do with those: we cannot check whether the field is a password, so we do not look.
             return
         }
+        scanNode(node)
+    }
+
+    /**
+     * The fallback for editors that never report a text change.
+     *
+     * Google Docs is the case this was written for. Its editor is drawn on a canvas rather than
+     * built from a widget, and it emits **no** `TYPE_VIEW_TEXT_CHANGED` at all — only
+     * `TYPE_WINDOW_CONTENT_CHANGED`, whose source node is a bare `android.view.View` carrying
+     * neither the text nor an editable flag. Subscribing to the three obvious event types
+     * therefore covered every ordinary chat app and silently covered nothing in Docs, which is
+     * how this was found: typing a flagged sentence into a document produced no warning.
+     *
+     * The event is only a wake-up. What gets read is the *input-focused* node, which Docs does
+     * expose properly — a real `EditText`, editable, not a password, holding the document text
+     * — so the password gates in [MonitoredField] apply here exactly as they do everywhere else.
+     *
+     * One weakening is worth stating plainly: a canvas editor reports `inputType = 0`, so the
+     * [com.keyguard.detect.FieldPolicy] half of the two password checks has nothing to read and
+     * only the platform's `isPassword` flag is doing work. That is strictly weaker than the
+     * widget case, and it is the reason this path reads the focused node rather than trusting
+     * anything the event itself carries.
+     */
+    private fun onWindowContentChanged() {
+        // Content changes are orders of magnitude noisier than text changes — the keyboard's
+        // own window alone fires them continuously while typing. Resolving the focused node is
+        // a binder round trip, so it is rate limited; `notificationTimeout` in the service
+        // config coalesces bursts before they get here, and this bounds what is left.
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastContentScanAt < CONTENT_SCAN_INTERVAL_MS) return
+        lastContentScanAt = now
+
+        val focused = rootInActiveWindow?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
+        scanNode(focused)
+    }
+
+    /**
+     * The shared body of both entry points: gate the field, then scan it if the text moved.
+     */
+    private fun scanNode(node: AccessibilityNodeInfo) {
         adopt(node)
         if (fieldProtected || targetNode == null) return
 
