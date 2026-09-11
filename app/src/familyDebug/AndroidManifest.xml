@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Debug-only overlay: permits cleartext to loopback so a local dev server is reachable. -->
+<!--
+  Debug-only overlay.
+
+  Two additions, both of which must never reach a release build:
+
+  - `networkSecurityConfig` permits cleartext to loopback so a local dev server is reachable.
+  - `RoleSwitchActivity` adds a second launcher icon that reopens the parent/child chooser,
+    so one test phone can be flipped between the two products. In the field that switch is a
+    way for a supervised child to leave supervision, which is why it lives here and not
+    behind a setting.
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:networkSecurityConfig="@xml/network_security_config" />
+    <application android:networkSecurityConfig="@xml/network_security_config">
+        <activity
+            android:name="com.keyguard.app.debug.RoleSwitchActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="@string/debug_role_switch_label"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>

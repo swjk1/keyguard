@@ -39,6 +39,9 @@ class RoleActivity : AppCompatActivity() {
         roles = RoleStore(this)
         supervision = Supervision(this)
 
+        // Checked before the supervision lock below — see `applyDebugRole`.
+        if (applyDebugRole(intent)) return
+
         // A supervised device is locked to the child side regardless of what the stored role
         // says. Same rule as "only a parent can unpair", enforced at the one place a child could
         // otherwise walk out of it — and deliberately before the stored value is even read, so a
@@ -53,6 +56,53 @@ class RoleActivity : AppCompatActivity() {
             DeviceRole.PARENT -> open(DeviceRole.PARENT)
             DeviceRole.UNSET -> renderChooser()
         }
+    }
+
+    /**
+     * The role switch also has to work when the app is already running.
+     *
+     * `RoleActivity` is a standard-launchMode activity that finishes as soon as it has routed,
+     * so by the time a second switch is requested the task's top is `ParentActivity` or
+     * `SetupActivity`. `am start` then reports "intent has been delivered to currently running
+     * top-most instance" and the extra lands on an instance whose `onCreate` has already run —
+     * which is to say it did nothing at all, silently. Handling the new intent here is what
+     * makes the documented adb form work without a `force-stop` first.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        applyDebugRole(intent)
+    }
+
+    /**
+     * Debug builds only, and deliberately applied before the supervision lock in [onCreate].
+     *
+     * A single test phone has to be able to play both sides — that is the whole reason
+     * `Supervision.isParent` and `isSupervised` were kept independent — but the role chooser
+     * cannot offer that in production, because a supervised child reaching it would be the
+     * unpair button this product deliberately never built. So the override exists, and it
+     * exists only where `BuildConfig.DEBUG` is true: R8 folds the constant in release and the
+     * branch is not in the APK at all.
+     *
+     * Reached from the "Keyguard role" launcher icon that `familyDebug` adds, or directly:
+     *   adb shell am start -n com.keyguard.app.debug/com.keyguard.app.RoleActivity      *     -e kg_debug_role parent
+     *
+     * @return true when the intent carried a debug role and routing is done.
+     */
+    private fun applyDebugRole(intent: Intent): Boolean {
+        if (!BuildConfig.DEBUG || !intent.hasExtra(EXTRA_DEBUG_ROLE)) return false
+
+        when (intent.getStringExtra(EXTRA_DEBUG_ROLE)?.lowercase()) {
+            "parent" -> forceDebugRole(DeviceRole.PARENT)
+            "child" -> forceDebugRole(DeviceRole.CHILD)
+            // Anything else — including the empty value the launcher icon sends — means
+            // "ask me", which is the useful default when switching by hand.
+            else -> {
+                roles.reset()
+                renderChooser()
+            }
+        }
+        return true
     }
 
     private fun renderChooser() {
@@ -97,4 +147,24 @@ class RoleActivity : AppCompatActivity() {
         )
         binding.roleLockedText.visibility = View.VISIBLE
     }
+
+    /**
+     * Debug-only. Writes the role past [com.keyguard.app.settings.RolePolicy] and opens it.
+     *
+     * `RoleStore.choose` would refuse this on a paired device, which is correct for the
+     * product and useless for testing the child UI on a phone that is genuinely paired. This
+     * writes through `reset` plus an unconditional store instead, so the switch works in every
+     * state a test device can be in.
+     */
+    private fun forceDebugRole(role: DeviceRole) {
+        roles.reset()
+        roles.forceForDebug(role)
+        open(role)
+    }
+
+    companion object {
+        /** String extra: "parent", "child", or anything else for the chooser. Debug only. */
+        const val EXTRA_DEBUG_ROLE = "kg_debug_role"
+    }
+
 }
