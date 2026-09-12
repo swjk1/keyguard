@@ -19,6 +19,9 @@ cd "$(dirname "$0")/.."
 SMOKE="${SMOKE:-0}"
 SKIP_DATA="${SKIP_DATA:-0}"
 PY="${PY:-python}"
+if [ "$PY" = "python" ] && [ -x ".venv/bin/python" ]; then
+    PY=".venv/bin/python"
+fi
 
 if [ "$SMOKE" = "1" ]; then
     OPENPII_TARGET=2000
@@ -80,24 +83,45 @@ banner "Milestone 5 — phase C: joint fine-tuning"
 $PY -m train.train_multitask $COMMON epochs=$EPOCHS_C
 
 # -------------------------------------------- milestone 7: evaluation + error analysis
+# ------------------------------------------- milestone 7a: shipped operating points
+# Thresholds are fitted once, here, and written into the checkpoint; evaluation and
+# export then both read that one set. They used to have two authors — the trainer wrote
+# one set and the evaluator refitted another — and the reports quoted numbers from a
+# configuration the phone would never run.
+#
+# The floors are the product decision, not a modelling default. A budget on its own is
+# satisfied perfectly by a model that never warns, so LEVEL3_RECALL_FLOOR is what stops
+# the search choosing silence. Run `evaluation.calibrate --curve` to see the cost of
+# each floor before changing these.
+banner "Milestone 7a — calibrating shipped operating points"
+CALIBRATION_SET="${CALIBRATION_SET:-datasets/child_safety/validation.jsonl}"
+WARN_BUDGET="${WARN_BUDGET:-20}"
+L3_FLOOR="${L3_FLOOR:-0.95}"
+L2_FLOOR="${L2_FLOOR:-0.0}"
+$PY -m evaluation.calibrate \
+    --checkpoint models/phase_c/best.pt \
+    --calibration-set "$CALIBRATION_SET" \
+    --budget "$WARN_BUDGET" \
+    --min-level3-recall "$L3_FLOOR" \
+    --min-level2-recall "$L2_FLOOR" \
+    --out models/phase_c/calibration.json
+
 banner "Milestone 7 — evaluation on held-out test split"
+# No --thresholds-from: the operating points come from the checkpoint the calibration
+# step just wrote, so this report describes what actually ships.
 $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/child_safety/test.jsonl \
-    --thresholds-from datasets/child_safety/validation.jsonl \
-    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_test.json
 
 banner "Milestone 7 — evaluation on the human-curated gold set"
 # The gold set is the number to quote. The synthetic test split shares a generator with
 # training even though it shares no template family, and only the gold set is free of
-# that. Thresholds still come from validation: fitting them on gold would turn the one
-# clean measurement into another tuning set.
+# that. Thresholds come from the calibration step above, which runs on validation:
+# calibrating on gold would turn the one clean measurement into another tuning set.
 $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/gold_test/gold_v1.jsonl \
-    --thresholds-from datasets/child_safety/validation.jsonl \
-    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_gold.json
 
 # ------------------------------------------------------------- milestone 8: ONNX export

@@ -376,12 +376,16 @@ class Trainer:
 
     # -- evaluation --------------------------------------------------------------------
     @torch.no_grad()
-    def evaluate(self, thresholds: dict[str, float] | None = None) -> EvalResult:
+    def evaluate(
+        self, thresholds: dict[str, float] | None = None, *, calibrated: bool = False
+    ) -> EvalResult:
         self.model.eval()
         result = EvalResult()
 
         if self.config.context_eval:
-            scores, truths = self._collect_context(self.config.context_eval)
+            scores, truths = self._collect_context(
+                self.config.context_eval, calibrated=calibrated
+            )
             if len(truths):
                 result.context = context_report(truths, scores, thresholds)
 
@@ -393,7 +397,24 @@ class Trainer:
         return result
 
     @torch.no_grad()
-    def _collect_context(self, path: str) -> tuple[np.ndarray, np.ndarray]:
+    def _collect_context(
+        self, path: str, *, calibrated: bool = False
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Context probabilities on `path`.
+
+        `calibrated` divides by the fitted temperature, matching what inference actually
+        computes (`model.predict`, and the same division folded into the ONNX graph).
+        Anything that produces a number leaving this process — the thresholds `finalize`
+        bakes into the checkpoint, and the final report quoted against them — must set
+        it, or the operating points end up in a different probability space from the one
+        the phone scores in.
+
+        It stays off for per-epoch reporting on purpose. Mid-run the buffer holds
+        whatever temperature `init_from` carried over from the previous phase, fitted
+        against weights this phase has already moved away from; calibrating epoch scores
+        with that stale value would perturb checkpoint selection without making the
+        numbers any truer.
+        """
         examples = [e for e in read_jsonl(path) if e.context is not None]
         if not examples:
             return np.zeros((0, len(CONTEXT_LABELS))), np.zeros((0, len(CONTEXT_LABELS)))
@@ -403,6 +424,8 @@ class Trainer:
             ids = batch["input_ids"].to(self.device)
             mask = batch["attention_mask"].to(self.device)
             logits = self.model(ids, mask).context_logits
+            if calibrated:
+                logits = logits / self.model.context_temperature.clamp(min=1e-3)
             scores.append(torch.sigmoid(logits).float().cpu().numpy())
             truths.append(batch["context_targets"].numpy())
         return np.concatenate(scores), np.concatenate(truths)
@@ -476,7 +499,9 @@ class Trainer:
         thresholds = None
         if self.config.context_eval:
             temperature = self.fit_temperature(self.config.context_eval).tolist()
-            scores, truths = self._collect_context(self.config.context_eval)
+            scores, truths = self._collect_context(
+                self.config.context_eval, calibrated=True
+            )
             if len(truths):
                 thresholds = select_thresholds(
                     truths,
@@ -485,7 +510,9 @@ class Trainer:
                     min_precision=self.config.threshold_min_precision,
                 )
 
-        final = self.evaluate(thresholds)
+        # Calibrated too: this record is the one quoted alongside the thresholds above,
+        # so it has to be measured in the same space they were chosen in.
+        final = self.evaluate(thresholds, calibrated=True)
         self.save(
             best_path,
             {
