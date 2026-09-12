@@ -95,9 +95,28 @@ $PY -m train.train_multitask $COMMON epochs=$EPOCHS_C
 # each floor before changing these.
 banner "Milestone 7a — calibrating shipped operating points"
 CALIBRATION_SET="${CALIBRATION_SET:-datasets/child_safety/validation.jsonl}"
-WARN_BUDGET="${WARN_BUDGET:-20}"
+# WARN_BUDGET is effectively off by default, on purpose. Nobody has yet decided what
+# interruption rate this product tolerates, and inventing one here would either abort a
+# paid run over a number nobody chose or, worse, quietly ship it. Until a product owner
+# picks a figure, the recall floor binds and the curve below reports what it costs. Set
+# WARN_BUDGET once that decision exists — it is the constraint that matters.
+WARN_BUDGET="${WARN_BUDGET:-1000}"
 L3_FLOOR="${L3_FLOOR:-0.95}"
 L2_FLOOR="${L2_FLOOR:-0.0}"
+
+# The curve runs first and unconditionally: it is seconds of CPU, it is the table the
+# operating-point decision is actually made from, and capturing it before the step that
+# can abort means a run that fails calibration still produces the reason.
+$PY -m evaluation.calibrate \
+    --checkpoint models/phase_c/best.pt \
+    --calibration-set "$CALIBRATION_SET" \
+    --curve | tee models/phase_c/calibration_curve.txt
+
+# A failure here is deliberate and load-bearing: export reads the checkpoint's
+# thresholds, so continuing past an unachievable constraint would ship operating points
+# that were just reported as not working. Checkpoints and the curve are already on disk
+# at this point, and both calibration and export run fine on CPU, so an abort costs the
+# GPU box nothing that cannot be finished locally.
 $PY -m evaluation.calibrate \
     --checkpoint models/phase_c/best.pt \
     --calibration-set "$CALIBRATION_SET" \
