@@ -88,6 +88,9 @@ def export(
             "input_ids": {0: auto, 1: auto},
             "attention_mask": {0: auto, 1: auto},
         },
+        # PyTorch 2.6 defaults to the legacy exporter, which does not accept
+        # ``dynamic_shapes``.  This project deliberately uses the Dynamo path above.
+        dynamo=True,
         opset_version=opset,
         do_constant_folding=True,
         # Single file, always. Left to itself the exporter writes initialisers to a
