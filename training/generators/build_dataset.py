@@ -198,7 +198,148 @@ def assign_splits(
             if donors:
                 assignment[donors[0]] = split
 
+    _balance_label_priors(assignment, groups, primary_group, family_signature, by_signature)
+
     return assignment, sorted(set(train_only))
+
+
+def _expected_label_rates(
+    assignment: dict[str, str],
+    groups: list[GroupSpec],
+    primary_group: dict[str, str],
+    val_ratio: float = 0.1,
+    test_ratio: float = 0.1,
+) -> dict[str, list[float]]:
+    """Per-split positive rate each label would get under `assignment`.
+
+    Mirrors how `build` actually fills a split: within a group, templates are drawn from
+    that split's pool with weight `template.weight`, up to a quota that is the same
+    fraction of the group target for every split. So a split's rate for a label is the
+    weighted mean over its pool, averaged across groups in proportion to those quotas.
+    Computed from the assignment rather than by generating, because this runs inside the
+    search loop below.
+    """
+    shares = {"train": 1 - val_ratio - test_ratio, "validation": val_ratio, "test": test_ratio}
+    totals = {s: 0.0 for s in SPLITS}
+    sums = {s: [0.0] * len(CONTEXT_LABELS) for s in SPLITS}
+
+    for group in groups:
+        pools: dict[str, list[Template]] = {s: [] for s in SPLITS}
+        for template in group.templates:
+            if primary_group[template.family] == group.name:
+                pools[assignment[template.family]].append(template)
+        for split in SPLITS:
+            pool = pools[split]
+            if not pool:
+                continue
+            quota = group.target * shares[split]
+            weight_total = sum(t.weight for t in pool) or 1.0
+            totals[split] += quota
+            for i, label in enumerate(CONTEXT_LABELS):
+                positive = sum(t.weight for t in pool if t.labels.get(label))
+                sums[split][i] += quota * positive / weight_total
+
+    return {
+        s: [v / totals[s] if totals[s] else 0.0 for v in sums[s]] for s in SPLITS
+    }
+
+
+def _prior_divergence(rates: dict[str, list[float]]) -> float:
+    """Total absolute gap between each eval split's label priors and train's.
+
+    Train is the reference because it is the largest split and the one the model's
+    operating points have to generalise *from*; pulling validation and test onto it is
+    what makes a threshold fitted on validation mean anything on test.
+    """
+    return sum(
+        abs(rates[split][i] - rates["train"][i])
+        for split in ("validation", "test")
+        for i in range(len(CONTEXT_LABELS))
+    )
+
+
+def _balance_label_priors(
+    assignment: dict[str, str],
+    groups: list[GroupSpec],
+    primary_group: dict[str, str],
+    family_signature: dict[str, tuple[int, ...]],
+    by_signature: dict[tuple[int, ...], list[str]],
+    max_rounds: int = 400,
+) -> None:
+    """Constraint 4: the eval splits must share train's label priors, not merely be
+    non-empty (constraint 3).
+
+    Holding out whole families is right for measuring generalisation, but it says nothing
+    about *how many* positives of each label land where. The first build that satisfied
+    constraints 1-3 still produced `meetup` at 19.1% of train and 3.3% of validation, and
+    `specific_time` at 8.4% of validation against 28.6% of test. Priors that far apart
+    make a threshold fitted on one split meaningless on another — `guardian_absent` held
+    0.90 precision on validation and 0.08 on test at one and the same threshold — so the
+    operating points shipped to the phone were tuned against a distribution nothing else
+    shares.
+
+    Greedy hill-climb over single family moves: take the move that most reduces the gap,
+    stop when none does. Moves that would violate constraints 1-3 are rejected, so this
+    can only tighten the split, never invalidate it.
+    """
+    counts_by_split: Counter = Counter(assignment.values())
+    group_families: dict[str, list[str]] = defaultdict(list)
+    for family, group_name in primary_group.items():
+        group_families[group_name].append(family)
+
+    def violates(candidate: dict[str, str]) -> bool:
+        # 1: every signature keeps an anchor in train.
+        for families in by_signature.values():
+            if not any(candidate[f] == "train" for f in families):
+                return True
+        # 2: no group loses an eval slice it previously had.
+        for group_name, families in group_families.items():
+            if len(families) < 4:
+                continue
+            for split in ("validation", "test"):
+                had = any(assignment[f] == split for f in families)
+                if had and not any(candidate[f] == split for f in families):
+                    return True
+        # 3: every label stays measurable in both eval splits.
+        for i in range(len(CONTEXT_LABELS)):
+            positives = [f for f, sig in family_signature.items() if sig[i]]
+            if not positives:
+                continue
+            for split in ("validation", "test"):
+                if not any(candidate[f] == split for f in positives):
+                    return True
+        return False
+
+    current = _prior_divergence(_expected_label_rates(assignment, groups, primary_group))
+
+    for _ in range(max_rounds):
+        best_move: tuple[str, str] | None = None
+        best_score = current
+
+        for family in sorted(assignment):
+            origin = assignment[family]
+            for target in SPLITS:
+                if target == origin:
+                    continue
+                trial = dict(assignment)
+                trial[family] = target
+                # Keep the split sizes roughly where the ratios put them; a balance pass
+                # that empties train would trade one distortion for a worse one.
+                trial_counts = Counter(trial.values())
+                if trial_counts["train"] < 0.5 * counts_by_split["train"]:
+                    continue
+                if violates(trial):
+                    continue
+                score = _prior_divergence(
+                    _expected_label_rates(trial, groups, primary_group)
+                )
+                if score < best_score - 1e-9:
+                    best_score, best_move = score, (family, target)
+
+        if best_move is None:
+            break
+        assignment[best_move[0]] = best_move[1]
+        current = best_score
 
 
 def generate_one(
