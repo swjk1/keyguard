@@ -12,9 +12,13 @@ Two choices are deliberate and worth stating, because both were previously impli
 shares the calibration split's label priors, and the corpus holds out whole template
 families, so the splits are *not* interchangeable by construction — `guardian_absent`
 once held 0.90 precision on validation and 0.08 on test at one and the same threshold.
-Naming the split makes that a reviewable decision. The generator now balances priors
-across splits (`_balance_label_priors`), which is what makes validation a defensible
-default rather than merely a convenient one.
+Naming the split makes that a reviewable decision. The generator balances the splits
+against each other (`generators.build_dataset._balance_split_distributions`) on label
+priors, risk-level histogram and per-rule composition — all three, because matching only
+the marginals still left validation reaching Level 3 by different rules than test, and a
+threshold fitted here then cost 0.55 of Level 3 recall there. That balance is what makes
+validation a defensible default rather than merely a convenient one; it is not a licence
+to skip reading `report_test.json` next to this split's numbers.
 
 `--budget` is the product constraint, expressed in the unit a product owner can actually
 rule on: warnings per 1,000 safe messages. Recall is then whatever that budget permits,
