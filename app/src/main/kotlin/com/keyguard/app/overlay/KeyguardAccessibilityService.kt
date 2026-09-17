@@ -19,6 +19,10 @@ import com.keyguard.app.input.ComposeOutcome
 import com.keyguard.app.settings.Settings
 import com.keyguard.detect.Category
 import com.keyguard.detect.CrisisResources
+import com.keyguard.app.BuildConfig
+import com.keyguard.app.model.ModelFusion
+import com.keyguard.app.model.ModelGate
+import com.keyguard.app.model.VerdictStabilizer
 import com.keyguard.detect.DetectionEngine
 import com.keyguard.detect.RollingContext
 import com.keyguard.detect.ScanResult
@@ -72,6 +76,23 @@ import java.util.Locale
 class KeyguardAccessibilityService : AccessibilityService() {
 
     private lateinit var engine: DetectionEngine
+
+    /**
+     * The model's second opinion, or null when the build has no model.
+     *
+     * Held as a nullable rather than a lateinit so that every use site has to face the case
+     * where it is absent. The rule engine is the floor; this only ever adds to it.
+     */
+    private var modelGate: ModelGate? = null
+
+    /** Last severity actually put on screen, for the debug build's transition log. */
+    private var lastRenderedSeverity: Severity = Severity.NONE
+
+    /** Keeps the overlay from flickering while the model changes its mind. */
+    private val stabilizer = VerdictStabilizer()
+
+    /** Posts the one delayed re-evaluation a pending de-escalation needs. */
+    private val settleHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private lateinit var settings: Settings
     private lateinit var supervision: Supervision
     private lateinit var effective: SupervisedSettings
@@ -137,6 +158,15 @@ class KeyguardAccessibilityService : AccessibilityService() {
     /** In-memory only, cleared on every field change. Never persisted, never uploaded. */
     private var context = RollingContext()
 
+    /**
+     * The rule engine's own result for the current text, before any model verdict.
+     *
+     * Kept separately from [scanResult] so a model verdict is always merged into a fresh
+     * rule result rather than onto a previous merge. Without it, two verdicts in a row would
+     * stack their findings and the older one would outlive the text it described.
+     */
+    private var ruleResult: ScanResult = ScanResult.EMPTY
+
     /** The field currently being watched, so a stale node is never written to. */
     private var targetNode: AccessibilityNodeInfo? = null
 
@@ -172,6 +202,7 @@ class KeyguardAccessibilityService : AccessibilityService() {
         effective = SupervisedSettings(settings, supervision)
         outcomeLog = OutcomeLog(this)
         eventQueue = if (supervision.isSupervised) EventQueue(this) else null
+        modelGate = ModelGate(applicationContext) { text, verdict -> onModelVerdict(text, verdict) }
         sampleQueue = if (supervision.isSupervised) SampleQueue(this) else null
 
         // Deliberately not created here — see [host]. The draw-over grant routinely arrives
@@ -183,6 +214,9 @@ class KeyguardAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         overlayHost?.destroy()
         overlayHost = null
+        modelGate?.shutdown()
+        modelGate = null
+        settleHandler.removeCallbacksAndMessages(null)
         clearTarget()
         super.onDestroy()
     }
@@ -208,12 +242,25 @@ class KeyguardAccessibilityService : AccessibilityService() {
             // survive it, or a theme from one app would colour a scan in the next.
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 releaseHostIfRevoked()
+                // Unconditional, deliberately. Guarding this on "did the focused field really go
+                // away" stopped the overlay hiding when the user left the app, which is far worse
+                // than a flicker: a warning about one app's text sitting over another's. The
+                // feedback loop this was meant to break is addressed where it starts instead —
+                // [adopt] no longer re-scans unchanged text, so the overlay is not being
+                // re-rendered continuously in the first place.
                 finishComposition(switched = true)
             }
 
             AccessibilityEvent.TYPE_VIEW_FOCUSED -> {
-                finishComposition(switched = true)
-                adopt(event.source)
+                // Hosts re-announce focus on a field that already had it — Keep does it while
+                // its own toolbars settle. Ending the composition on those threw away the
+                // rolling context and hid the overlay, so the warning blinked and, where the
+                // context had escalated a finding, blinked between warning and block.
+                val source = event.source
+                if (source == null || source != targetNode) {
+                    finishComposition(switched = true)
+                }
+                adopt(source)
             }
 
             AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> onTextChanged(event)
@@ -225,8 +272,19 @@ class KeyguardAccessibilityService : AccessibilityService() {
     }
 
     private fun adopt(node: AccessibilityNodeInfo?) {
+        if (node == null) {
+            clearTarget()
+            return
+        }
+
+        // Re-adopting the field we are already on must not reset `lastText`. Clearing it here
+        // made the unchanged-text guard in [scanNode] dead code — it compared against a value
+        // this line had just emptied — so every content-changed event re-ran a full scan, and
+        // once there was a model, a full inference. One observed session did 27 inferences for
+        // nine typed words, all but a handful on byte-identical text.
+        if (targetNode == node) return
+
         clearTarget()
-        if (node == null) return
 
         val allowed = MonitoredField.mayMonitor(
             packageName = node.packageName?.toString(),
@@ -312,13 +370,78 @@ class KeyguardAccessibilityService : AccessibilityService() {
 
     private fun rescan(text: String) {
         val now = System.currentTimeMillis()
-        val result = engine.scan(text, context, now)
-        scanResult = result
+        ruleResult = engine.scan(text, context, now)
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(
+                "KeyguardTrace",
+                "rescan len=${text.length} rules=${ruleResult.maxSeverity.level} " +
+                    "findings=${ruleResult.findings.size}",
+            )
+        }
+        modelGate?.onTextChanged(text)
+        applyVerdict(text)
+    }
 
-        if (result.maxSeverity.level > peakResult.maxSeverity.level) peakResult = result
-        if (result.findings.isNotEmpty()) everFlagged = true
+    /**
+     * A model verdict arrived for [text], on the main thread.
+     *
+     * Re-checked against [lastText] because the field can move on while the model runs, and a
+     * warning about text the user has already replaced is worse than no warning at all.
+     */
+    private fun onModelVerdict(text: String, verdict: com.keyguard.infer.ModelVerdict) {
+        if (text != lastText) return
+        stabilizer.accept(text, verdict)
+        applyVerdict(text)
+    }
 
+    /**
+     * Combines the rules with whatever the stabilizer says should be on screen, and renders.
+     *
+     * The merge is always against [ruleResult] rather than the previous [scanResult], so verdicts
+     * replace one another instead of accumulating findings. Equally important, it is re-applied on
+     * every keystroke: an earlier version reset the display to the rule-only result on each text
+     * change and let the model re-add its verdict a few hundred milliseconds later, which made the
+     * overlay cycle between warning and block on every single character.
+     */
+    private fun applyVerdict(text: String) {
+        val verdict = stabilizer.stable(text)
+        scanResult = if (verdict == null) {
+            ruleResult
+        } else {
+            ModelFusion.merge(ruleResult, verdict, text.length)
+        }
+
+        if (scanResult.maxSeverity.level > peakResult.maxSeverity.level) peakResult = scanResult
+        if (scanResult.findings.isNotEmpty()) everFlagged = true
+
+        if (BuildConfig.DEBUG && scanResult.maxSeverity != lastRenderedSeverity) {
+            // Severity only, never the text. Counting transitions is how the overlay flicker was
+            // diagnosed, and it is worth being able to do that again without a screen recording.
+            android.util.Log.i(
+                "KeyguardOverlay",
+                "level ${lastRenderedSeverity.level} -> ${scanResult.maxSeverity.level} " +
+                    "(rules ${ruleResult.maxSeverity.level}, model ${verdict?.level ?: "-"}, " +
+                    "shade=${effective.blocksAtHighSeverity && scanResult.maxSeverity == Severity.HIGH})",
+            )
+            lastRenderedSeverity = scanResult.maxSeverity
+        }
+
+        scheduleSettle(text)
         render()
+    }
+
+    /**
+     * Asks again once a held level is allowed to drop.
+     *
+     * Only needed when the user stops typing at the moment a lower verdict arrives: nothing else
+     * would re-evaluate, and the overlay would stay at the more severe level until the field was
+     * touched again.
+     */
+    private fun scheduleSettle(text: String) {
+        settleHandler.removeCallbacksAndMessages(null)
+        val delay = stabilizer.pendingSettleMs()
+        if (delay <= 0) return
+        settleHandler.postDelayed({ if (text == lastText) applyVerdict(text) }, delay)
     }
 
     private fun render() {
@@ -456,6 +579,12 @@ class KeyguardAccessibilityService : AccessibilityService() {
      * asks for them.
      */
     private fun finishComposition(switched: Boolean) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(
+                "KeyguardTrace",
+                "finishComposition switched=$switched len=${lastText.length} flagged=$everFlagged",
+            )
+        }
         val text = lastText
 
         // The IME could tell a send from a deletion because it owned the keys: SendInference
@@ -485,9 +614,15 @@ class KeyguardAccessibilityService : AccessibilityService() {
         removedByUser = false
         peakResult = ScanResult.EMPTY
         scanResult = ScanResult.EMPTY
+        ruleResult = ScanResult.EMPTY
         acknowledged = false
         lastText = ""
         context = RollingContext()
+        // Anything the model is still chewing on belongs to a composition that is over. Letting
+        // it land would attach a warning to whatever field came next.
+        modelGate?.reset()
+        stabilizer.reset()
+        settleHandler.removeCallbacksAndMessages(null)
         host?.hide()
         if (switched) clearTarget()
     }
