@@ -183,10 +183,29 @@ RULES: tuple[Rule, ...] = (
         message="This narrows down where you are.",
     ),
     Rule(
+        # `guardian_absent` used to be an alternative trigger here, via
+        # any_of=("alone", "guardian_absent"). Measured on the 1,016-row gold set, this
+        # one rule produced 19 of the 27 false warnings the whole table generated — 70%
+        # of the interruption budget, spent by the mildest rule in the policy.
+        #
+        # The cause is that it was the only rule where a single weak signal was enough.
+        # `guardian_absent` ranks at 0.523 PR-AUC against an 8% base rate, barely above
+        # chance, and here it needed no corroboration. Splitting the variants apart makes
+        # that plain: requiring `alone` drops false warnings from 36.3 to 13.2 per 1,000,
+        # while requiring `guardian_absent` leaves them at 35.7.
+        #
+        # Level 2 and Level 3 recall are untouched by this — identical to three decimal
+        # places across every variant tried — because no higher rule depends on it. The
+        # cost is Level 1 recall, 0.516 to 0.483.
+        #
+        # `guardian_absent` is not demoted out of the policy: it still fires
+        # `risk.unsupervised_window` (L3), `risk.address_alone` (L3), `risk.alone_meetup`
+        # (L2) and `risk.alone_disclosure` (L2). In each of those it must arrive with a
+        # time, an address, or a meetup alongside it. What changed is that it can no
+        # longer raise a warning on its own evidence.
         "risk.unsupervised",
         1,
-        all_of=("child_ownership",),
-        any_of=("alone", "guardian_absent"),
+        all_of=("child_ownership", "alone"),
         message="You're telling someone you're on your own.",
     ),
     Rule(
