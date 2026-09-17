@@ -1,0 +1,44 @@
+{
+  "checkpoint": "models/phase_c/best.pt",
+  "onnx": "models/export/model.onnx",
+  "onnx_size_bytes": 115276334,
+  "opset": 18,
+  "max_length": 128,
+  "encoder": "google/bert_uncased_L-4_H-512_A-8",
+  "parameters": {
+    "total": 28779551,
+    "word_embeddings": 15627264,
+    "heads": 15903,
+    "transformer_body": 13136384
+  },
+  "thresholds": {
+    "child_ownership": 0.32500000000000007,
+    "child_location": 0.9750000000000001,
+    "school_context": 0.9500000000000001,
+    "routine": 0.9750000000000001,
+    "specific_time": 0.25,
+    "alone": 0.9500000000000001,
+    "guardian_absent": 0.37500000000000006,
+    "meetup": 0.9750000000000001
+  },
+  "sidecars": {
+    "vocab.txt": "models/export/vocab.txt",
+    "tokenizer_config.json": "models/export/tokenizer_config.json",
+    "special_tokens_map.json": "models/export/special_tokens_map.json",
+    "tokenizer.json": "models/export/tokenizer.json",
+    "label_contract.json": "models/export/label_contract.json",
+    "risk_rules.json": "models/export/risk_rules.json",
+    "thresholds.json": "models/export/thresholds.json"
+  },
+  "parity": {
+    "n_texts": 500,
+    "max_abs_diff_context": 2.6226043701171875e-06,
+    "max_abs_diff_token": 1.481175422668457e-05,
+    "tolerance": 0.0001,
+    "within_tolerance": true,
+    "label_decision_flips": 0,
+    "label_decisions_compared": 4000,
+    "worst_example": "art club starts at 2:25"
+  },
+  "attribution": "Training data incorporates OpenPII (pii-masking-openpii-1.5m) by Ai4Privacy / Ai Suisse SA, licensed under CC-BY-4.0."
+}

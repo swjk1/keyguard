@@ -68,6 +68,11 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             isMinifyEnabled = false
+            // Test builds go on one phone over adb, and the ONNX Runtime AAR carries native
+            // libraries for four ABIs. Three of them are weight nothing on this device can use.
+            ndk {
+                abiFilters += "arm64-v8a"
+            }
         }
         release {
             isMinifyEnabled = true
@@ -83,6 +88,18 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    /**
+     * The model must stay mappable.
+     *
+     * An AAPT-compressed asset cannot be read in place: the platform has to inflate it to a real
+     * file before ONNX Runtime can map it, which costs the storage twice and lands on startup as
+     * latency the user feels on the first thing they type. A 67.6 MB model does not compress
+     * usefully anyway, so the APK is no larger for this.
+     */
+    androidResources {
+        noCompress += "onnx"
     }
 
     buildFeatures {
@@ -104,6 +121,7 @@ kotlin {
 
 dependencies {
     implementation(project(":detect"))
+    implementation(project(":infer"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -1,0 +1,13 @@
+{
+  "thresholds": {
+    "child_ownership": 0.32500000000000007,
+    "child_location": 0.9750000000000001,
+    "school_context": 0.9500000000000001,
+    "routine": 0.9750000000000001,
+    "specific_time": 0.25,
+    "alone": 0.9500000000000001,
+    "guardian_absent": 0.37500000000000006,
+    "meetup": 0.9750000000000001
+  },
+  "note": "Per-label operating points chosen on the validation split. The temperature is already folded into the ONNX graph; these are not."
+}

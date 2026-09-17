@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "levels": {
+    "0": "NONE",
+    "1": "LOW",
+    "2": "MEDIUM",
+    "3": "HIGH"
+  },
+  "context_labels": [
+    "child_ownership",
+    "child_location",
+    "school_context",
+    "routine",
+    "specific_time",
+    "alone",
+    "guardian_absent",
+    "meetup"
+  ],
+  "safety_entities": [
+    "exact_location",
+    "coarse_location",
+    "contact_info",
+    "time_signal",
+    "name",
+    "government_id"
+  ],
+  "entity_to_safety_entity": {
+    "STREET": "exact_location",
+    "BUILDINGNUM": "exact_location",
+    "ZIPCODE": "exact_location",
+    "CITY": "coarse_location",
+    "EMAIL": "contact_info",
+    "TELEPHONENUM": "contact_info",
+    "DATE": "time_signal",
+    "TIME": "time_signal",
+    "GIVENNAME": "name",
+    "SURNAME": "name",
+    "SOCIALNUM": "government_id"
+  },
+  "rules": [
+    {
+      "id": "risk.address_alone",
+      "level": 3,
+      "all_of": [
+        "child_ownership",
+        "child_location",
+        "exact_location"
+      ],
+      "any_of": [
+        "alone",
+        "guardian_absent"
+      ],
+      "none_of": [],
+      "message": "You're sharing exactly where you are and that no one is with you."
+    },
+    {
+      "id": "risk.address_meetup",
+      "level": 3,
+      "all_of": [
+        "child_ownership",
+        "child_location",
+        "exact_location",
+        "meetup"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're inviting someone to your exact address."
+    },
+    {
+      "id": "risk.unsupervised_window",
+      "level": 3,
+      "all_of": [
+        "child_ownership",
+        "specific_time"
+      ],
+      "any_of": [
+        "alone",
+        "guardian_absent"
+      ],
+      "none_of": [],
+      "message": "You're telling someone when you'll be on your own."
+    },
+    {
+      "id": "risk.school_pickup",
+      "level": 3,
+      "all_of": [
+        "child_ownership",
+        "school_context",
+        "child_location",
+        "meetup",
+        "specific_time"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're arranging to meet someone at your school at a set time."
+    },
+    {
+      "id": "risk.routine_alone_location",
+      "level": 3,
+      "all_of": [
+        "child_ownership",
+        "child_location",
+        "routine",
+        "alone"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're describing where you'll predictably be on your own."
+    },
+    {
+      "id": "risk.address_disclosure",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "child_location",
+        "exact_location"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're about to share your home address."
+    },
+    {
+      "id": "risk.contact_meetup",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "contact_info",
+        "meetup"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're sharing contact details while arranging to meet."
+    },
+    {
+      "id": "risk.alone_meetup",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "meetup"
+      ],
+      "any_of": [
+        "alone",
+        "guardian_absent"
+      ],
+      "none_of": [],
+      "message": "You're inviting someone over while no one else is around."
+    },
+    {
+      "id": "risk.school_identity_time",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "school_context",
+        "routine"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "Together, this says where to find you and when."
+    },
+    {
+      "id": "risk.routine_location",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "child_location",
+        "routine"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This says where you'll be, regularly."
+    },
+    {
+      "id": "risk.contact_disclosure",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "contact_info"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "You're about to share a way to contact you directly."
+    },
+    {
+      "id": "risk.alone_disclosure",
+      "level": 2,
+      "all_of": [
+        "child_ownership",
+        "child_location"
+      ],
+      "any_of": [
+        "alone",
+        "guardian_absent"
+      ],
+      "none_of": [],
+      "message": "You're saying where you are and that you're on your own."
+    },
+    {
+      "id": "risk.school_identity",
+      "level": 1,
+      "all_of": [
+        "child_ownership",
+        "school_context"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This tells someone which school you go to."
+    },
+    {
+      "id": "risk.coarse_location",
+      "level": 1,
+      "all_of": [
+        "child_ownership",
+        "child_location"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This narrows down where you are."
+    },
+    {
+      "id": "risk.unsupervised",
+      "level": 1,
+      "all_of": [
+        "child_ownership"
+      ],
+      "any_of": [
+        "alone",
+        "guardian_absent"
+      ],
+      "none_of": [],
+      "message": "You're telling someone you're on your own."
+    },
+    {
+      "id": "risk.routine",
+      "level": 1,
+      "all_of": [
+        "child_ownership",
+        "routine"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This makes it easy to predict where you'll be."
+    },
+    {
+      "id": "risk.government_id",
+      "level": 3,
+      "all_of": [
+        "government_id"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This looks like a government ID number. Never send this in a message."
+    },
+    {
+      "id": "risk.meetup_context",
+      "level": 1,
+      "all_of": [
+        "meetup"
+      ],
+      "any_of": [],
+      "none_of": [],
+      "message": "This is about meeting someone in person."
+    }
+  ]
+}
