@@ -98,10 +98,15 @@ class HomeFragment : SectionFragment(), ChildScreen {
         // Either complete path counts. Someone running the Keyguard keyboard is protected and
         // must not be told otherwise just because they never granted an accessibility service
         // they have no use for.
-        val protected = (accessibility && overlay) || keyboardReady
+        // The disclosure is part of "protected", not a formality before it: the service reads
+        // nothing until it has been accepted, so both permissions without it is a phone that
+        // is not being watched and must not be told that it is.
+        val protected = settings.disclosureAccepted &&
+            ((accessibility && overlay) || keyboardReady)
 
         val bodyRes = when {
             protected -> R.string.protection_on_body
+            !settings.disclosureAccepted -> R.string.protection_off_body
             // The dangerous middle state gets said out loud: Keyguard can see everything and
             // warn about nothing.
             accessibility && !overlay -> R.string.overlay_status_missing_draw

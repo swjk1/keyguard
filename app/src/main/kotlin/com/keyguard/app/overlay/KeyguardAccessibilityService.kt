@@ -232,6 +232,16 @@ class KeyguardAccessibilityService : AccessibilityService() {
         if (!settings.overlayEnabled) return
         if (event.packageName == packageName) return
 
+        // Nothing is read before the disclosure has been accepted. The service can be switched
+        // on from system Settings without ever opening the app, and the setup screen promises
+        // that everything is off until the child has read what Keyguard can see — which was
+        // only true of the UI. Play's accessibility policy asks for the same order: disclose,
+        // then collect.
+        if (!settings.disclosureAccepted) {
+            host?.hide()
+            return
+        }
+
         // No warning surface means no monitoring at all. Checked here rather than only at
         // render time because scanning, the outcome log and the parent's event queue all sit
         // on the way there: `render` returning early stopped the warning from being drawn and
