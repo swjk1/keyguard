@@ -30,7 +30,7 @@
         android:importantForAccessibility="no"
         android:padding="8dp"
         android:scaleType="fitCenter"
-        app:tint="@color/accent"
+        app:tint="@color/accent_icon"
         tools:src="@drawable/ic_nav_family" />
 
     <LinearLayout
