@@ -4,6 +4,7 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -174,6 +175,50 @@ class SupervisionSync(private val context: Context, baseUrl: String) {
          */
         private val INTERVAL_MS = TimeUnit.MINUTES.toMillis(15)
 
+        /**
+         * A distinct id for the one-off expedited run, so asking for one never replaces the
+         * periodic job that keeps a quiet device honest.
+         */
+        const val URGENT_JOB_ID = 4003
+
+        /**
+         * Pushes the queue now, because something happened that a parent should not wait
+         * fifteen minutes to hear about.
+         *
+         * The periodic job's interval is the platform floor and cannot be lowered, so the only
+         * way to shorten the child's leg of the delay is a one-off. Expedited where the
+         * platform has the concept (API 31+), and a deadline-zero one-off below it, which is
+         * the closest equivalent available on the minSdk.
+         *
+         * Deliberately still a job rather than a direct call. Every network request in the
+         * supervision path goes through [SupervisionJobService] so that the shape survives the
+         * iOS port, where the monitoring surface cannot make one at all - see the class note.
+         * It also means the platform, not this code, decides what to do when the device is
+         * offline or in Doze.
+         */
+        fun syncNow(context: Context) {
+            val builder = JobInfo.Builder(
+                URGENT_JOB_ID,
+                ComponentName(context, SupervisionJobService::class.java),
+            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                builder.setExpedited(true)
+            } else {
+                // Expedited does not exist here, and an override deadline is mutually
+                // exclusive with it on the versions that do have both - hence the branch
+                // rather than setting both and hoping.
+                builder.setOverrideDeadline(0)
+            }
+
+            // Quota for expedited jobs runs out, and the call throws rather than degrading
+            // when it does. A missed head start is not worth taking the service down for: the
+            // periodic job still carries the event.
+            runCatching {
+                context.getSystemService(JobScheduler::class.java)?.schedule(builder.build())
+            }
+        }
+
         /** Idempotent — rescheduling an identical job replaces it rather than stacking. */
         fun schedule(context: Context) {
             val job = JobInfo.Builder(
@@ -189,7 +234,9 @@ class SupervisionSync(private val context: Context, baseUrl: String) {
         }
 
         fun cancel(context: Context) {
-            context.getSystemService(JobScheduler::class.java)?.cancel(JOB_ID)
+            val scheduler = context.getSystemService(JobScheduler::class.java) ?: return
+            scheduler.cancel(JOB_ID)
+            scheduler.cancel(URGENT_JOB_ID)
         }
     }
 }

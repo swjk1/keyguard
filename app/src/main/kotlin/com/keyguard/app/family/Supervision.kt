@@ -55,6 +55,21 @@ class Supervision(context: Context) {
         get() = prefs.getLong(KEY_LAST_SYNC, 0)
         set(value) = prefs.edit().putLong(KEY_LAST_SYNC, value).apply()
 
+    /**
+     * Newest server receipt time this device has already alerted a parent about, or 0.
+     *
+     * Deliberately the *server's* stamp rather than [SupervisionEvent.at], which that class
+     * documents as a child's wall clock and therefore movable: one event from a phone set a
+     * year forward would push this past every genuine event after it. See [ParentAlerts].
+     *
+     * Zero means "never polled", which [ParentAlerts.digest] treats as establish-and-stay-quiet
+     * rather than as "everything is new" - so signing in does not hand a parent a notification
+     * about history they have not seen yet.
+     */
+    var parentAlertWatermark: Long
+        get() = prefs.getLong(KEY_ALERT_WATERMARK, 0)
+        set(value) = prefs.edit().putLong(KEY_ALERT_WATERMARK, value).apply()
+
     fun becomeChild(familyId: String, policy: FamilyPolicy) {
         prefs.edit()
             .putString(KEY_CHILD_FAMILY, familyId)
@@ -66,8 +81,18 @@ class Supervision(context: Context) {
         prefs.edit().putString(KEY_PARENT_FAMILY, familyId).apply()
     }
 
+    /**
+     * Signed out, or the account was deleted.
+     *
+     * The watermark goes with it. Signing in as a different parent on the same handset would
+     * otherwise inherit the previous account's mark and stay silent about everything that
+     * family reported below it.
+     */
     fun clearParent() {
-        prefs.edit().remove(KEY_PARENT_FAMILY).apply()
+        prefs.edit()
+            .remove(KEY_PARENT_FAMILY)
+            .remove(KEY_ALERT_WATERMARK)
+            .apply()
     }
 
     fun updatePolicy(policy: FamilyPolicy) {
@@ -95,6 +120,7 @@ class Supervision(context: Context) {
         const val KEY_POLICY = "policy"
         const val KEY_LABEL = "device_label"
         const val KEY_LAST_SYNC = "last_sync_at"
+        const val KEY_ALERT_WATERMARK = "parent_alert_watermark"
 
         const val DEFAULT_LABEL = "Phone"
         const val MAX_LABEL = 40

@@ -20,6 +20,7 @@ import com.keyguard.app.family.SampleQueue
 import com.keyguard.app.family.SupervisedSettings
 import com.keyguard.app.family.Supervision
 import com.keyguard.app.family.SupervisionEvent
+import com.keyguard.app.family.SupervisionSync
 import com.keyguard.app.input.ComposeOutcome
 import com.keyguard.app.input.InputGate
 import com.keyguard.app.input.Mutation
@@ -1151,6 +1152,12 @@ class KeyguardInputMethodService :
                 heeded = heeded,
             ),
         )
+
+        // Same rule as the overlay path: the top severity earns a one-off upload rather than
+        // waiting out the periodic job. Still only a job scheduled, never a request made -
+        // this class does no network, which is the constraint that keeps the iOS port possible
+        // at all.
+        if (scanResult.maxSeverity == Severity.HIGH) SupervisionSync.syncNow(this)
     }
 
     /**

@@ -1,12 +1,17 @@
 package com.keyguard.app.ui.parent
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.keyguard.app.R
@@ -15,6 +20,7 @@ import com.keyguard.app.family.ChildActivity
 import com.keyguard.app.family.Elapsed
 import com.keyguard.app.family.PairingCode
 import com.keyguard.app.family.ReportedEvent
+import com.keyguard.app.ui.CategoryLabels
 import com.keyguard.app.ui.SectionFragment
 import com.keyguard.detect.Category
 import com.keyguard.detect.Severity
@@ -38,6 +44,22 @@ class ChildrenFragment : SectionFragment() {
 
     private val host get() = requireActivity() as ParentHost
 
+    /**
+     * Asked for when the parent asks for a pairing code, not at launch.
+     *
+     * Same reasoning as the child side's: the permission exists to carry one specific thing —
+     * here, the alert that a serious warning was reported — so asking before there is a child
+     * to be warned about is a system prompt with no explanation attached. Asking at the moment
+     * a child is about to be added is the point where "we will tell you if something happens"
+     * is the sentence on screen.
+     *
+     * A refusal is recoverable rather than terminal: [refresh] puts a line above the child
+     * list whenever there are children and no permission, so a parent who said no once is not
+     * left with a feature that silently does nothing forever.
+     */
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { refresh() }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,6 +72,9 @@ class ChildrenFragment : SectionFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.codeButton.setOnClickListener { requestPairingCode() }
+        binding.statusText.setOnClickListener {
+            if (alertsMuted()) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         binding.refreshButton.setOnClickListener {
             binding.refreshButton.isEnabled = false
             host.reload()
@@ -65,7 +90,27 @@ class ChildrenFragment : SectionFragment() {
         if (_binding == null) return
         binding.refreshButton.isEnabled = true
         binding.statusText.visibility = View.GONE
-        renderChildren(host.overview?.children.orEmpty())
+        val children = host.overview?.children.orEmpty()
+        renderChildren(children)
+
+        // The one state worth interrupting a clean screen for. A paired family whose parent
+        // device cannot post a notification is the product quietly not doing the thing it
+        // says it does, and nothing else on this screen would ever say so.
+        if (children.isNotEmpty() && alertsMuted()) {
+            showStatus(getString(R.string.parent_alerts_blocked))
+        }
+    }
+
+    /**
+     * False on a detached fragment rather than throwing. The permission callback can land
+     * after the section has been swapped out, and a crash in the parent app over a
+     * notification permission would be a worse bug than the one this line exists to report.
+     */
+    private fun alertsMuted(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return false
+        val context = context ?: return false
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPairingCode() {
@@ -82,6 +127,9 @@ class ChildrenFragment : SectionFragment() {
             binding.codeText.text = PairingCode.format(invite.code)
             binding.codeText.visibility = View.VISIBLE
             binding.statusText.visibility = View.GONE
+            // A code on screen means a child is about to be paired, which is the moment the
+            // alert permission starts to mean something. See `notificationPermission`.
+            if (alertsMuted()) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             // Asking for a code creates the family server-side, so the overview now has one.
             host.reload()
         }
@@ -254,15 +302,7 @@ class ChildrenFragment : SectionFragment() {
             is Elapsed.Days -> getString(R.string.time_days, elapsed.value)
         }
 
-    private fun categoryLabel(category: Category): Int = when (category) {
-        Category.PII_DISCLOSURE -> R.string.category_pii
-        Category.HARASSMENT -> R.string.category_harassment
-        Category.SEXUAL_SOLICITATION -> R.string.category_solicitation
-        Category.SELF_HARM -> R.string.category_self_harm
-        Category.VIOLENCE_THREAT -> R.string.category_violence
-        Category.IN_PERSON_MEETUP -> R.string.category_meetup
-        Category.SUBSTANCE -> R.string.category_substance
-    }
+    private fun categoryLabel(category: Category): Int = CategoryLabels.res(category)
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 

@@ -193,6 +193,28 @@
     <string name="supervision_notice_detail_full">A parent can read what you type on this phone, as well as the warnings you get. Tap for details.</string>
     <string name="supervision_notice_text_full">A parent can read what you type.</string>
 
+    <!--
+      The parent-side alert. The opposite kind of notification to the one above: that is a
+      standing fact, this is an interruption, and it only ever fires at high severity.
+
+      It names a device, a count and a category and nothing else. A notification is read on a
+      lock screen and over shoulders, so the rule SupervisionEvent states about what may leave
+      the child's phone applies here again, more strictly.
+    -->
+    <string name="parent_alert_channel_name">Warnings</string>
+    <string name="parent_alert_channel_description">Tells you when a serious warning is reported on a supervised device.</string>
+    <string name="parent_alert_title_single">%1$s — %2$s</string>
+    <plurals name="parent_alert_title_child">
+        <item quantity="one">%1$s — %2$d new warning</item>
+        <item quantity="other">%1$s — %2$d new warnings</item>
+    </plurals>
+    <plurals name="parent_alert_title_many">
+        <item quantity="one">%1$d new warning across %2$d devices</item>
+        <item quantity="other">%1$d new warnings across %2$d devices</item>
+    </plurals>
+    <string name="parent_alert_text">Tap to open Keyguard.</string>
+    <string name="parent_alerts_blocked">Warning alerts are switched off. Tap to turn them on.</string>
+
     <!-- Parent mode -->
     <string name="parent_title">Parent</string>
     <string name="parent_sign_in_heading">Parent account</string>

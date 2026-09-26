@@ -94,6 +94,19 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <!--
+          The parent half of the same exchange.
+
+          The child's job above pushes a queue to the server; this one pulls what the family
+          reported and raises a notification for anything serious. Without it the parent side
+          is a screen you have to remember to open, which is not what "we will tell you if
+          something happens" means.
+        -->
+        <service
+            android:name=".family.ParentSyncJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <!--
           The monitoring path.
 
           The keyboard below still builds and still works; this is what replaced it as the
