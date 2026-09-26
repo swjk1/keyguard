@@ -68,6 +68,13 @@ object Shell {
      * @param savedSelection the value returned by [selectedItemId] before the activity was
      *   destroyed, or null on a cold start. Restoring it matters more than it sounds: without
      *   it a rotation drops a parent back to Children from the middle of editing Rules.
+     * @param showSelection false when the activity is being recreated with a detail screen
+     *   pushed over the tabs (the parent app's child page, say). The restored fragments are
+     *   already in the right state - the tab underneath is hidden and will be shown again when
+     *   the detail is popped - and showing it here would put a live tab under the detail,
+     *   receiving touches through it.
+     * @param onSectionShown called after the user switches tabs, for a shell that keeps more
+     *   chrome in sync with the tab than just the title (the parent app's toolbar actions).
      */
     fun install(
         activity: AppCompatActivity,
@@ -76,6 +83,8 @@ object Shell {
         @IdRes containerId: Int,
         sections: List<Section>,
         savedSelection: Int? = null,
+        showSelection: Boolean = true,
+        onSectionShown: (Section) -> Unit = {},
     ) {
         val manager = activity.supportFragmentManager
         val start = savedSelection?.takeIf { id -> sections.any { it.itemId == id } }
@@ -94,6 +103,7 @@ object Shell {
                 ?: return@setOnItemSelectedListener false
             show(manager, containerId, sections, section)
             toolbar.title = activity.getString(section.titleRes)
+            onSectionShown(section)
             true
         }
         // Reselecting the current tab is a no-op rather than a rebuild. Without this, tapping
@@ -102,7 +112,7 @@ object Shell {
         nav.setOnItemReselectedListener { }
 
         val section = sections.first { it.itemId == start }
-        show(manager, containerId, sections, section)
+        if (showSelection) show(manager, containerId, sections, section)
         toolbar.title = activity.getString(section.titleRes)
     }
 
