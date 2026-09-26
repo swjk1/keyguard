@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Text colour for the child app's text, outlined and tonal buttons.
+
+  A selector rather than `@color/accent_icon` directly, because a plain colour would also be
+  used for the disabled state - and the keyboard screen's buttons are disabled on purpose until
+  the disclosure is read, which has to look disabled rather than merely be it.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.38" android:color="@color/on_surface" android:state_enabled="false" />
+    <item android:color="@color/accent_icon" />
+</selector>
