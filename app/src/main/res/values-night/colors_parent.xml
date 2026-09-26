@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="status_alert">#FFF87171</color>
+    <color name="status_alert_surface">#FF3B1618</color>
+    <color name="status_neutral">#FFAAB2BF</color>
+    <color name="accent_text">#FF93B4FF</color>
+    <color name="parent_primary">#FF3D6EE8</color>
+
+    <color name="avatar_1_bg">#FF1E3A8A</color>
+    <color name="avatar_1_fg">#FFDBEAFE</color>
+    <color name="avatar_2_bg">#FF064E3B</color>
+    <color name="avatar_2_fg">#FFD1FAE5</color>
+    <color name="avatar_3_bg">#FF831843</color>
+    <color name="avatar_3_fg">#FFFCE7F3</color>
+    <color name="avatar_4_bg">#FF78350F</color>
+    <color name="avatar_4_fg">#FFFEF3C7</color>
+    <color name="avatar_5_bg">#FF4C1D95</color>
+    <color name="avatar_5_fg">#FFEDE9FE</color>
+
+    <color name="timeline_line">#FF2E333C</color>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Styles only the parent app uses, kept out of themes.xml so the parent redesign does not edit
+  the file the child and overlay work share.
+-->
+<resources>
+    <!--
+      Applied by ParentActivity on top of Theme.Keyguard.
+
+      Material3 fills its "container" roles - the selected tab's pill, a checked segment of a
+      toggle, a tonal button - from a default lilac palette, because the base theme only
+      overrides `colorPrimary`. On a blue app that read as a second, unrelated brand colour on
+      every screen. These map the containers onto the accent's own soft tint instead.
+    -->
+    <style name="ThemeOverlay.Keyguard.Parent" parent="">
+        <item name="colorPrimary">@color/parent_primary</item>
+        <item name="colorSecondaryContainer">@color/accent_soft</item>
+        <item name="colorOnSecondaryContainer">@color/accent_text</item>
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent_text</item>
+        <item name="colorSurfaceContainerHigh">@color/card_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/card_surface</item>
+    </style>
+
+    <!-- A text button whose label stays legible on a dark card. See `accent_text`. -->
+    <style name="Widget.Keyguard.TextButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent_text</item>
+    </style>
+
+    <!-- The outlined, red "Unpair" / "Delete" button. Destructive, but not the primary action. -->
+    <style name="Widget.Keyguard.DestructiveButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/status_alert</item>
+        <item name="strokeColor">@color/card_stroke</item>
+        <item name="iconTint">@color/status_alert</item>
+    </style>
+
+    <!-- A segment of the Today / This week toggle. -->
+    <style name="Widget.Keyguard.Segment" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/card_stroke</item>
+        <item name="android:textColor">@color/on_surface</item>
+    </style>
+
+    <!-- The small coloured pill under a child's name: "All clear", "2 serious warnings". -->
+    <style name="TextAppearance.Keyguard.Chip" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

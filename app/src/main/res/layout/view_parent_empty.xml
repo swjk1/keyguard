@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A friendly empty, loading or error state: an icon in a soft disc, a title, one sentence, and
+  optionally one button that does the obvious next thing.
+
+  Shared by every parent screen that can be empty, so "nothing here yet" always looks like a
+  designed state and never like a screen that failed to load - which is exactly what a lone
+  line of grey text at the top of a blank page looked like before.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/emptyRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_lg"
+    android:paddingTop="@dimen/space_xl"
+    android:paddingEnd="@dimen/space_lg"
+    android:paddingBottom="@dimen/space_xl">
+
+    <FrameLayout
+        android:id="@+id/emptyIconFrame"
+        android:layout_width="80dp"
+        android:layout_height="80dp">
+
+        <ImageView
+            android:id="@+id/emptyIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_icon_circle"
+            android:importantForAccessibility="no"
+            android:padding="20dp"
+            app:tint="@color/accent_text" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/emptyProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:indicatorColor="@color/accent" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/emptyTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/emptyBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_sm"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/emptyAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_lg"
+        android:minHeight="52dp"
+        android:paddingStart="@dimen/space_lg"
+        android:paddingEnd="@dimen/space_lg"
+        android:visibility="gone"
+        app:icon="@drawable/ic_parent_add"
+        app:iconTint="@android:color/white" />
+</LinearLayout>

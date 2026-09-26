@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Strings for the parent app's three tabs and their detail screens.
+
+  A file of its own so the parent redesign, the child redesign and the overlay redesign can
+  land in parallel without editing the same lines of strings.xml. Existing parent strings that
+  are still used stay where they are.
+
+  Nothing here may describe a message's text. Every line a parent reads about a warning is a
+  category, a severity, an outcome and a coarse time - see SupervisionEvent.
+-->
+<resources>
+    <!-- Tabs -->
+    <string name="parent_tab_family">Family</string>
+    <string name="parent_tab_activity">Activity</string>
+    <string name="parent_tab_settings">Settings</string>
+    <string name="parent_action_refresh">Refresh</string>
+    <string name="parent_navigate_up">Back</string>
+
+    <!-- Signed out -->
+    <string name="parent_welcome_title">Keyguard for parents</string>
+    <string name="parent_welcome_value">Know when your child sees a warning about something risky, without reading their messages.</string>
+    <string name="parent_welcome_recovery_note">New accounts get a one-time recovery code. Keep it somewhere private.</string>
+    <string name="parent_recover_link">Forgot your password?</string>
+    <string name="parent_recover_explain">Enter your email and a new password above, then the recovery code you saved when you created the account.</string>
+
+    <!-- Family tab -->
+    <string name="parent_family_loading">Loading your family…</string>
+    <string name="parent_family_error_title">Can\'t reach Keyguard</string>
+    <string name="parent_family_error_body">Check your connection. Your family\'s warnings are safe and will appear here once you\'re back online.</string>
+    <string name="parent_try_again">Try again</string>
+    <string name="parent_family_empty_title">Add your first child</string>
+    <string name="parent_family_empty_body">Pair your child\'s phone and you\'ll hear about serious warnings: what kind they were, and what your child did next.</string>
+    <string name="parent_add_child_action">Add a child</string>
+    <string name="parent_family_heading">Your family</string>
+    <string name="parent_alerts_off_title">Warning alerts are off</string>
+    <string name="parent_alerts_off_body">You won\'t be told when a serious warning happens.</string>
+    <string name="parent_alerts_turn_on">Turn on</string>
+
+    <!-- Status chips -->
+    <string name="parent_status_all_clear">All clear this week</string>
+    <string name="parent_status_not_reporting">Waiting for first check-in</string>
+    <plurals name="parent_status_warnings">
+        <item quantity="one">%d warning this week</item>
+        <item quantity="other">%d warnings this week</item>
+    </plurals>
+    <plurals name="parent_status_serious">
+        <item quantity="one">%d serious warning this week</item>
+        <item quantity="other">%d serious warnings this week</item>
+    </plurals>
+    <string name="parent_latest_warning">Latest: %1$s, %2$s · %3$s</string>
+    <string name="parent_no_recent_warnings">No warnings in the last 30 days</string>
+
+    <!-- Child detail -->
+    <string name="parent_recent_warnings">Recent warnings</string>
+    <string name="parent_timeline_empty_title">Nothing to show</string>
+    <string name="parent_timeline_empty_body">No warnings in the last 30 days. When Keyguard warns them about something, it shows up here.</string>
+    <string name="parent_timeline_line">%1$s · %2$s</string>
+    <string name="parent_timeline_waiting_title">Waiting for their phone</string>
+    <string name="parent_timeline_waiting_body">Their phone hasn\'t checked in yet. It will once Keyguard is set up and they start typing.</string>
+    <string name="parent_show_all_warnings">Show all %1$d</string>
+    <string name="parent_show_fewer_warnings">Show fewer</string>
+    <string name="parent_reports_heading">Report</string>
+    <string name="parent_device_heading">This device</string>
+    <string name="parent_paired_on">Paired %1$s</string>
+    <string name="parent_unpairing">Unpairing…</string>
+    <string name="parent_unpair_failed">Couldn\'t unpair. Check your connection and try again.</string>
+    <string name="parent_severity_high">Serious</string>
+    <string name="parent_severity_medium">Moderate</string>
+    <string name="parent_severity_low">Minor</string>
+    <!-- Read by TalkBack for one timeline or feed entry. -->
+    <string name="parent_warning_description">%1$s warning: %2$s. %3$s, %4$s.</string>
+
+    <!-- Add child -->
+    <string name="parent_add_child_title">Add a child</string>
+    <string name="parent_add_child_intro">Pair your child\'s phone with this code. It works once.</string>
+    <string name="parent_add_child_step_1">On your child\'s phone, install Keyguard and choose the child option.</string>
+    <string name="parent_add_child_step_2">Open Family, give the phone a name, and enter this code.</string>
+    <string name="parent_add_child_step_3">Keep this screen open. It updates as soon as their phone connects.</string>
+    <string name="parent_code_label">Pairing code</string>
+    <string name="parent_code_expires">Expires in %1$s</string>
+    <string name="parent_code_expired">This code has expired</string>
+    <string name="parent_code_getting">Getting a code…</string>
+    <string name="parent_code_failed">Couldn\'t get a code. Check your connection and try again.</string>
+    <string name="parent_code_new">Get a new code</string>
+    <string name="parent_waiting_for_child">Waiting for your child\'s phone…</string>
+    <string name="parent_child_connected">%1$s is connected</string>
+    <string name="parent_child_connected_body">Opening their page…</string>
+
+    <!-- Activity tab -->
+    <string name="parent_feed_today">Today</string>
+    <string name="parent_feed_yesterday">Yesterday</string>
+    <string name="parent_feed_earlier">Earlier</string>
+    <string name="parent_feed_empty_title">No warnings yet</string>
+    <string name="parent_feed_empty_body">When Keyguard warns your child about something risky, you\'ll see what kind of warning it was and what they did here.</string>
+    <string name="parent_feed_no_children_body">Once you add a child, warnings from their phone show up here.</string>
+    <string name="parent_feed_privacy_note">You see the kind of warning and what they did. Never the message itself.</string>
+
+    <!-- Settings tab -->
+    <string name="parent_settings_family">Family</string>
+    <string name="parent_settings_account">Account</string>
+    <string name="parent_settings_rules">Warning rules</string>
+    <string name="parent_settings_caregivers">Caregivers</string>
+    <string name="parent_settings_caregivers_hint">Invite another parent, or join a family</string>
+    <string name="parent_settings_notifications">Notifications</string>
+    <string name="parent_notifications_on">On · you\'ll hear about serious warnings</string>
+    <string name="parent_notifications_off">Off · tap to turn on</string>
+    <string name="parent_settings_signed_in">Signed in</string>
+    <string name="parent_recovery_title">Save your recovery code</string>
+    <string name="parent_recovery_body">It\'s shown only this once. You\'ll need it to get back in if you forget your password.</string>
+    <string name="parent_recovery_copy">Copy code</string>
+    <string name="parent_recovery_copied">Recovery code copied</string>
+    <string name="parent_recovery_done">I\'ve saved it</string>
+    <string name="parent_rules_summary">%1$s or stronger · %2$s</string>
+    <string name="parent_intensity_short_subtle">Subtle</string>
+    <string name="parent_intensity_short_standard">Standard</string>
+    <string name="parent_intensity_short_insistent">Insistent</string>
+
+    <!-- Caregivers -->
+    <string name="parent_caregivers_invite_title">Invite a caregiver</string>
+    <string name="parent_caregivers_invite_body">Another parent or carer can join this family and see the same things you do. Give them this code to enter in their Keyguard app.</string>
+    <string name="parent_caregivers_join_title">Join another family</string>
+    <string name="parent_caregivers_join_body">If another parent gave you an invite code, enter it here.</string>
+    <string name="parent_caregivers_joined">You\'ve joined the family.</string>
+
+    <!-- Rules -->
+    <string name="parent_rules_intro">These apply to every phone in your family. Changes reach their phone within about 15 minutes.</string>
+    <string name="parent_policy_save_changes">Save changes</string>
+</resources>

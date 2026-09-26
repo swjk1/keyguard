@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A plain card with a padded vertical body, for content built in code (the report sections).
+  Inflated rather than constructed so it carries Widget.Keyguard.Card exactly as the XML
+  screens do - a card built by hand in code had drifted to a different margin and radius.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.Keyguard.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/card_padding" />
+</com.google.android.material.card.MaterialCardView>

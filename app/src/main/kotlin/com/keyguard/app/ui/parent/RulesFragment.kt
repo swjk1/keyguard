@@ -16,7 +16,7 @@ import com.keyguard.app.settings.Intensity
 import com.keyguard.app.ui.SectionFragment
 
 /**
- * What the parent has decided.
+ * What the parent has decided. Pushed from Settings as "Warning rules".
  *
  * Split out of the dashboard so a parent checking on their child does not walk past six radio
  * groups to get there. Every option carries a one-line hint in the layout: these are decisions
@@ -27,7 +27,7 @@ import com.keyguard.app.ui.SectionFragment
  * reports switched off, an override level with blocking disabled — and a half-applied policy
  * syncing to a child's phone mid-edit is worse than an unsaved one.
  */
-class RulesFragment : SectionFragment() {
+class RulesFragment : SectionFragment(), ParentScreen {
 
     private var _binding: FragmentRulesBinding? = null
     private val binding get() = _binding!!
@@ -36,6 +36,42 @@ class RulesFragment : SectionFragment() {
 
     /** Guards re-entrancy while the controls are re-checked from a loaded policy. */
     private var rendering = false
+
+    /**
+     * The policy version the controls were last drawn from, or null before the first draw.
+     *
+     * Every overview reload refreshes every screen, and this one used to redraw its controls
+     * from the server's policy each time - so a parent halfway through an edit who switched
+     * to another app for a moment came back to find their changes quietly undone. The
+     * controls are now redrawn only when the policy itself has changed (a save, or another
+     * caregiver's edit), which is the one time the screen should overrule what is on it.
+     */
+    private var renderedVersion: Long? = null
+
+    override fun screenTitle(): CharSequence = getString(R.string.parent_settings_rules)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // With the version restored, a rotation keeps the parent's unsaved edits: the controls
+        // come back from their own saved state and refresh sees nothing new to draw.
+        renderedVersion = savedInstanceState?.takeIf { it.containsKey(STATE_VERSION) }
+            ?.getLong(STATE_VERSION)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        renderedVersion?.let { outState.putLong(STATE_VERSION, it) }
+    }
+
+    /**
+     * The controls restoring their own checked state is not the parent choosing full review,
+     * so it must not ask them to confirm it again.
+     */
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        rendering = true
+        super.onViewStateRestored(savedInstanceState)
+        rendering = false
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,13 +105,19 @@ class RulesFragment : SectionFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        // A rebuilt view starts from the server's answer; the old controls went with it.
+        renderedVersion = null
     }
 
     override fun refresh() {
         if (_binding == null) return
-        binding.rulesStatusText.visibility = View.GONE
         binding.saveButton.isEnabled = host.client != null
-        render(host.policy ?: FamilyPolicy.DEFAULT)
+        val policy = host.policy ?: FamilyPolicy.DEFAULT
+        if (renderedVersion != policy.version || host.policy == null) {
+            binding.rulesStatusText.visibility = View.GONE
+            render(policy)
+            renderedVersion = policy.version.takeIf { host.policy != null }
+        }
     }
 
     private fun render(policy: FamilyPolicy) {
@@ -185,4 +227,8 @@ class RulesFragment : SectionFragment() {
         },
         reportsEnabled = binding.reportsSwitch.isChecked,
     )
+
+    private companion object {
+        const val STATE_VERSION = "renderedVersion"
+    }
 }

@@ -1,106 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The parent's home: who is paired, and what has happened.
+<!--
+  The parent's home: one card per child, and a way to add another.
 
-  This is the section a parent opens the app to reach, so it is first and it contains
-  nothing configurable. The policy editor that used to sit above the activity feed is
-  now its own tab; the pairing code, which is needed once per child, is collapsed
-  behind a button rather than occupying the top of the screen forever. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  Nothing on this screen is configurable - it answers "are they alright?" and nothing else.
+  Each card says who, when their phone last checked in, a status in colour and words, and the
+  most recent warning; everything else about that child is one tap away on their own page.
+
+  Adding a child is a floating button rather than a card at the top. It is needed once per
+  child, and a pairing card permanently occupying the top of the home screen made the app
+  read as a setup wizard long after setup was over. With no children yet the button gives way
+  to an empty state whose one action is the same thing.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
-    android:clipToPadding="false"
-    android:paddingStart="@dimen/screen_margin"
-    android:paddingEnd="@dimen/screen_margin"
-    android:paddingTop="@dimen/space_sm"
-    android:paddingBottom="@dimen/scroll_bottom_padding">
+    android:background="@color/surface">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/familyScroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_sm"
+        android:paddingEnd="@dimen/screen_margin"
+        android:paddingBottom="@dimen/scroll_bottom_padding">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.Keyguard.Card"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!--
+              The one state worth interrupting a clean screen for: a paired family whose
+              parent phone cannot post a notification. Nothing else would ever say so.
+            -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/alertsCard"
+                style="@style/Widget.Keyguard.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/card_padding">
-                <TextView
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/status_pending_surface"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/parent_add_child"
-                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/space_md"
+                    android:paddingTop="@dimen/space_sm"
+                    android:paddingEnd="@dimen/space_xs"
+                    android:paddingBottom="@dimen/space_sm">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_xs"
-                    android:text="@string/parent_code_instructions"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_parent_alerts_off"
+                        app:tint="@color/status_pending" />
 
-                <TextView
-                    android:id="@+id/codeText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_md"
-                    android:gravity="center"
-                    android:letterSpacing="0.25"
-                    android:textColor="@color/accent"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_md"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/parent_alerts_off_title"
+                            android:textAppearance="@style/TextAppearance.Keyguard.Label"
+                            android:textStyle="bold" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/codeButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_md"
-                    android:text="@string/parent_add_child_button" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/parent_alerts_off_body"
+                            android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+                            android:textColor="@color/on_surface" />
+                    </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/space_sm"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/alertsButton"
+                        style="@style/Widget.Keyguard.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_alerts_turn_on" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <include
+                android:id="@+id/emptyState"
+                layout="@layout/view_parent_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:visibility="gone" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:id="@+id/familyHeading"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/parent_children_heading"
-                android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                android:layout_marginStart="@dimen/space_xs"
+                android:layout_marginTop="@dimen/space_xs"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:accessibilityHeading="true"
+                android:text="@string/parent_family_heading"
+                android:textAppearance="@style/TextAppearance.Keyguard.SectionHeader"
+                android:visibility="gone" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/refreshButton"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/childrenContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/parent_refresh" />
+                android:orientation="vertical" />
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/space_sm"
-            android:textAppearance="@style/TextAppearance.Keyguard.Body"
-            android:textColor="@color/warn_medium"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/childrenContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </LinearLayout>
-</ScrollView>
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/addChildFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/space_md"
+        android:text="@string/parent_add_child_action"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        app:backgroundTint="@color/accent"
+        app:icon="@drawable/ic_parent_add"
+        app:iconTint="@android:color/white" />
+</FrameLayout>

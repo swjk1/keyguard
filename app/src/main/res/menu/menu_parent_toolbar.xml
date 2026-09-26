@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The parent toolbar's one action. The overview is re-fetched on every return to the app, so
+  this is for the parent watching the screen who wants a newer answer now - there is no
+  pull-to-refresh, because that would mean a new dependency.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_parent_refresh"
+        android:title="@string/parent_action_refresh"
+        app:iconTint="@color/on_surface"
+        app:showAsAction="ifRoom" />
+</menu>
