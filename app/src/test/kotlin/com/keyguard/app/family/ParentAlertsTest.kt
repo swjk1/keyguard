@@ -58,6 +58,18 @@ class ParentAlertsTest {
     }
 
     @Test
+    fun `a new family's first warning alerts even though the first poll saw nothing`() {
+        // The order every real family goes through: pair, poll an empty history, then the
+        // child's first warning. Storing 0 after the empty poll made the next one "first" too.
+        val quiet = ParentAlerts.digest(listOf(child("Ellie")), since = 0)
+        assertFalse(quiet.shouldNotify)
+
+        val next = ParentAlerts.digest(listOf(child("Ellie", event(300))), quiet.watermark)
+        assertTrue(next.shouldNotify)
+        assertEquals(300, next.watermark)
+    }
+
+    @Test
     fun `only events past the mark alert, and the mark then covers them`() {
         val children = listOf(child("Ellie", event(300), event(200), event(100)))
 

@@ -47,6 +47,12 @@ object ParentAlerts {
     val ALERT_FLOOR: Severity = Severity.HIGH
 
     /**
+     * The mark after a poll that saw nothing: distinct from 0 ("never polled") and below every
+     * real receipt time, so the next event of any age is news.
+     */
+    const val POLLED: Long = 1L
+
+    /**
      * One child's contribution to an alert, named the way a parent named it.
      *
      * Carries the label rather than the install id because the notification is read by a
@@ -88,7 +94,13 @@ object ParentAlerts {
         // Never moves backwards. A child removed from the family takes their events with them,
         // which would otherwise drop the mark below events the parent has already been told
         // about and replay them all on the next poll.
-        val watermark = maxOf(since, highest)
+        //
+        // And never stays at zero once a poll has happened. A first poll of a family with no
+        // events yet — every newly paired family — used to store 0 again, so the poll that
+        // found the child's *first* warning also counted as the first ever and said nothing.
+        // Found on the emulators: a self-harm warning reached the dashboard and never the
+        // notification shade.
+        val watermark = maxOf(since, highest, POLLED)
 
         // First ever poll. Establish the mark in silence; see the class note.
         if (since <= 0L) return Digest(watermark, emptyList())
