@@ -67,15 +67,15 @@
     <string name="setup_progress_choose">Step 3 of 3 · Choose Keyguard while typing</string>
     <string name="setup_progress_ready">All set · Keyguard is ready to use</string>
 
-    <string name="setup_disclosure_heading">What this keyboard can see</string>
-    <string name="setup_disclosure_body">To warn you as you type, Keyguard reads the text you type on its own keyboard.\n\nWhat happens to it:\n\n• Checking happens on this device, using a built-in list of patterns. No network is involved.\n• Nothing you type is saved. Text is held in memory only while you\'re typing and is discarded when you switch fields.\n• Password fields are never checked. Detection and network activity are switched off completely for them.\n• Nothing you type is ever written to logs or crash reports.\n\nKeyguard can only see what you type on its own keyboard. It cannot read messages you receive, and it cannot see what you type on any other keyboard.</string>
+    <string name="setup_disclosure_heading">What Keyguard can see</string>
+    <string name="setup_disclosure_body">To warn you before you send something risky, Keyguard reads the text you type in apps on this phone, as you type it. It works on top of whichever keyboard you use.\n\n• Password fields are never read. Keyguard skips them completely.\n• Checking happens on this phone, using a built-in list of patterns.\n• Nothing you type is stored. Text is held in memory only while you\'re typing, and it is never written to logs or crash reports.\n• Keyguard doesn\'t keep a record of which apps you use.\n\nIt only looks at what you type. It doesn\'t read messages you receive.</string>
     <!--
       The one paragraph of the disclosure that is not true of every build, so it is the one
       string the solo flavor overrides. Keep both versions accurate to their own flavor: this
       text is what a user consents to, and it is what store review reads.
     -->
     <string name="setup_disclosure_network">Double-checking (optional, off by default) is the one exception. If you turn it on, a flagged phrase and up to a few recent messages are sent to a server to be reviewed by an AI — this is what tells “I want to die of embarrassment” apart from something serious. Even then, your full typing is never sent, and nothing is sent from password fields. You can turn it off at any time.</string>
-    <string name="setup_disclosure_accept">I\'ve read what this keyboard can see</string>
+    <string name="setup_disclosure_accept">I\'ve read what Keyguard can see</string>
 
     <!--
       Onboarding.
@@ -143,7 +143,7 @@
     <string name="verify_base_url" translatable="false"></string>
 
     <string name="appearance_alarm_heading">Alarm size</string>
-    <string name="appearance_alarm_hint">How large the warning above the keys appears. A warning too small to notice is a warning that does nothing.</string>
+    <string name="appearance_alarm_hint">How large the warning text appears. A warning too small to notice is a warning that does nothing.</string>
     <string name="appearance_alarm_text">Warning text size</string>
     <string name="appearance_alarm_lines">Message lines shown</string>
 
@@ -292,10 +292,10 @@
     -->
     <string name="accessibility_service_label">Keyguard safety warnings</string>
     <string name="accessibility_service_summary">Warns before you send something risky</string>
-    <string name="accessibility_service_description">Keyguard reads the text you are typing so it can warn you before you send personal information, or something that could hurt you or someone else. It never reads password fields. It does not record which app you are using. If this device is supervised, what a parent can see is listed on the Keyguard setup screen.</string>
+    <string name="accessibility_service_description">Keyguard reads the text you are typing so it can warn you before you send personal information, or something that could hurt you or someone else. It never reads password fields. It does not record which app you are using. If this device is supervised, what a parent can see is listed in the Keyguard app, under Family.</string>
 
     <!-- Overlay setup, child side -->
-    <string name="overlay_setup_hint">Keyguard now works on top of the keyboard you already use, so typing stays exactly as smooth as it is today. It needs two permissions to do that.</string>
+    <string name="overlay_setup_hint">Keyguard works on top of the keyboard you already use, so typing stays exactly as it is. It needs two permissions to do that.</string>
     <string name="overlay_grant_accessibility">Allow Keyguard to see what you type</string>
     <string name="overlay_grant_accessibility_hint">In the list that opens, find “Keyguard safety warnings” and turn it on.</string>
     <string name="overlay_grant_draw">Allow Keyguard to show warnings</string>
@@ -393,16 +393,12 @@
     <string name="emotion_tired">Tired</string>
 
     <string name="parent_report_loading">Loading…</string>
-    <string name="setup_progress_accessibility">Step 2 of 3 — let Keyguard see what you type</string>
-    <string name="setup_progress_overlay">Step 3 of 3 — let Keyguard show warnings</string>
+    <string name="setup_progress_accessibility">Step 2 of 3 · Let Keyguard see what you type</string>
+    <string name="setup_progress_overlay">Step 3 of 3 · Let Keyguard show warnings</string>
     <string name="onboarding_accessibility_heading">Let Keyguard see what you type</string>
-    <string name="onboarding_accessibility_body">Keyguard works on top of the keyboard you already use, so typing stays exactly as it is. To warn you, it needs to see the text as you write it. It never looks at password fields, and it does not record which app you are in.
-
-In the list that opens, find “Keyguard safety warnings” and turn it on.</string>
+    <string name="onboarding_accessibility_body">Keyguard works on top of the keyboard you already use, so typing stays exactly as it is. To warn you, it needs to see the text as you write it. It never looks at password fields, and it does not record which app you are in.\n\nIn the list that opens, find “Keyguard safety warnings” and turn it on.</string>
     <string name="onboarding_overlay_heading">Let Keyguard show warnings</string>
-    <string name="onboarding_overlay_body">One more. Keyguard needs permission to draw over other apps so the warning can appear above your keyboard.
-
-Without it Keyguard would be able to see what you type and have no way to warn you, so it will not run until this is on.</string>
+    <string name="onboarding_overlay_body">One more. Keyguard needs permission to draw over other apps so the warning can appear above your keyboard.\n\nWithout it Keyguard would be able to see what you type and have no way to warn you, so it will not run until this is on.</string>
     <!-- ==================== Navigation ==================== -->
     <string name="nav_protection">Protection</string>
     <string name="nav_appearance">Look</string>
@@ -423,11 +419,11 @@ Without it Keyguard would be able to see what you type and have no way to warn y
       permission and get distracted.
     -->
     <string name="protection_on_title">You\'re protected</string>
-    <string name="protection_on_body">Keyguard is watching what you type and will warn you before you send something risky. It never looks at password fields.</string>
+    <string name="protection_on_body">Keyguard checks what you type and warns you before you send something risky. It never reads password fields.</string>
     <string name="protection_partial_title">Almost there</string>
     <string name="protection_partial_body">Keyguard can\'t warn you yet. Finish the step below to turn protection on.</string>
     <string name="protection_off_title">Not protected yet</string>
-    <string name="protection_off_body">Keyguard isn\'t watching anything. Two quick permissions and it will warn you before you send something you might regret.</string>
+    <string name="protection_off_body">Keyguard isn\'t on yet. Three quick steps and it will warn you before you send something you might regret.</string>
 
     <string name="protection_steps_title">Setup</string>
     <string name="protection_step_disclosure">Read what Keyguard can see</string>
@@ -438,7 +434,7 @@ Without it Keyguard would be able to see what you type and have no way to warn y
     <string name="protection_intensity_hint">How forcefully warnings interrupt you. Stronger settings expand the warning and ask before you send.</string>
 
     <string name="protection_keyboard_title">Or use the Keyguard keyboard</string>
-    <string name="protection_keyboard_hint">An older way to run Keyguard: replace your keyboard instead of running on top of it. You don\'t need this if protection is already on above.</string>
+    <string name="protection_keyboard_hint">An older way to run Keyguard: type on Keyguard\'s own keyboard instead of having it work on top of yours. You don\'t need it if you\'re already protected.</string>
 
     <!-- ==================== Look ==================== -->
     <string name="appearance_position_hint">Above the keyboard is where you\'re already looking. Move it to the top if it covers messages you\'re replying to.</string>
