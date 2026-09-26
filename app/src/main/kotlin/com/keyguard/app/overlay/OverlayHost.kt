@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
@@ -76,15 +79,25 @@ class OverlayHost(
         imeBounds: OverlayAnchor.Bounds?,
         fieldBounds: OverlayAnchor.Bounds? = null,
     ) {
+        mainHandler.removeCallbacks(releaseHeldIme)
+        heldRender = null
         if (state is OverlayState.Hidden) {
             hide()
             return
         }
 
+        val ime = steadyImeBounds(imeBounds)
+        if (ime != null && imeBounds == null) {
+            // Running on borrowed bounds. Re-render without them once the grace period is up,
+            // so a keyboard that really has gone cannot leave a shade behind even if nothing
+            // else happens to trigger a render.
+            heldRender = HeldRender(state, position, fieldBounds)
+            mainHandler.postAtTime(releaseHeldIme, lastImeAtMs + IME_HOLD_MS + 1)
+        }
 
         val wantsShade = state is OverlayState.Warning && state.shaded
         val shadeRect = if (wantsShade) {
-            OverlayAnchor.shadeRect(screenWidth(), screenHeight(), imeBounds)
+            OverlayAnchor.shadeRect(screenWidth(), screenHeight(), ime)
         } else {
             null
         }
@@ -95,11 +108,60 @@ class OverlayHost(
         shadeActive = shadeAttached
 
         warningView.render(state, shadeActive)
-        showWarning(position, imeBounds, fieldBounds)
+        showWarning(position, ime, fieldBounds)
     }
 
+    /**
+     * The keyboard bounds to use for this render: the reported ones, or — for a short grace
+     * period after the last real report — the last ones that were reported.
+     *
+     * The keyboard window drops out of the accessibility window list now and then while the
+     * user types (see [OverlayAnchor.placeWarning]). The biggest cause was the shade itself,
+     * fixed in [showShade]; what remains are short gaps, seen with Gboard while it resizes its
+     * window for a suggestion popup. The warning's placement already tolerates a gap by falling
+     * back to the field. The shade cannot: without this it comes down for the gap and goes
+     * back up after it, dimming and undimming the whole keyboard and growing and shrinking the
+     * card as the paused notice comes and goes.
+     *
+     * The hold is deliberately short and time-boxed rather than "until the keyboard comes back":
+     * the cost of holding too long is a shade over app content where the keyboard used to be,
+     * which [releaseHeldIme] bounds to [IME_HOLD_MS].
+     */
+    private fun steadyImeBounds(reported: OverlayAnchor.Bounds?): OverlayAnchor.Bounds? {
+        val now = SystemClock.uptimeMillis()
+        if (reported != null) {
+            lastImeBounds = reported
+            lastImeAtMs = now
+            return reported
+        }
+        val held = lastImeBounds ?: return null
+        if (now - lastImeAtMs <= IME_HOLD_MS) return held
+        lastImeBounds = null
+        return null
+    }
+
+    /** What to re-render with once borrowed keyboard bounds expire. */
+    private data class HeldRender(
+        val state: OverlayState,
+        val position: OverlayPosition,
+        val fieldBounds: OverlayAnchor.Bounds?,
+    )
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var heldRender: HeldRender? = null
+    private var lastImeBounds: OverlayAnchor.Bounds? = null
+    private var lastImeAtMs = 0L
+
+    private val releaseHeldIme = Runnable {
+        val held = heldRender ?: return@Runnable
+        render(held.state, held.position, imeBounds = null, fieldBounds = held.fieldBounds)
+    }
 
     fun hide() {
+        mainHandler.removeCallbacks(releaseHeldIme)
+        heldRender = null
+        // A keyboard seen before the warning went away says nothing about the next one.
+        lastImeBounds = null
         hideShade()
         shadeActive = false
         detach(warningView) { warningAttached = false }
@@ -195,7 +257,17 @@ class OverlayHost(
     private fun showShade(rect: OverlayAnchor.Bounds) {
         val params = WindowManager.LayoutParams(
             rect.right - rect.left,
-            rect.height,
+            // One pixel short of the rectangle, at the bottom edge of the screen.
+            //
+            // The accessibility window list leaves out any window that is completely covered by
+            // windows above it, and a shade covering exactly the keyboard's area is exactly
+            // that. So the moment the shade went up, the keyboard vanished from the list, the
+            // next render could not find it and took the shade down, the keyboard reappeared,
+            // and the shade went back up: on and off on alternate keystrokes, dimming and
+            // undimming the whole keyboard. One uncovered row keeps the keyboard reported. It
+            // is the last row of the screen — the gesture-navigation strip, never a key — so
+            // the block itself is unaffected.
+            (rect.height - 1).coerceAtLeast(1),
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             // Deliberately *without* NOT_TOUCHABLE: absorbing touches is this window's entire
             // purpose. Still not focusable, so the host keyboard stays open underneath and the
@@ -245,6 +317,14 @@ class OverlayHost(
     @Suppress("DEPRECATION")
     private fun screenWidth(): Int = context.resources.displayMetrics.widthPixels
 
+    private companion object {
+        /**
+         * How long the last reported keyboard bounds stand in for a missing report. Covers the
+         * gaps measured while typing on the emulator (up to about 300ms), and short enough that
+         * a keyboard that really closed leaves its shade behind for under half a second.
+         */
+        const val IME_HOLD_MS = 400L
+    }
 
     private fun density(): Float = context.resources.displayMetrics.density
 
