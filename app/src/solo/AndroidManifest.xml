@@ -71,5 +71,15 @@
         <service
             android:name=".family.SupervisionJobService"
             tools:node="remove" />
+
+        <!--
+          The parent poll goes with it. Nothing in this flavor could schedule it - ParentActivity
+          above is gone and `verify_base_url` is blank - but leaving the declaration would have
+          this build advertise a background job belonging to a feature it does not have, to the
+          one audience this file is written for.
+        -->
+        <service
+            android:name=".family.ParentSyncJobService"
+            tools:node="remove" />
     </application>
 </manifest>

@@ -170,6 +170,7 @@
     <string name="supervision_pairing">Pairing…</string>
     <string name="supervision_code_invalid">That code isn\'t right, or it has expired. Ask for a new one.</string>
     <string name="supervision_pair_failed">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="supervision_pair_rate_limited">Too many tries. Wait a few minutes, then ask for a new code.</string>
     <string name="supervision_notification_required">Supervision needs notifications so this phone always shows that monitoring is on. Allow notifications, then pairing will continue.</string>
     <string name="supervision_restore_notification">Turn supervision notification back on</string>
     <string name="supervision_not_configured">No server is configured in this build, so supervision can\'t be set up yet.</string>
@@ -192,6 +193,28 @@
     <string name="supervision_notice_detail_themes">A parent can see what kind of warnings you get, whether you sent the message, and a weekly picture of what you talk about. They cannot see what you typed. Tap for details.</string>
     <string name="supervision_notice_detail_full">A parent can read what you type on this phone, as well as the warnings you get. Tap for details.</string>
     <string name="supervision_notice_text_full">A parent can read what you type.</string>
+
+    <!--
+      The parent-side alert. The opposite kind of notification to the one above: that is a
+      standing fact, this is an interruption, and it only ever fires at high severity.
+
+      It names a device, a count and a category and nothing else. A notification is read on a
+      lock screen and over shoulders, so the rule SupervisionEvent states about what may leave
+      the child's phone applies here again, more strictly.
+    -->
+    <string name="parent_alert_channel_name">Warnings</string>
+    <string name="parent_alert_channel_description">Tells you when a serious warning is reported on a supervised device.</string>
+    <string name="parent_alert_title_single">%1$s — %2$s</string>
+    <plurals name="parent_alert_title_child">
+        <item quantity="one">%1$s — %2$d new warning</item>
+        <item quantity="other">%1$s — %2$d new warnings</item>
+    </plurals>
+    <plurals name="parent_alert_title_many">
+        <item quantity="one">%1$d new warning across %2$d devices</item>
+        <item quantity="other">%1$d new warnings across %2$d devices</item>
+    </plurals>
+    <string name="parent_alert_text">Tap to open Keyguard.</string>
+    <string name="parent_alerts_blocked">Warning alerts are switched off. Tap to turn them on.</string>
 
     <!-- Parent mode -->
     <string name="parent_title">Parent</string>

@@ -12,26 +12,56 @@ Full implementation plan, including the platform research this design rests on:
 | Module | State |
 |---|---|
 | `:detect` | Local detection engine plus the reporting vocabulary — complete, 61 tests |
-| `:app` | Accessibility overlay, IME, autocorrect, sizing, AI client, supervision, reports, onboarding, tabbed child and parent apps — 235 tests; **the overlay and the reworked UI have never run on a device** |
-| `backend/` | Parent accounts, family API, report generation — builds, 16 tests; **not deployed** |
+| `:app` | Accessibility overlay, IME, autocorrect, sizing, AI client, supervision, parent alerts, reports, onboarding, tabbed child and parent apps — 277 tests |
+| `backend/` | Parent accounts, family API, report generation — **deployed and healthy**, 18 tests plus an end-to-end smoke test |
 
 Not yet built: rule-pack OTA delivery on the client side (the endpoint exists, nothing fetches
 it), swipe typing, next-word prediction, theme/colour customization, and landscape layout.
 
-**The overlay is new and unexercised.** Every line of it compiles and its pure logic is tested
-on the JVM, but no part of it has been run against a real accessibility service, a real
-`WindowManager`, or a real keyboard. Window placement, the touch-absorbing shade, and
-`ACTION_SET_TEXT` against arbitrary host apps are all first-run-on-device risks, and the
-Play Accessibility API review is an open question rather than a known outcome. See
-**Where the keyboard went**.
+**The overlay has now run on a device**, and the first run found what a first run finds: the
+draw-over grant being sampled once at connect time so the warning never appeared at all, and
+two separate causes of the warning flickering. All three are fixed. What is still unexercised
+on a device is narrower than it was — `ACTION_SET_TEXT` against a wide range of host apps, the
+shade against keyboards that do not report their window — and the Play Accessibility API review
+remains an open question rather than a known outcome. See **Where the keyboard went**.
 
-Release signing is wired but keyless: `app/build.gradle.kts` reads a keystore from
-`local.properties` and produces an unsigned APK when it finds none. `PRIVACY.md` is written and
-needs hosting at a public URL before submission.
+**The supervision loop has now run against the live server.** `backend/scripts/smoke.mjs` takes
+a deployment URL and drives the whole path a real family takes: a parent registers, creates a
+family and mints a code; a child install redeems it, is refused when it replays the spent code,
+reads its policy, uploads a warning, is refused when that warning carries text, and is refused
+samples at `CONCERNING_ONLY`; the parent's overview shows the child and the event with a server
+receipt stamp; unpairing is seen by both ends. Run it against a deployment before handing a
+phone to anybody:
 
-Parent/child supervision, reports, and recoverable parent accounts are built end to end but
-**have never run against a live server**, so pairing, policy delivery, event upload, sample
-upload, and report generation are all unexercised paths.
+```bash
+cd backend && node scripts/smoke.mjs https://<deployment>
+```
+
+Report generation is the one supervision path the smoke test does not cover, because it spends
+a model call and caches the result; it is still unexercised against real data.
+
+**Release signing is wired but keyless.** `app/build.gradle.kts` reads a keystore from
+`local.properties` and produces an unsigned artifact when it finds none, which is what
+`assembleFamilyRelease` and `bundleFamilyRelease` do today. To sign, create an upload key and
+tell Gradle where it is:
+
+```bash
+keytool -genkeypair -v -keystore keyguard-upload.jks -alias keyguard   -keyalg RSA -keysize 4096 -validity 10000
+```
+
+then add to `local.properties` (already gitignored):
+
+```properties
+keyguard.keystore=C:/path/to/keyguard-upload.jks
+keyguard.keystorePassword=...
+keyguard.keyAlias=keyguard
+keyguard.keyPassword=...
+```
+
+Back the file up somewhere that is not this machine. With Play App Signing an upload key can be
+reset if it is lost; without it, losing the key means the app can never be updated again.
+
+`PRIVACY.md` is written and needs hosting at a public URL before submission.
 
 ## Where the keyboard went
 
@@ -247,6 +277,45 @@ every network call happens in the app process, driven by `SupervisionJobService`
 that is the same process and the split buys nothing technical — it is a shape the iOS port
 cannot do without, since 4.4.1 limits a keyboard extension to collecting activity that enhances
 the keyboard itself, and reporting to a parent plainly is not that.
+
+**The parent is told, rather than having to look.** For a long time the parent side was
+pull-only: a child queued an event, a fifteen-minute job uploaded it, and it sat on the server
+until a parent opened the app and the dashboard happened to fetch. That is a reasonable way to
+deliver a weekly report and a poor way to keep the promise the product is sold on, so both legs
+of the delay are now addressed.
+
+- `SupervisionSync.syncNow` schedules a one-off expedited upload when an event is `HIGH`, so
+  the serious cases do not wait out the periodic interval. Only the top severity, because
+  expedited jobs have a quota and spending it on an ordinary day's medium warnings would leave
+  none for the one that mattered.
+- `ParentSyncJobService` is the mirror of the child's job on the parent's phone: it polls the
+  overview and hands the result to `ParentAlerts`, which decides what is worth an interruption.
+  `ParentAlertNotice` posts it.
+
+`ParentAlerts` is where the judgement lives and it is pure, so the cases that matter are
+checked on the JVM rather than by pairing two phones and waiting a quarter of an hour. Three
+rules earn their place:
+
+- **The first poll is silent.** A zero watermark means "establish the mark", not "everything is
+  new" — otherwise signing in on a new phone hands a parent a notification summarising history
+  they have not looked at yet.
+- **The watermark is the server's receipt time, never `SupervisionEvent.at`.** That field is
+  the child's wall clock and is documented as untrusted; one event from a phone set a year
+  forward would push the mark past every genuine warning after it.
+- **Only `HIGH` interrupts.** A notification per medium warning is several a day for an
+  ordinary teenager, and a parent trained to swipe them away has been trained to miss the one
+  that counts. Everything else is in the dashboard, which now also reloads on resume rather
+  than only on a cold start.
+
+The notification carries a device label, a count and a category, and nothing else. It is read
+on a lock screen and over shoulders, so the rule `SupervisionEvent` states about what may leave
+the child's phone applies here again and more strictly.
+
+**This is a poll, not a push.** A push needs Firebase, a device-token registry, and a
+data-safety entry the app does not otherwise have. The latency it would save is on the leg that
+was already the shorter one — the child's upload sits on the same fifteen-minute platform
+floor — so expediting both legs was worth doing first. Firebase becomes worth adding when
+minutes matter more than the dependency does.
 
 **Only a parent can unpair.** A supervised device that could quietly unpair itself is not
 supervised, and a monitoring tool the monitored party can silently switch off reports "all
@@ -839,9 +908,23 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 ## Testing
 
 ```sh
-./gradlew :detect:test            # full suite
-./gradlew :detect:test --info     # includes recall / false-positive / latency numbers
+./gradlew :detect:test                      # detection engine, 61 tests
+./gradlew :detect:test --info               # includes recall / false-positive / latency numbers
+./gradlew :app:testFamilyDebugUnitTest      # the app's pure logic, 277 tests
+cd backend && npm test && npm run typecheck # 18 tests
 ```
+
+Everything above runs offline. The one suite that does not is the deployment smoke test, which
+drives a real family through a real server and is the only place the Redis-backed half of
+supervision is exercised at all:
+
+```sh
+cd backend && node scripts/smoke.mjs https://<deployment>
+```
+
+It registers a throwaway parent account and deletes it in a `finally`, so it is safe to point
+at production — and pointing it at production is the intent, since a staging Redis would prove
+nothing about the instance a tester's phone will talk to.
 
 `GoldenCorpusTest` is the quality regression gate, asserting two numbers that pull against
 each other:

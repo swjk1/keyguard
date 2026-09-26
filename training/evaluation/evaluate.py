@@ -34,11 +34,20 @@ from keyguard_ml.risk_engine import RiskEngine, entities_from_tags
 
 
 def _gold_entities(example) -> set[str]:
-    return {
+    """Annotated entity buckets: from spans where there are offsets, from `entities`
+    where there are not.
+
+    The gold set has no offsets, so before it carried `entities` its rows reached the
+    rule table with no entity terms at all — which meant four of the six Level 3 rules
+    and both address rules could fire on the model's side and never on gold's. That is
+    not a strict measurement, it is a different rule table for each side, and it inflated
+    gold's false-warning rate by a third."""
+    from_spans = {
         bucket
         for span in example.spans
         if (bucket := ENTITY_TO_SAFETY_ENTITY.get(span["label"]))
     }
+    return from_spans | set(getattr(example, "entities", ()) or ())
 
 
 def risk_report(
@@ -348,7 +357,13 @@ def main() -> None:
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--thresholds-from", default=None,
-                        help="refit thresholds on this file instead of using the checkpoint's")
+                        help="refit thresholds on this file instead of using the checkpoint's. "
+                             "Diagnostic only: the refit points are NOT what export ships, so a "
+                             "report produced with this flag describes a configuration the phone "
+                             "will not run. That divergence shipped once already — six of eight "
+                             "thresholds differed between this report and thresholds.json. "
+                             "Operating points belong to evaluation.calibrate; leave this unset "
+                             "for any number that is going to be quoted.")
     parser.add_argument("--objective", default="f1", choices=["f1", "recall"])
     parser.add_argument("--min-precision", type=float, default=None)
     args = parser.parse_args()

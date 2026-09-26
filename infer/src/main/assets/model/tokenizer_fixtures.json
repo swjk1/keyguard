@@ -1,0 +1,1362 @@
+[
+  {
+    "text": "i have robotics every thu",
+    "input_ids": [
+      101,
+      1045,
+      2031,
+      21331,
+      2296,
+      16215,
+      2226,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "have",
+      "robotics",
+      "every",
+      "th",
+      "##u",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i have gymnastics every sun",
+    "input_ids": [
+      101,
+      1045,
+      2031,
+      14002,
+      2296,
+      3103,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "have",
+      "gymnastics",
+      "every",
+      "sun",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "House iS EMPTy",
+    "input_ids": [
+      101,
+      2160,
+      2003,
+      4064,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "house",
+      "is",
+      "empty",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i go to stonebridge secondary school",
+    "input_ids": [
+      101,
+      1045,
+      2175,
+      2000,
+      2962,
+      6374,
+      3905,
+      2082,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "go",
+      "to",
+      "stone",
+      "##bridge",
+      "secondary",
+      "school",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "art club is every monday",
+    "input_ids": [
+      101,
+      2396,
+      2252,
+      2003,
+      2296,
+      6928,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "art",
+      "club",
+      "is",
+      "every",
+      "monday",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "guys NO ONEs Home rn",
+    "input_ids": [
+      101,
+      4364,
+      2053,
+      3924,
+      2188,
+      29300,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "guys",
+      "no",
+      "ones",
+      "home",
+      "rn",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "house is empty ...",
+    "input_ids": [
+      101,
+      2160,
+      2003,
+      4064,
+      1012,
+      1012,
+      1012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "house",
+      "is",
+      "empty",
+      ".",
+      ".",
+      ".",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "drama club is every Wed",
+    "input_ids": [
+      101,
+      3689,
+      2252,
+      2003,
+      2296,
+      21981,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "drama",
+      "club",
+      "is",
+      "every",
+      "wed",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "I'm sitting outside 2085 Myers Rd",
+    "input_ids": [
+      101,
+      1045,
+      1005,
+      1049,
+      3564,
+      2648,
+      18512,
+      2629,
+      13854,
+      16428,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "'",
+      "m",
+      "sitting",
+      "outside",
+      "208",
+      "##5",
+      "myers",
+      "rd",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "gymnastics starts at 12:25 ok",
+    "input_ids": [
+      101,
+      14002,
+      4627,
+      2012,
+      2260,
+      1024,
+      2423,
+      7929,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "gymnastics",
+      "starts",
+      "at",
+      "12",
+      ":",
+      "25",
+      "ok",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "every thursday i have chess club :D",
+    "input_ids": [
+      101,
+      2296,
+      9432,
+      1045,
+      2031,
+      7433,
+      2252,
+      1024,
+      1040,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "every",
+      "thursday",
+      "i",
+      "have",
+      "chess",
+      "club",
+      ":",
+      "d",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "same route every day past Tim Hortons",
+    "input_ids": [
+      101,
+      2168,
+      2799,
+      2296,
+      2154,
+      2627,
+      5199,
+      18469,
+      2015,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "same",
+      "route",
+      "every",
+      "day",
+      "past",
+      "tim",
+      "horton",
+      "##s",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i walk home through the playground every day tho",
+    "input_ids": [
+      101,
+      1045,
+      3328,
+      2188,
+      2083,
+      1996,
+      14705,
+      2296,
+      2154,
+      27793,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "walk",
+      "home",
+      "through",
+      "the",
+      "playground",
+      "every",
+      "day",
+      "tho",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i have drama club every saturday",
+    "input_ids": [
+      101,
+      1045,
+      2031,
+      3689,
+      2252,
+      2296,
+      5095,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "have",
+      "drama",
+      "club",
+      "every",
+      "saturday",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "no ones home rn",
+    "input_ids": [
+      101,
+      2053,
+      3924,
+      2188,
+      29300,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "no",
+      "ones",
+      "home",
+      "rn",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "got the house to myself tonight tho",
+    "input_ids": [
+      101,
+      2288,
+      1996,
+      2160,
+      2000,
+      2870,
+      3892,
+      27793,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "got",
+      "the",
+      "house",
+      "to",
+      "myself",
+      "tonight",
+      "tho",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "every Sunday I have track",
+    "input_ids": [
+      101,
+      2296,
+      4465,
+      1045,
+      2031,
+      2650,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "every",
+      "sunday",
+      "i",
+      "have",
+      "track",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i go 2 track every week 💀",
+    "input_ids": [
+      101,
+      1045,
+      2175,
+      1016,
+      2650,
+      2296,
+      2733,
+      100,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "go",
+      "2",
+      "track",
+      "every",
+      "week",
+      "[UNK]",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "no ones home rn",
+    "input_ids": [
+      101,
+      2053,
+      3924,
+      2188,
+      29300,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "no",
+      "ones",
+      "home",
+      "rn",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "no ones home rn",
+    "input_ids": [
+      101,
+      2053,
+      3924,
+      2188,
+      29300,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "no",
+      "ones",
+      "home",
+      "rn",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "yo email me at sierra.humphrey@gmail.com",
+    "input_ids": [
+      101,
+      10930,
+      10373,
+      2033,
+      2012,
+      7838,
+      1012,
+      15462,
+      1030,
+      20917,
+      4014,
+      1012,
+      4012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "yo",
+      "email",
+      "me",
+      "at",
+      "sierra",
+      ".",
+      "humphrey",
+      "@",
+      "gma",
+      "##il",
+      ".",
+      "com",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "send it to itscynthiaxx@outlook.com",
+    "input_ids": [
+      101,
+      4604,
+      2009,
+      2000,
+      2049,
+      5666,
+      3372,
+      12995,
+      20348,
+      1030,
+      17680,
+      1012,
+      4012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "send",
+      "it",
+      "to",
+      "its",
+      "##cy",
+      "##nt",
+      "##hia",
+      "##xx",
+      "@",
+      "outlook",
+      ".",
+      "com",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "my place is on poplar trl near the train station",
+    "input_ids": [
+      101,
+      2026,
+      2173,
+      2003,
+      2006,
+      3769,
+      8017,
+      19817,
+      2140,
+      2379,
+      1996,
+      3345,
+      2276,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "my",
+      "place",
+      "is",
+      "on",
+      "pop",
+      "##lar",
+      "tr",
+      "##l",
+      "near",
+      "the",
+      "train",
+      "station",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "I go to Brookfield Academy",
+    "input_ids": [
+      101,
+      1045,
+      2175,
+      2000,
+      9566,
+      3790,
+      2914,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "go",
+      "to",
+      "brook",
+      "##field",
+      "academy",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "its the house at 95 birch lane",
+    "input_ids": [
+      101,
+      2049,
+      1996,
+      2160,
+      2012,
+      5345,
+      16421,
+      4644,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "its",
+      "the",
+      "house",
+      "at",
+      "95",
+      "birch",
+      "lane",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "my place is on Sixth Road near the skate park",
+    "input_ids": [
+      101,
+      2026,
+      2173,
+      2003,
+      2006,
+      4369,
+      2346,
+      2379,
+      1996,
+      17260,
+      2380,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "my",
+      "place",
+      "is",
+      "on",
+      "sixth",
+      "road",
+      "near",
+      "the",
+      "skate",
+      "park",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "I haVe tO BE thERe By 10:05pM",
+    "input_ids": [
+      101,
+      1045,
+      2031,
+      2000,
+      2022,
+      2045,
+      2011,
+      2184,
+      1024,
+      5709,
+      9737,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "have",
+      "to",
+      "be",
+      "there",
+      "by",
+      "10",
+      ":",
+      "05",
+      "##pm",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "im @ st. joseph's elementary",
+    "input_ids": [
+      101,
+      10047,
+      1030,
+      2358,
+      1012,
+      3312,
+      1005,
+      1055,
+      4732,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "im",
+      "@",
+      "st",
+      ".",
+      "joseph",
+      "'",
+      "s",
+      "elementary",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "my place is on church pl near the community centre :)",
+    "input_ids": [
+      101,
+      2026,
+      2173,
+      2003,
+      2006,
+      2277,
+      20228,
+      2379,
+      1996,
+      2451,
+      2803,
+      1024,
+      1007,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "my",
+      "place",
+      "is",
+      "on",
+      "church",
+      "pl",
+      "near",
+      "the",
+      "community",
+      "centre",
+      ":",
+      ")",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "uh david8291@yahoo.com is me email",
+    "input_ids": [
+      101,
+      7910,
+      2585,
+      2620,
+      24594,
+      2487,
+      1030,
+      20643,
+      1012,
+      4012,
+      2003,
+      2033,
+      10373,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "uh",
+      "david",
+      "##8",
+      "##29",
+      "##1",
+      "@",
+      "yahoo",
+      ".",
+      "com",
+      "is",
+      "me",
+      "email",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "btw gotta leave at 8 lmao",
+    "input_ids": [
+      101,
+      18411,
+      2860,
+      10657,
+      2681,
+      2012,
+      1022,
+      1048,
+      2863,
+      2080,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "bt",
+      "##w",
+      "gotta",
+      "leave",
+      "at",
+      "8",
+      "l",
+      "##ma",
+      "##o",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "mmy email is judy.malone@icloud.com",
+    "input_ids": [
+      101,
+      3461,
+      2100,
+      10373,
+      2003,
+      12120,
+      1012,
+      16321,
+      1030,
+      24582,
+      23743,
+      2094,
+      1012,
+      4012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "mm",
+      "##y",
+      "email",
+      "is",
+      "judy",
+      ".",
+      "malone",
+      "@",
+      "ic",
+      "##lou",
+      "##d",
+      ".",
+      "com",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i have 2 b there by 4.30am",
+    "input_ids": [
+      101,
+      1045,
+      2031,
+      1016,
+      1038,
+      2045,
+      2011,
+      1018,
+      1012,
+      2382,
+      3286,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "have",
+      "2",
+      "b",
+      "there",
+      "by",
+      "4",
+      ".",
+      "30",
+      "##am",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i walk home through the coffee place every day",
+    "input_ids": [
+      101,
+      1045,
+      3328,
+      2188,
+      2083,
+      1996,
+      4157,
+      2173,
+      2296,
+      2154,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "walk",
+      "home",
+      "through",
+      "the",
+      "coffee",
+      "place",
+      "every",
+      "day",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "gotta leave at 11:10pm",
+    "input_ids": [
+      101,
+      10657,
+      2681,
+      2012,
+      2340,
+      1024,
+      2184,
+      9737,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "gotta",
+      "leave",
+      "at",
+      "11",
+      ":",
+      "10",
+      "##pm",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "im in grade 7 at northside elementary",
+    "input_ids": [
+      101,
+      10047,
+      1999,
+      3694,
+      1021,
+      2012,
+      2167,
+      7363,
+      4732,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "im",
+      "in",
+      "grade",
+      "7",
+      "at",
+      "north",
+      "##side",
+      "elementary",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "im @ 1526 hickory way",
+    "input_ids": [
+      101,
+      10047,
+      1030,
+      15017,
+      2575,
+      28158,
+      2126,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "im",
+      "@",
+      "152",
+      "##6",
+      "hickory",
+      "way",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "im the blue house on summer place",
+    "input_ids": [
+      101,
+      10047,
+      1996,
+      2630,
+      2160,
+      2006,
+      2621,
+      2173,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "im",
+      "the",
+      "blue",
+      "house",
+      "on",
+      "summer",
+      "place",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "send it to nathan5538@hotmail.com lol",
+    "input_ids": [
+      101,
+      4604,
+      2009,
+      2000,
+      7150,
+      24087,
+      22025,
+      1030,
+      2980,
+      21397,
+      1012,
+      4012,
+      8840,
+      2140,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "send",
+      "it",
+      "to",
+      "nathan",
+      "##55",
+      "##38",
+      "@",
+      "hot",
+      "##mail",
+      ".",
+      "com",
+      "lo",
+      "##l",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "ekail me at omar.carson@gmail.com",
+    "input_ids": [
+      101,
+      23969,
+      12502,
+      2033,
+      2012,
+      13192,
+      1012,
+      9806,
+      1030,
+      20917,
+      4014,
+      1012,
+      4012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "ek",
+      "##ail",
+      "me",
+      "at",
+      "omar",
+      ".",
+      "carson",
+      "@",
+      "gma",
+      "##il",
+      ".",
+      "com",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i always cut through the burger place after schl 💀",
+    "input_ids": [
+      101,
+      1045,
+      2467,
+      3013,
+      2083,
+      1996,
+      15890,
+      2173,
+      2044,
+      8040,
+      7317,
+      100,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "always",
+      "cut",
+      "through",
+      "the",
+      "burger",
+      "place",
+      "after",
+      "sc",
+      "##hl",
+      "[UNK]",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "hockey is every thursday",
+    "input_ids": [
+      101,
+      3873,
+      2003,
+      2296,
+      9432,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "hockey",
+      "is",
+      "every",
+      "thursday",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i walk home through the coffee place every day 😂",
+    "input_ids": [
+      101,
+      1045,
+      3328,
+      2188,
+      2083,
+      1996,
+      4157,
+      2173,
+      2296,
+      2154,
+      100,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "walk",
+      "home",
+      "through",
+      "the",
+      "coffee",
+      "place",
+      "every",
+      "day",
+      "[UNK]",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "every sunday i have drama club",
+    "input_ids": [
+      101,
+      2296,
+      4465,
+      1045,
+      2031,
+      3689,
+      2252,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "every",
+      "sunday",
+      "i",
+      "have",
+      "drama",
+      "club",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "guys i go to st. mary's",
+    "input_ids": [
+      101,
+      4364,
+      1045,
+      2175,
+      2000,
+      2358,
+      1012,
+      2984,
+      1005,
+      1055,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "guys",
+      "i",
+      "go",
+      "to",
+      "st",
+      ".",
+      "mary",
+      "'",
+      "s",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "send it to ian.jordan@gmail.com pls",
+    "input_ids": [
+      101,
+      4604,
+      2009,
+      2000,
+      4775,
+      1012,
+      5207,
+      1030,
+      20917,
+      4014,
+      1012,
+      4012,
+      20228,
+      2015,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "send",
+      "it",
+      "to",
+      "ian",
+      ".",
+      "jordan",
+      "@",
+      "gma",
+      "##il",
+      ".",
+      "com",
+      "pl",
+      "##s",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "I always cut through the plaza after school",
+    "input_ids": [
+      101,
+      1045,
+      2467,
+      3013,
+      2083,
+      1996,
+      8232,
+      2044,
+      2082,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "always",
+      "cut",
+      "through",
+      "the",
+      "plaza",
+      "after",
+      "school",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "ok got the house to myself tonight haha",
+    "input_ids": [
+      101,
+      7929,
+      2288,
+      1996,
+      2160,
+      2000,
+      2870,
+      3892,
+      5292,
+      3270,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "ok",
+      "got",
+      "the",
+      "house",
+      "to",
+      "myself",
+      "tonight",
+      "ha",
+      "##ha",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "i walk past the movie theatre every saturday",
+    "input_ids": [
+      101,
+      1045,
+      3328,
+      2627,
+      1996,
+      3185,
+      3004,
+      2296,
+      5095,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "i",
+      "walk",
+      "past",
+      "the",
+      "movie",
+      "theatre",
+      "every",
+      "saturday",
+      "[SEP]"
+    ]
+  },
+  {
+    "text": "my email is scott.smith@icloud.com",
+    "input_ids": [
+      101,
+      2026,
+      10373,
+      2003,
+      3660,
+      1012,
+      3044,
+      1030,
+      24582,
+      23743,
+      2094,
+      1012,
+      4012,
+      102
+    ],
+    "tokens": [
+      "[CLS]",
+      "my",
+      "email",
+      "is",
+      "scott",
+      ".",
+      "smith",
+      "@",
+      "ic",
+      "##lou",
+      "##d",
+      ".",
+      "com",
+      "[SEP]"
+    ]
+  }
+]

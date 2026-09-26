@@ -15,10 +15,16 @@ import com.keyguard.app.family.SampleQueue
 import com.keyguard.app.family.SupervisedSettings
 import com.keyguard.app.family.Supervision
 import com.keyguard.app.family.SupervisionEvent
+import com.keyguard.app.family.SupervisionSync
 import com.keyguard.app.input.ComposeOutcome
 import com.keyguard.app.settings.Settings
+import com.keyguard.app.ui.CategoryLabels
 import com.keyguard.detect.Category
 import com.keyguard.detect.CrisisResources
+import com.keyguard.app.BuildConfig
+import com.keyguard.app.model.ModelFusion
+import com.keyguard.app.model.ModelGate
+import com.keyguard.app.model.VerdictStabilizer
 import com.keyguard.detect.DetectionEngine
 import com.keyguard.detect.RollingContext
 import com.keyguard.detect.ScanResult
@@ -72,17 +78,96 @@ import java.util.Locale
 class KeyguardAccessibilityService : AccessibilityService() {
 
     private lateinit var engine: DetectionEngine
+
+    /**
+     * The model's second opinion, or null when the build has no model.
+     *
+     * Held as a nullable rather than a lateinit so that every use site has to face the case
+     * where it is absent. The rule engine is the floor; this only ever adds to it.
+     */
+    private var modelGate: ModelGate? = null
+
+    /** Last severity actually put on screen, for the debug build's transition log. */
+    private var lastRenderedSeverity: Severity = Severity.NONE
+
+    /** Keeps the overlay from flickering while the model changes its mind. */
+    private val stabilizer = VerdictStabilizer()
+
+    /** Posts the one delayed re-evaluation a pending de-escalation needs. */
+    private val settleHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private lateinit var settings: Settings
     private lateinit var supervision: Supervision
     private lateinit var effective: SupervisedSettings
     private lateinit var outcomeLog: OutcomeLog
 
-    private var host: OverlayHost? = null
+    private var overlayHost: OverlayHost? = null
+
+    /** Uptime of the last focused-node resolve, for the content-changed rate limit. */
+    private var lastContentScanAt = 0L
+
+    private companion object {
+        /**
+         * Floor between focused-node resolves on the content-changed path.
+         *
+         * Chosen to sit just above `notificationTimeout` (50ms) in the service config, so a
+         * fast typist's burst still produces one scan per coalesced batch rather than one per
+         * frame of whatever else on screen happens to be animating.
+         */
+        const val CONTENT_SCAN_INTERVAL_MS = 60L
+    }
+
+    /**
+     * The overlay windows, created on first use and only while the draw-over-other-apps grant
+     * actually exists.
+     *
+     * This was previously built once in [onServiceConnected] and never revisited, which sampled
+     * the permission at exactly one moment — when the service was switched on. The setup screen
+     * asks for accessibility *before* draw-over-other-apps, so the ordinary path through
+     * onboarding guaranteed the bad case: the service connected while the second grant was
+     * still missing, the field stayed null, and it stayed null until the app was force-stopped
+     * or the phone rebooted. Granting the permission changed nothing, because nothing looked
+     * again. Found on a Pixel 9 Pro, where the overlay simply never appeared.
+     *
+     * Checking on access picks the grant up as soon as it is given. The steady state — a host
+     * that already exists — costs nothing, because the binder call only happens while there is
+     * no overlay to show.
+     */
+    private val host: OverlayHost?
+        get() {
+            overlayHost?.let { return it }
+            if (!OverlayPermissions.canDrawOverlays(this)) return null
+            return OverlayHost(this, actions).also {
+                it.updateAppearance(settings.appearance, settings.overlayOpacityPercent)
+                overlayHost = it
+            }
+        }
+
+    /**
+     * Drops the windows if the grant was taken away while they were up.
+     *
+     * Called on window changes rather than on every keystroke: revocation is rare, and the
+     * check costs a binder call that the typing path should not be paying.
+     */
+    private fun releaseHostIfRevoked() {
+        if (overlayHost != null && !OverlayPermissions.canDrawOverlays(this)) {
+            overlayHost?.destroy()
+            overlayHost = null
+        }
+    }
     private var eventQueue: EventQueue? = null
     private var sampleQueue: SampleQueue? = null
 
     /** In-memory only, cleared on every field change. Never persisted, never uploaded. */
     private var context = RollingContext()
+
+    /**
+     * The rule engine's own result for the current text, before any model verdict.
+     *
+     * Kept separately from [scanResult] so a model verdict is always merged into a fresh
+     * rule result rather than onto a previous merge. Without it, two verdicts in a row would
+     * stack their findings and the older one would outlive the text it described.
+     */
+    private var ruleResult: ScanResult = ScanResult.EMPTY
 
     /** The field currently being watched, so a stale node is never written to. */
     private var targetNode: AccessibilityNodeInfo? = null
@@ -119,23 +204,21 @@ class KeyguardAccessibilityService : AccessibilityService() {
         effective = SupervisedSettings(settings, supervision)
         outcomeLog = OutcomeLog(this)
         eventQueue = if (supervision.isSupervised) EventQueue(this) else null
+        modelGate = ModelGate(applicationContext) { text, verdict -> onModelVerdict(text, verdict) }
         sampleQueue = if (supervision.isSupervised) SampleQueue(this) else null
 
-        // Without the draw-over permission the service would watch everything and be able to
-        // say nothing, which is the one configuration this product must never run in. Better
-        // to do no monitoring at all than monitoring with no visible warning surface.
-        host = if (OverlayPermissions.canDrawOverlays(this)) {
-            OverlayHost(this, actions).also {
-                it.updateAppearance(settings.appearance, settings.overlayOpacityPercent)
-            }
-        } else {
-            null
-        }
+        // Deliberately not created here — see [host]. The draw-over grant routinely arrives
+        // after this point, and deciding once at connect time is what used to leave the
+        // service permanently unable to warn.
+        overlayHost = null
     }
 
     override fun onDestroy() {
-        host?.destroy()
-        host = null
+        overlayHost?.destroy()
+        overlayHost = null
+        modelGate?.shutdown()
+        modelGate = null
+        settleHandler.removeCallbacksAndMessages(null)
         clearTarget()
         super.onDestroy()
     }
@@ -149,39 +232,111 @@ class KeyguardAccessibilityService : AccessibilityService() {
         if (!settings.overlayEnabled) return
         if (event.packageName == packageName) return
 
+        // No warning surface means no monitoring at all. Checked here rather than only at
+        // render time because scanning, the outcome log and the parent's event queue all sit
+        // on the way there: `render` returning early stopped the warning from being drawn and
+        // left everything else running, which is monitoring with nothing visible to the person
+        // being monitored — the one arrangement this product exists not to be.
+        if (host == null) return
+
         when (event.eventType) {
             // A new window is a new conversation as far as we are concerned. Context must not
             // survive it, or a theme from one app would colour a scan in the next.
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> finishComposition(switched = true)
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                releaseHostIfRevoked()
+                // Guarded on *which window changed*, never on what became of the field. An
+                // earlier version guarded on "did the focused field really go away" and left a
+                // warning about one app's text floating over another's; the answer to that is
+                // not to stop guarding, it is to guard on the axis that distinguishes leaving
+                // the app from the keyboard opening its emoji panel. See
+                // [FieldWatch.endsComposition].
+                if (endsComposition(event)) finishComposition(switched = true)
+            }
 
             AccessibilityEvent.TYPE_VIEW_FOCUSED -> {
-                finishComposition(switched = true)
-                adopt(event.source)
+                // Hosts re-announce focus on a field that already had it — Keep does it while
+                // its own toolbars settle. Ending the composition on those threw away the
+                // rolling context and hid the overlay, so the warning blinked and, where the
+                // context had escalated a finding, blinked between warning and block.
+                val source = event.source
+                if (source == null || source != targetNode) {
+                    finishComposition(switched = true)
+                }
+                adopt(source, FieldWatch.Sighting.FOCUS)
             }
 
             AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> onTextChanged(event)
+
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> onWindowContentChanged()
 
             else -> Unit
         }
     }
 
-    private fun adopt(node: AccessibilityNodeInfo?) {
-        clearTarget()
-        if (node == null) return
+    /**
+     * Whether a window-state change means the user has gone somewhere else.
+     *
+     * Two questions, in order of cost. The kind of window is answered from the window list we
+     * already hold, and rules out the keyboard and the system bars without touching the node.
+     * Only for an application window is the second question worth a binder call: a change in
+     * the window our own field lives in is a re-layout — a snackbar, the app's own emoji
+     * picker, a toolbar settling — unless the field went away with it, which is what a failed
+     * [AccessibilityNodeInfo.refresh] or a lost focus flag means.
+     */
+    private fun endsComposition(event: AccessibilityEvent): Boolean {
+        if (!FieldWatch.endsComposition(windowKind(event.windowId))) return false
+        val node = targetNode ?: return true
+        if (event.windowId != node.windowId) return true
+        return !runCatching { node.refresh() && node.isFocused }.getOrDefault(false)
+    }
 
-        val allowed = MonitoredField.mayMonitor(
-            packageName = node.packageName?.toString(),
-            ourPackage = packageName,
-            editable = node.isEditable,
-            password = node.isPassword,
-            inputType = node.inputType,
-        )
-        fieldProtected = !allowed
-        if (!allowed) {
-            host?.hide()
+    private fun windowKind(windowId: Int): FieldWatch.WindowKind = runCatching {
+        when (windows.firstOrNull { it.id == windowId }?.type) {
+            null -> FieldWatch.WindowKind.UNKNOWN
+            AccessibilityWindowInfo.TYPE_APPLICATION -> FieldWatch.WindowKind.APPLICATION
+            AccessibilityWindowInfo.TYPE_INPUT_METHOD -> FieldWatch.WindowKind.KEYBOARD
+            else -> FieldWatch.WindowKind.SYSTEM
+        }
+    }.getOrDefault(FieldWatch.WindowKind.UNKNOWN)
+
+    private fun adopt(node: AccessibilityNodeInfo?, sighting: FieldWatch.Sighting) {
+        if (node == null) {
+            clearTarget()
             return
         }
-        targetNode = node
+
+        val action = FieldWatch.decide(
+            sighting = sighting,
+            monitorable = MonitoredField.mayMonitor(
+                packageName = node.packageName?.toString(),
+                ourPackage = packageName,
+                editable = node.isEditable,
+                password = node.isPassword,
+                inputType = node.inputType,
+            ),
+            // Re-adopting the field we are already on must not reset `lastText`. Clearing it
+            // made the unchanged-text guard in [scanNode] dead code — it compared against a
+            // value that had just been emptied — so every content-changed event re-ran a full
+            // scan, and once there was a model, a full inference. One observed session did 27
+            // inferences for nine typed words, all but a handful on byte-identical text.
+            sameAsTarget = targetNode == node,
+        )
+
+        when (action) {
+            FieldWatch.Action.KEEP, FieldWatch.Action.IGNORE -> Unit
+
+            FieldWatch.Action.ADOPT -> {
+                clearTarget()
+                targetNode = node
+            }
+
+            FieldWatch.Action.RELEASE -> {
+                clearTarget()
+                // After `clearTarget`, which resets it — the order matters.
+                fieldProtected = true
+                host?.hide()
+            }
+        }
     }
 
     private fun onTextChanged(event: AccessibilityEvent) {
@@ -191,10 +346,67 @@ class KeyguardAccessibilityService : AccessibilityService() {
             // do with those: we cannot check whether the field is a password, so we do not look.
             return
         }
-        adopt(node)
+        scanNode(node, FieldWatch.Sighting.TEXT)
+    }
+
+    /**
+     * The fallback for editors that never report a text change.
+     *
+     * Google Docs is the case this was written for. Its editor is drawn on a canvas rather than
+     * built from a widget, and it emits **no** `TYPE_VIEW_TEXT_CHANGED` at all — only
+     * `TYPE_WINDOW_CONTENT_CHANGED`, whose source node is a bare `android.view.View` carrying
+     * neither the text nor an editable flag. Subscribing to the three obvious event types
+     * therefore covered every ordinary chat app and silently covered nothing in Docs, which is
+     * how this was found: typing a flagged sentence into a document produced no warning.
+     *
+     * The event is only a wake-up. What gets read is the *input-focused* node, which Docs does
+     * expose properly — a real `EditText`, editable, not a password, holding the document text
+     * — so the password gates in [MonitoredField] apply here exactly as they do everywhere else.
+     *
+     * One weakening is worth stating plainly: a canvas editor reports `inputType = 0`, so the
+     * [com.keyguard.detect.FieldPolicy] half of the two password checks has nothing to read and
+     * only the platform's `isPassword` flag is doing work. That is strictly weaker than the
+     * widget case, and it is the reason this path reads the focused node rather than trusting
+     * anything the event itself carries.
+     */
+    private fun onWindowContentChanged() {
+        // Content changes are orders of magnitude noisier than text changes — the keyboard's
+        // own window alone fires them continuously while typing. Resolving the focused node is
+        // a binder round trip, so it is rate limited; `notificationTimeout` in the service
+        // config coalesces bursts before they get here, and this bounds what is left.
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastContentScanAt < CONTENT_SCAN_INTERVAL_MS) return
+        lastContentScanAt = now
+
+        val focused = rootInActiveWindow?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
+        scanNode(focused, FieldWatch.Sighting.WAKE_UP)
+    }
+
+    /**
+     * What the user has typed, which is not always what [AccessibilityNodeInfo.getText] says.
+     *
+     * An empty Compose text field reports its placeholder as its text — Google Messages hands
+     * over "Text message" — so the field never looked empty, the empty-field branch in
+     * [scanNode] never ran, and neither a send nor a deletion was ever recorded in the most
+     * common messaging app on Android. Only switching apps produced an event. The platform
+     * flags the case, so it is asked rather than guessed from the string.
+     */
+    private fun fieldText(node: AccessibilityNodeInfo): String =
+        if (node.isShowingHintText) "" else node.text?.toString().orEmpty()
+
+    /**
+     * The shared body of both entry points: gate the field, then scan it if the text moved.
+     */
+    private fun scanNode(node: AccessibilityNodeInfo, sighting: FieldWatch.Sighting) {
+        adopt(node, sighting)
         if (fieldProtected || targetNode == null) return
 
-        val text = node.text?.toString().orEmpty()
+        // The sighting was ignored and the watch stayed where it was, so this node is not the
+        // one we are monitoring. Reading its text here would be the flicker again in a quieter
+        // form: a scan, and possibly a warning, about a field nobody is typing in.
+        if (node != targetNode) return
+
+        val text = fieldText(node)
         if (text == lastText) return
         lastText = text
 
@@ -213,13 +425,78 @@ class KeyguardAccessibilityService : AccessibilityService() {
 
     private fun rescan(text: String) {
         val now = System.currentTimeMillis()
-        val result = engine.scan(text, context, now)
-        scanResult = result
+        ruleResult = engine.scan(text, context, now)
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(
+                "KeyguardTrace",
+                "rescan len=${text.length} rules=${ruleResult.maxSeverity.level} " +
+                    "findings=${ruleResult.findings.size}",
+            )
+        }
+        modelGate?.onTextChanged(text)
+        applyVerdict(text)
+    }
 
-        if (result.maxSeverity.level > peakResult.maxSeverity.level) peakResult = result
-        if (result.findings.isNotEmpty()) everFlagged = true
+    /**
+     * A model verdict arrived for [text], on the main thread.
+     *
+     * Re-checked against [lastText] because the field can move on while the model runs, and a
+     * warning about text the user has already replaced is worse than no warning at all.
+     */
+    private fun onModelVerdict(text: String, verdict: com.keyguard.infer.ModelVerdict) {
+        if (text != lastText) return
+        stabilizer.accept(text, verdict)
+        applyVerdict(text)
+    }
 
+    /**
+     * Combines the rules with whatever the stabilizer says should be on screen, and renders.
+     *
+     * The merge is always against [ruleResult] rather than the previous [scanResult], so verdicts
+     * replace one another instead of accumulating findings. Equally important, it is re-applied on
+     * every keystroke: an earlier version reset the display to the rule-only result on each text
+     * change and let the model re-add its verdict a few hundred milliseconds later, which made the
+     * overlay cycle between warning and block on every single character.
+     */
+    private fun applyVerdict(text: String) {
+        val verdict = stabilizer.stable(text)
+        scanResult = if (verdict == null) {
+            ruleResult
+        } else {
+            ModelFusion.merge(ruleResult, verdict, text.length)
+        }
+
+        if (scanResult.maxSeverity.level > peakResult.maxSeverity.level) peakResult = scanResult
+        if (scanResult.findings.isNotEmpty()) everFlagged = true
+
+        if (BuildConfig.DEBUG && scanResult.maxSeverity != lastRenderedSeverity) {
+            // Severity only, never the text. Counting transitions is how the overlay flicker was
+            // diagnosed, and it is worth being able to do that again without a screen recording.
+            android.util.Log.i(
+                "KeyguardOverlay",
+                "level ${lastRenderedSeverity.level} -> ${scanResult.maxSeverity.level} " +
+                    "(rules ${ruleResult.maxSeverity.level}, model ${verdict?.level ?: "-"}, " +
+                    "shade=${effective.blocksAtHighSeverity && scanResult.maxSeverity == Severity.HIGH})",
+            )
+            lastRenderedSeverity = scanResult.maxSeverity
+        }
+
+        scheduleSettle(text)
         render()
+    }
+
+    /**
+     * Asks again once a held level is allowed to drop.
+     *
+     * Only needed when the user stops typing at the moment a lower verdict arrives: nothing else
+     * would re-evaluate, and the overlay would stay at the more severe level until the field was
+     * touched again.
+     */
+    private fun scheduleSettle(text: String) {
+        settleHandler.removeCallbacksAndMessages(null)
+        val delay = stabilizer.pendingSettleMs()
+        if (delay <= 0) return
+        settleHandler.postDelayed({ if (text == lastText) applyVerdict(text) }, delay)
     }
 
     private fun render() {
@@ -264,6 +541,12 @@ class KeyguardAccessibilityService : AccessibilityService() {
      */
     private fun fieldBounds(): OverlayAnchor.Bounds? = runCatching {
         val node = targetNode ?: return null
+        // The cached node keeps the bounds it had when it was adopted — often before the
+        // keyboard opened, with the field at the bottom of the screen. Those fail the anchor's
+        // "field below the keyboard" check, and the warning fell back to the keyboard's edge:
+        // on top of the composer and its send button, where a tap meant for Send landed on the
+        // warning instead.
+        node.refresh()
         val rect = android.graphics.Rect()
         node.getBoundsInScreen(rect)
         OverlayAnchor.Bounds(rect.left, rect.top, rect.right, rect.bottom)
@@ -287,10 +570,11 @@ class KeyguardAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Deletes the flagged span from the host's field.
+     * Deletes the flagged spans from the host's field — all of them at the top severity, see
+     * [FlaggedSpans].
      *
      * The exit that exists at every override level, and the only one at
-     * [com.keyguard.app.family.OverrideLevel.NONE]. It edits *only* the flagged span rather
+     * [com.keyguard.app.family.OverrideLevel.NONE]. It edits *only* the flagged text rather
      * than clearing the field, which matters more than it sounds: most of a flagged message is
      * ordinarily fine, and a tool that eats an entire paragraph to remove an address teaches
      * people to compose somewhere else and paste it in, which defeats the product entirely.
@@ -300,19 +584,14 @@ class KeyguardAccessibilityService : AccessibilityService() {
      */
     private fun removeFlaggedSpan() {
         val node = targetNode ?: return
-        val finding = scanResult.findings.maxWithOrNull(
-            compareBy({ it.severity.level }, { -it.start }),
-        ) ?: return
 
         // A cached node goes stale the moment the host re-lays out, and writing to a stale one
         // either fails silently or edits a field that has moved on. Refreshing first is cheap
         // and turns both into a no-op instead.
         if (!runCatching { node.refresh() }.getOrDefault(false)) return
 
-        val current = node.text?.toString() ?: return
-        if (finding.end > current.length || finding.length <= 0) return
-
-        val replacement = current.removeRange(finding.start, finding.end)
+        val current = fieldText(node).ifEmpty { return }
+        val replacement = FlaggedSpans.remove(current, scanResult.findings) ?: return
         val arguments = Bundle().apply {
             putCharSequence(
                 AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
@@ -357,6 +636,12 @@ class KeyguardAccessibilityService : AccessibilityService() {
      * asks for them.
      */
     private fun finishComposition(switched: Boolean) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(
+                "KeyguardTrace",
+                "finishComposition switched=$switched len=${lastText.length} flagged=$everFlagged",
+            )
+        }
         val text = lastText
 
         // The IME could tell a send from a deletion because it owned the keys: SendInference
@@ -386,9 +671,15 @@ class KeyguardAccessibilityService : AccessibilityService() {
         removedByUser = false
         peakResult = ScanResult.EMPTY
         scanResult = ScanResult.EMPTY
+        ruleResult = ScanResult.EMPTY
         acknowledged = false
         lastText = ""
         context = RollingContext()
+        // Anything the model is still chewing on belongs to a composition that is over. Letting
+        // it land would attach a warning to whatever field came next.
+        modelGate?.reset()
+        stabilizer.reset()
+        settleHandler.removeCallbacksAndMessages(null)
         host?.hide()
         if (switched) clearTarget()
     }
@@ -410,6 +701,11 @@ class KeyguardAccessibilityService : AccessibilityService() {
                         heeded = heeded,
                     ),
                 )
+                // A serious warning should not wait out the periodic job's fifteen minutes.
+                // Only at the top severity: an expedited job has a quota, and spending it on
+                // the medium warnings an ordinary day produces would mean none left for the
+                // one that mattered. Everything below this still rides the periodic upload.
+                if (peak.maxSeverity == Severity.HIGH) SupervisionSync.syncNow(this)
             }
         }
 
@@ -445,16 +741,10 @@ class KeyguardAccessibilityService : AccessibilityService() {
         val finding = result.findings.maxWithOrNull(
             compareBy({ it.severity.level }, { -it.start }),
         ) ?: return ""
-        val categoryLabel = when (finding.category) {
-            Category.PII_DISCLOSURE -> R.string.category_pii
-            Category.HARASSMENT -> R.string.category_harassment
-            Category.SEXUAL_SOLICITATION -> R.string.category_solicitation
-            Category.SELF_HARM -> R.string.category_self_harm
-            Category.VIOLENCE_THREAT -> R.string.category_violence
-            Category.IN_PERSON_MEETUP -> R.string.category_meetup
-            Category.SUBSTANCE -> R.string.category_substance
-        }
-        return getString(R.string.warning_detail, getString(categoryLabel))
+        return getString(
+            R.string.warning_detail,
+            getString(CategoryLabels.res(finding.category)),
+        )
     }
 
     private fun crisisResource(): CrisisResources.Resource {

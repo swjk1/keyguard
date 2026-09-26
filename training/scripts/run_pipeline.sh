@@ -19,6 +19,9 @@ cd "$(dirname "$0")/.."
 SMOKE="${SMOKE:-0}"
 SKIP_DATA="${SKIP_DATA:-0}"
 PY="${PY:-python}"
+if [ "$PY" = "python" ] && [ -x ".venv/bin/python" ]; then
+    PY=".venv/bin/python"
+fi
 
 if [ "$SMOKE" = "1" ]; then
     OPENPII_TARGET=2000
@@ -37,6 +40,50 @@ else
 fi
 
 banner() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
+
+# ------------------------------------------------------- artifact packaging (always)
+# Packaging runs from an EXIT trap rather than as a final line, for two reasons the
+# 2026-09-14 run demonstrated. A run that dies in milestone 8 still has phase A/B/C
+# checkpoints worth pulling, and 'fetch it by hand afterwards' is a step a context
+# switch can eat -- that run finished, was never fetched, and its pod then idled for
+# 23h until the balance hit zero. remote_run.sh polls for DONE_MARKER, so completion
+# is a file test rather than log scraping.
+ARTIFACT_TGZ="${ARTIFACT_TGZ:-/workspace/run_artifacts.tgz}"
+DONE_MARKER="${DONE_MARKER:-/workspace/PIPELINE_DONE}"
+
+package_artifacts() {
+    rc=$?
+    set +e
+    banner "packaging artifacts (pipeline exit $rc)"
+    # Only archive what exists. GNU tar fails outright -- rc 2 and no archive at all --
+    # when any path on the command line is missing, and a partial run is exactly when
+    # some phases are absent. Verified: listing a missing phase_b lost the whole archive.
+    paths=""
+    for d in models/phase_a models/phase_b models/phase_c models/export logs; do
+        if [ -e "$d" ]; then paths="$paths $d"; fi
+    done
+    if [ -n "$paths" ]; then
+        # shellcheck disable=SC2086
+        tar -czf "$ARTIFACT_TGZ" --ignore-failed-read $paths
+        tar_rc=$?
+    else
+        echo "  nothing to package (no models/ or logs/ present)"
+        tar_rc=1
+    fi
+    if [ -s "$ARTIFACT_TGZ" ]; then
+        echo "  $ARTIFACT_TGZ  $(du -h "$ARTIFACT_TGZ" | cut -f1)"
+    else
+        echo "  WARNING: no artifact archive produced (tar rc=$tar_rc)"
+    fi
+    # The marker carries the pipeline's status, so the puller can tell a complete run
+    # from a salvaged partial one without parsing the log.
+    echo "exit=$rc" > "$DONE_MARKER"
+    echo "tar=$tar_rc" >> "$DONE_MARKER"
+    echo "finished=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$DONE_MARKER"
+    echo "  $DONE_MARKER written (exit=$rc)"
+    return $rc
+}
+trap package_artifacts EXIT
 
 # ---------------------------------------------------------------- milestone 1: OpenPII
 if [ "$SKIP_DATA" != "1" ]; then
@@ -80,24 +127,64 @@ banner "Milestone 5 — phase C: joint fine-tuning"
 $PY -m train.train_multitask $COMMON epochs=$EPOCHS_C
 
 # -------------------------------------------- milestone 7: evaluation + error analysis
+# ------------------------------------------- milestone 7a: shipped operating points
+# Thresholds are fitted once, here, and written into the checkpoint; evaluation and
+# export then both read that one set. They used to have two authors — the trainer wrote
+# one set and the evaluator refitted another — and the reports quoted numbers from a
+# configuration the phone would never run.
+#
+# The floors are the product decision, not a modelling default. A budget on its own is
+# satisfied perfectly by a model that never warns, so LEVEL3_RECALL_FLOOR is what stops
+# the search choosing silence. Run `evaluation.calibrate --curve` to see the cost of
+# each floor before changing these.
+banner "Milestone 7a — calibrating shipped operating points"
+CALIBRATION_SET="${CALIBRATION_SET:-datasets/child_safety/validation.jsonl}"
+# WARN_BUDGET is effectively off by default, on purpose. Nobody has yet decided what
+# interruption rate this product tolerates, and inventing one here would either abort a
+# paid run over a number nobody chose or, worse, quietly ship it. Until a product owner
+# picks a figure, the recall floor binds and the curve below reports what it costs. Set
+# WARN_BUDGET once that decision exists — it is the constraint that matters.
+WARN_BUDGET="${WARN_BUDGET:-1000}"
+L3_FLOOR="${L3_FLOOR:-0.95}"
+L2_FLOOR="${L2_FLOOR:-0.0}"
+
+# The curve runs first and unconditionally: it is seconds of CPU, it is the table the
+# operating-point decision is actually made from, and capturing it before the step that
+# can abort means a run that fails calibration still produces the reason.
+$PY -m evaluation.calibrate \
+    --checkpoint models/phase_c/best.pt \
+    --calibration-set "$CALIBRATION_SET" \
+    --curve | tee models/phase_c/calibration_curve.txt
+
+# A failure here is deliberate and load-bearing: export reads the checkpoint's
+# thresholds, so continuing past an unachievable constraint would ship operating points
+# that were just reported as not working. Checkpoints and the curve are already on disk
+# at this point, and both calibration and export run fine on CPU, so an abort costs the
+# GPU box nothing that cannot be finished locally.
+$PY -m evaluation.calibrate \
+    --checkpoint models/phase_c/best.pt \
+    --calibration-set "$CALIBRATION_SET" \
+    --budget "$WARN_BUDGET" \
+    --min-level3-recall "$L3_FLOOR" \
+    --min-level2-recall "$L2_FLOOR" \
+    --out models/phase_c/calibration.json
+
 banner "Milestone 7 — evaluation on held-out test split"
+# No --thresholds-from: the operating points come from the checkpoint the calibration
+# step just wrote, so this report describes what actually ships.
 $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/child_safety/test.jsonl \
-    --thresholds-from datasets/child_safety/validation.jsonl \
-    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_test.json
 
 banner "Milestone 7 — evaluation on the human-curated gold set"
 # The gold set is the number to quote. The synthetic test split shares a generator with
 # training even though it shares no template family, and only the gold set is free of
-# that. Thresholds still come from validation: fitting them on gold would turn the one
-# clean measurement into another tuning set.
+# that. Thresholds come from the calibration step above, which runs on validation:
+# calibrating on gold would turn the one clean measurement into another tuning set.
 $PY -m evaluation.evaluate \
     --checkpoint models/phase_c/best.pt \
     --dataset datasets/gold_test/gold_v1.jsonl \
-    --thresholds-from datasets/child_safety/validation.jsonl \
-    --objective recall --min-precision 0.90 \
     --out models/phase_c/report_gold.json
 
 # ------------------------------------------------------------- milestone 8: ONNX export

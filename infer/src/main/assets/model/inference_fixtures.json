@@ -1,0 +1,242 @@
+{
+ "context_labels": [
+  "child_ownership",
+  "child_location",
+  "school_context",
+  "routine",
+  "specific_time",
+  "alone",
+  "guardian_absent",
+  "meetup"
+ ],
+ "checkpoint": "run2 model_int8.onnx",
+ "cases": [
+  {
+   "text": "I live at 24 Oak Street",
+   "n_tokens": 8,
+   "context_probs": [
+    0.924655,
+    0.955389,
+    0.009877,
+    0.002131,
+    0.0002,
+    0.045461,
+    1e-05,
+    0.000562
+   ],
+   "entity_buckets": [
+    "exact_location"
+   ],
+   "active_signals": [
+    "child_ownership"
+   ],
+   "level": 0,
+   "fired": []
+  },
+  {
+   "text": "the pizza place is at 24 Oak Street",
+   "n_tokens": 10,
+   "context_probs": [
+    0.058682,
+    0.077165,
+    0.010727,
+    0.000617,
+    5e-05,
+    0.051459,
+    3e-06,
+    0.000515
+   ],
+   "entity_buckets": [
+    "exact_location"
+   ],
+   "active_signals": [],
+   "level": 0,
+   "fired": []
+  },
+  {
+   "text": "im home alone at 24 oak st until 9",
+   "n_tokens": 11,
+   "context_probs": [
+    0.900425,
+    0.987224,
+    0.161941,
+    0.018776,
+    0.999711,
+    0.817755,
+    0.002681,
+    0.05848
+   ],
+   "entity_buckets": [
+    "exact_location",
+    "time_signal"
+   ],
+   "active_signals": [
+    "child_location",
+    "child_ownership",
+    "specific_time"
+   ],
+   "level": 2,
+   "fired": [
+    "risk.address_disclosure"
+   ]
+  },
+  {
+   "text": "my number is 514-555-1234",
+   "n_tokens": 12,
+   "context_probs": [
+    0.896508,
+    0.121618,
+    0.01323,
+    0.003374,
+    0.000244,
+    0.04582,
+    2.3e-05,
+    0.000714
+   ],
+   "entity_buckets": [
+    "contact_info"
+   ],
+   "active_signals": [
+    "child_ownership"
+   ],
+   "level": 2,
+   "fired": [
+    "risk.contact_disclosure"
+   ]
+  },
+  {
+   "text": "call the restaurant at 514-555-1234",
+   "n_tokens": 13,
+   "context_probs": [
+    0.1129,
+    0.049209,
+    0.015807,
+    0.002149,
+    0.000149,
+    0.062651,
+    5e-06,
+    0.000631
+   ],
+   "entity_buckets": [
+    "contact_info"
+   ],
+   "active_signals": [],
+   "level": 0,
+   "fired": []
+  },
+  {
+   "text": "im home alone till 9",
+   "n_tokens": 7,
+   "context_probs": [
+    0.905673,
+    0.92705,
+    0.088842,
+    0.023321,
+    0.999812,
+    0.881405,
+    0.00041,
+    0.020267
+   ],
+   "entity_buckets": [
+    "time_signal"
+   ],
+   "active_signals": [
+    "child_ownership",
+    "specific_time"
+   ],
+   "level": 0,
+   "fired": []
+  },
+  {
+   "text": "meet me at the park at 5:30",
+   "n_tokens": 11,
+   "context_probs": [
+    0.911696,
+    0.946627,
+    0.015473,
+    0.000721,
+    0.999883,
+    0.062086,
+    3.8e-05,
+    0.999925
+   ],
+   "entity_buckets": [
+    "time_signal"
+   ],
+   "active_signals": [
+    "child_ownership",
+    "meetup",
+    "specific_time"
+   ],
+   "level": 1,
+   "fired": [
+    "risk.meetup_context"
+   ]
+  },
+  {
+   "text": "my school is stonebridge secondary",
+   "n_tokens": 8,
+   "context_probs": [
+    0.92815,
+    0.736879,
+    0.937946,
+    0.003767,
+    0.000375,
+    0.011996,
+    1e-06,
+    0.003735
+   ],
+   "entity_buckets": [],
+   "active_signals": [
+    "child_ownership"
+   ],
+   "level": 0,
+   "fired": []
+  },
+  {
+   "text": "i have robotics every thursday after school",
+   "n_tokens": 9,
+   "context_probs": [
+    0.878991,
+    0.056694,
+    0.097301,
+    0.997855,
+    0.000379,
+    0.062556,
+    0.0,
+    4.1e-05
+   ],
+   "entity_buckets": [
+    "time_signal"
+   ],
+   "active_signals": [
+    "child_ownership",
+    "routine"
+   ],
+   "level": 1,
+   "fired": [
+    "risk.routine"
+   ]
+  },
+  {
+   "text": "nobody is home right now",
+   "n_tokens": 7,
+   "context_probs": [
+    0.809911,
+    0.025632,
+    0.005834,
+    1.2e-05,
+    1.4e-05,
+    0.339914,
+    0.016065,
+    4e-05
+   ],
+   "entity_buckets": [],
+   "active_signals": [
+    "child_ownership"
+   ],
+   "level": 0,
+   "fired": []
+  }
+ ]
+}

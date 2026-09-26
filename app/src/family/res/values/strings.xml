@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Flavor-level, so it applies to `familyRelease` as well as `familyDebug`.
+
+  This file is the fix for a failure that was silent in the worst way. `verify_base_url` lived
+  only in the `familyDebug` source set, so a release build inherited the blank value from
+  `main` — and every network path in the app is gated on that value being non-blank. A signed
+  APK therefore had no accounts, no pairing, no policy sync and no alerts, and said nothing
+  about it: `ParentActivity` renders "supervision is not configured", `SupervisionJobService`
+  cancels itself, and the whole family half of the product is simply absent. The build that
+  would have gone to a tester was the one build nobody had run.
+
+  `familyDebug` still overrides this with the same value plus a note on pointing at a local dev
+  server. A variant source set beats a flavor source set, so that override continues to win for
+  debug builds and local work is unaffected — see `app/src/familyDebug/res/values/strings.xml`.
+
+  The `solo` flavor has no counterpart and must not get one. Its manifest removes the INTERNET
+  permission outright, so a non-blank value there would be a promise the build cannot keep.
+-->
+<resources>
+    <string name="verify_base_url" translatable="false">https://keyguard-backend-two.vercel.app</string>
+</resources>

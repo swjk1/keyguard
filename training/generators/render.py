@@ -63,6 +63,16 @@ class Template:
                 raise ValueError(f"template {self.family!r} uses unknown slot {{{slot}}}")
 
 
+def slots_in(pattern: str) -> list[str]:
+    """The slot names a pattern references, in order, with duplicates kept.
+
+    Exposed because the corpus builder needs to know which entities a template *can*
+    produce without rendering it — that is what lets a template's risk level be scored
+    once, at split-assignment time, instead of by generating rows and looking.
+    """
+    return [slot for slot, _ in _SLOT.findall(pattern)]
+
+
 def render_chunks(template: Template, lex: Lexicon) -> list[Chunk]:
     """Expand `{SLOT}` placeholders into entity chunks, keeping literals separate.
 

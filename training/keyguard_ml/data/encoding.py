@@ -63,6 +63,13 @@ class RawExample:
     a generator can produce more of. Dropping them here would make that report empty
     without making it look empty."""
     group: str = ""
+    entities: list[str] = field(default_factory=list)
+    """Coarse safety-entity buckets present in `text`, when they were annotated without
+    character offsets. The synthetic corpus carries `spans` and derives buckets from
+    them; the hand-authored gold set has no offsets and states the buckets directly.
+    Either way the risk engine needs the same terms on the gold side that the model
+    produces on the predicted side, or entity-dependent rules can only ever fire against
+    the model."""
 
     @staticmethod
     def from_dict(row: dict) -> "RawExample":
@@ -75,6 +82,7 @@ class RawExample:
             uid=str(row.get("uid", "")),
             tags=list(row.get("tags") or []),
             group=row.get("group", ""),
+            entities=list(row.get("entities") or []),
         )
 
 

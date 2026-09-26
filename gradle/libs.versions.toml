@@ -8,6 +8,9 @@ androidxAppcompat = "1.7.0"
 androidxPreference = "1.2.1"
 material = "1.12.0"
 json = "20240303"
+onnxruntime = "1.20.0"
+androidxTestRunner = "1.6.2"
+androidxTestExtJunit = "1.2.1"
 
 [libraries]
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -22,9 +25,17 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-preference = { module = "androidx.preference:preference-ktx", version.ref = "androidxPreference" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+# On-device inference. The full package, not onnxruntime-mobile: the reduced build ships a
+# restricted operator set that has not been checked against the opset-18 export.
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
+# Instrumented tests. The model parity check and the latency benchmark can only run on a
+# handset: ONNX Runtime ships ARM kernels that no JVM test can exercise.
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -261,6 +261,32 @@ class OverlayTest {
     }
 
     @Test
+    fun `a keyboard that drops out for a frame still leaves the warning above the composer`() {
+        // Seen on the emulator with Google Messages: every other render had no IME window, and
+        // the fixed fallback put the warning's buttons over the host's send button.
+        val composer = OverlayAnchor.Bounds(190, 1370, 796, 1496)
+        val placement = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            screenHeight,
+            imeBounds = null,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = composer,
+        )
+        assertEquals(screenHeight - composer.top, placement.bottomMarginPx)
+
+        // A document-sized field is no anchor; above it is off the top of the screen.
+        val document = OverlayAnchor.Bounds(0, 300, 1080, 2300)
+        val fallback = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            screenHeight,
+            imeBounds = null,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = document,
+        )
+        assertEquals(800, fallback.bottomMarginPx)
+    }
+
+    @Test
     fun `nonsense keyboard bounds are treated as no answer`() {
         // A reported top of zero, or one past the bottom of the screen, means the window list
         // handed us something that is not a visible keyboard. Trusting it would put the warning
@@ -343,6 +369,31 @@ class OverlayTest {
     }
 
     @Test
+    fun `a document editor anchors to the keyboard, not above the document`() {
+        // Real geometry, measured from Google Docs on a Pixel 9 Pro: a 2142px screen, the
+        // keyboard reporting its top at 1352, and a field running from y=297 to the bottom.
+        //
+        // The previous rule compared the field height above the keyboard (1055) against half
+        // the screen (1071) and missed by sixteen pixels, so the warning anchored above the
+        // document and rendered over the status bar. Nothing about that was visible in the
+        // browser harness, which has no status bar and no real IME to report a top edge.
+        val docsScreenHeight = 2142
+        val docsKeyboard = OverlayAnchor.Bounds(0, 1352, 960, 2142)
+        val document = OverlayAnchor.Bounds(0, 297, 960, 2142)
+
+        val placement = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            docsScreenHeight,
+            docsKeyboard,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = document,
+        )
+
+        assertEquals(docsScreenHeight - docsKeyboard.top, placement.bottomMarginPx)
+        assertFalse(placement.fromTop, "a document editor must not pin the warning to the top")
+    }
+
+    @Test
     fun `the top position ignores the keyboard entirely`() {
         val placement = OverlayAnchor.placeWarning(
             OverlayAnchor.Position.SCREEN_TOP,
@@ -370,6 +421,127 @@ class OverlayTest {
         // Null is a real answer: the block could not be enforced. The view uses this to decide
         // whether to claim typing is paused, which is the one message that would be a lie.
         assertNull(OverlayAnchor.shadeRect(screenWidth, screenHeight, null))
+    }
+
+    // endregion
+
+    // region FieldWatch
+
+    private fun watch(
+        sighting: FieldWatch.Sighting,
+        monitorable: Boolean = true,
+        sameAsTarget: Boolean = false,
+    ) = FieldWatch.decide(sighting, monitorable, sameAsTarget)
+
+    @Test
+    fun `a wake-up that resolved to an unreadable node does not end the watch`() {
+        // The flicker. TYPE_WINDOW_CONTENT_CHANGED fires continuously while someone types, and
+        // on hosts whose input focus sits on a non-editable wrapper the node it wakes us up to
+        // read is one MonitoredField refuses. Releasing on that hid the warning; the next
+        // keystroke put it back; at a 60ms rate limit the two alternated for as long as the
+        // user kept typing.
+        assertEquals(
+            FieldWatch.Action.IGNORE,
+            watch(FieldWatch.Sighting.WAKE_UP, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `focus moving to a password field still hides, whatever else is being watched`() {
+        // The case the protected flag exists for. A focus change speaks for a field, so this
+        // one is believed - the wake-up exemption above must not weaken it.
+        assertEquals(
+            FieldWatch.Action.RELEASE,
+            watch(FieldWatch.Sighting.FOCUS, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `a text change from a field we may not read hides too`() {
+        assertEquals(
+            FieldWatch.Action.RELEASE,
+            watch(FieldWatch.Sighting.TEXT, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `a wake-up may still adopt a field, which is what a canvas editor needs`() {
+        // Google Docs emits no text-changed event at all. If a wake-up could not adopt, the
+        // one host this event type was subscribed for would be the one it did not cover.
+        assertEquals(FieldWatch.Action.ADOPT, watch(FieldWatch.Sighting.WAKE_UP))
+    }
+
+    @Test
+    fun `seeing the field we are already on is not a re-adoption`() {
+        for (sighting in FieldWatch.Sighting.entries) {
+            assertEquals(
+                FieldWatch.Action.KEEP,
+                watch(sighting, sameAsTarget = true),
+                "re-adopted on $sighting, which would clear lastText and re-scan",
+            )
+        }
+    }
+
+    @Test
+    fun `the keyboard changing its own window is not the conversation ending`() {
+        // An emoji panel, a height change, one-handed mode, voice input. Ending the
+        // composition on these hid the warning mid-message and reported a spurious
+        // ABANDONED_SWITCHED to the parent for a message still being typed.
+        assertFalse(FieldWatch.endsComposition(FieldWatch.WindowKind.KEYBOARD))
+        assertFalse(FieldWatch.endsComposition(FieldWatch.WindowKind.SYSTEM))
+    }
+
+    @Test
+    fun `leaving for another app still ends the composition, and so does not knowing`() {
+        assertTrue(FieldWatch.endsComposition(FieldWatch.WindowKind.APPLICATION))
+        // Hide when unsure: a stale warning over someone else's app is worse than one that
+        // vanished.
+        assertTrue(FieldWatch.endsComposition(FieldWatch.WindowKind.UNKNOWN))
+    }
+
+    // endregion
+
+    // region FlaggedSpans
+
+    private fun span(text: String, part: String, severity: Severity = Severity.HIGH): Finding {
+        val start = text.indexOf(part)
+        return Finding(start, start + part.length, Category.PII_DISCLOSURE, severity, "t", "t")
+    }
+
+    @Test
+    fun `remove takes the address, not just the phrase that introduced it`() {
+        // Seen on the emulator: the lead-in went, the address stayed, and the warning came back.
+        val text = "my address is 123 Main Street"
+        val findings = listOf(span(text, "my address is"), span(text, "123 Main Street"))
+        assertEquals("", FlaggedSpans.remove(text, findings))
+    }
+
+    @Test
+    fun `remove keeps the rest of the message and one space between the survivors`() {
+        val text = "come over, 123 Main Street is mine"
+        assertEquals(
+            "come over, is mine",
+            FlaggedSpans.remove(text, listOf(span(text, "123 Main Street"))),
+        )
+    }
+
+    @Test
+    fun `remove merges overlapping spans and leaves lower severities alone`() {
+        val text = "hi my address is 123 Main Street lol"
+        val findings = listOf(
+            span(text, "address is 123"),
+            span(text, "123 Main Street"),
+            span(text, "lol", Severity.LOW),
+        )
+        assertEquals("hi my lol", FlaggedSpans.remove(text, findings))
+    }
+
+    @Test
+    fun `remove refuses spans the text no longer contains`() {
+        // The field moved on between the scan and the tap.
+        val stale = Finding(10, 40, Category.PII_DISCLOSURE, Severity.HIGH, "t", "t")
+        assertNull(FlaggedSpans.remove("short", listOf(stale)))
+        assertNull(FlaggedSpans.remove("anything", emptyList()))
     }
 
     // endregion

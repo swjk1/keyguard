@@ -16,6 +16,7 @@ import com.keyguard.app.databinding.FragmentFamilyBinding
 import com.keyguard.app.family.Elapsed
 import com.keyguard.app.family.EventQueue
 import com.keyguard.app.family.FamilyClient
+import com.keyguard.app.family.JoinOutcome
 import com.keyguard.app.family.PairingCode
 import com.keyguard.app.family.ReviewScope
 import com.keyguard.app.family.SupervisedSettings
@@ -172,21 +173,25 @@ class FamilyFragment : SectionFragment() {
         showPairingStatus(getString(R.string.supervision_pairing))
 
         background.execute {
-            val joined = runCatching { client.join(code, supervision.deviceLabel) }.getOrNull()
+            val outcome = runCatching { client.join(code, supervision.deviceLabel) }
+                .getOrDefault(JoinOutcome.Unreachable)
             main.post {
                 if (!isAdded || _binding == null) return@post
                 binding.pairButton.isEnabled = true
 
-                if (joined == null) {
-                    // The server answers a wrong code and an expired one identically, and a dead
-                    // network is indistinguishable from either at this layer. One message that
-                    // names both plausible causes beats three that guess.
-                    showPairingStatus(getString(R.string.supervision_pair_failed))
+                // The server answers a wrong code and an expired one identically, so those share
+                // a message; a dead network is a different fix for the child and gets its own.
+                if (outcome !is JoinOutcome.Joined) {
+                    val message = when (outcome) {
+                        JoinOutcome.Rejected -> R.string.supervision_code_invalid
+                        JoinOutcome.RateLimited -> R.string.supervision_pair_rate_limited
+                        else -> R.string.supervision_pair_failed
+                    }
+                    showPairingStatus(getString(message))
                     return@post
                 }
 
-                val (familyId, policy) = joined
-                supervision.becomeChild(familyId, policy)
+                supervision.becomeChild(outcome.familyId, outcome.policy)
                 SupervisionSync.schedule(requireContext())
                 refreshNotice()
                 refresh()

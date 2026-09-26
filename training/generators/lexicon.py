@@ -301,7 +301,20 @@ class Lexicon:
         return Rendered(text, entity="DATE")
 
     def date(self) -> Rendered:
-        return Rendered(self.fake.date(pattern=self.pick(["%m/%d", "%B %-d", "%b %d"])), entity="DATE")
+        """A short written date.
+
+        The day-without-leading-zero form is built by stripping the zero rather than by
+        asking strftime for it: `%-d` is a glibc extension that raises ValueError on
+        Windows, and `%#d` is the MSVC spelling, so neither is portable. This slot had no
+        callers until the generated templates arrived, which is why a corpus build had
+        never hit it.
+        """
+        pattern = self.pick(["%m/%d", "%B %d", "%b %d"])
+        text = self.fake.date(pattern=pattern)
+        if pattern != "%m/%d" and self.chance(0.5):
+            month, _, day = text.rpartition(" ")
+            text = f"{month} {day.lstrip('0') or day}"
+        return Rendered(text, entity="DATE")
 
     # -- people -------------------------------------------------------------------
     def given_name(self) -> Rendered:

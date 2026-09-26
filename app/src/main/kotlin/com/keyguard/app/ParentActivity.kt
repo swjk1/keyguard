@@ -9,7 +9,9 @@ import com.keyguard.app.databinding.ActivityParentBinding
 import com.keyguard.app.family.FamilyClient
 import com.keyguard.app.family.FamilyOverview
 import com.keyguard.app.family.FamilyPolicy
+import com.keyguard.app.family.ParentAlertNotice
 import com.keyguard.app.family.ParentAuthOutcome
+import com.keyguard.app.family.ParentSync
 import com.keyguard.app.family.Supervision
 import com.keyguard.app.ui.Section
 import com.keyguard.app.ui.Shell
@@ -73,6 +75,22 @@ class ParentActivity : AppCompatActivity(), ParentHost {
 
         wireAuthPanel()
         renderAuthState(savedInstanceState)
+        // No load here: `onResume` always follows, and doing both would spend two requests on
+        // every cold start for one screenful of data.
+        if (familyClient?.hasParentSession == true) ParentSync.schedule(this)
+    }
+
+    /**
+     * Re-fetch on every return to the screen, not only on a fresh instance.
+     *
+     * `SectionFragment.onResume` already calls `refresh()`, but that re-renders from the
+     * overview this activity is holding - so coming back to a warm task redrew data that could
+     * be hours old, and the only way to a current answer was the Refresh button. The fetch is
+     * one request for the whole screen and the sections re-render from the result, so doing it
+     * here rather than per section costs one round trip and removes the staleness entirely.
+     */
+    override fun onResume() {
+        super.onResume()
         if (familyClient?.hasParentSession == true) reload()
     }
 
@@ -140,6 +158,10 @@ class ParentActivity : AppCompatActivity(), ParentHost {
                 outcome.recoveryCode?.let { pendingRecoveryCode = it }
                 panel.authStatusText.visibility = View.GONE
                 renderAuthState(null)
+                // Signing in is what makes the background poll meaningful, so it is what
+                // starts it. Scheduling is idempotent, so a parent who signs in twice does
+                // not end up with two.
+                ParentSync.schedule(this)
                 reload()
             }
             ParentAuthOutcome.Invalid -> showAuthError(R.string.parent_auth_invalid)
@@ -203,6 +225,10 @@ class ParentActivity : AppCompatActivity(), ParentHost {
     override fun onSignedOut() {
         loadedOverview = null
         loadedPolicy = null
+        // Before `clearParent`, which drops the watermark: a poll that raced this would
+        // otherwise re-establish one against a family this device no longer reads.
+        ParentSync.cancel(this)
+        ParentAlertNotice.hide(this)
         supervision.clearParent()
         // Sections are torn down rather than left holding a family they can no longer read.
         // Without this, signing back in as a different account would show the previous one's

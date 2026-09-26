@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-TORCH_VERSION="${TORCH_VERSION:-2.9.1}"
+TORCH_VERSION="${TORCH_VERSION:-2.6.0}"
 TORCH_INDEX="${TORCH_INDEX:-cu124}"
 PYTHON="${PYTHON:-python3}"
 VENV="${VENV:-.venv}"
@@ -33,6 +33,10 @@ if [ ! -d "$VENV" ]; then
 fi
 # shellcheck disable=SC1091
 source "$VENV/bin/activate"
+
+# Archives created on Windows may preserve CRLF endings.  Normalize the executable
+# scripts here so the subsequent Bash pipeline runs correctly on Linux GPU hosts.
+sed -i 's/\r$//' scripts/*.sh
 
 python -m pip install --upgrade pip wheel setuptools
 

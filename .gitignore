@@ -37,5 +37,27 @@ training/models/
 # Keep the hand-authored gold set - it cannot be regenerated.
 !training/datasets/gold_test/
 
+# The exported model binary. 67.6 MB, reproducible from the training pipeline, and it would
+# be re-added on every export. The sidecars beside it ARE tracked: vocab, label contract,
+# rules, thresholds and tokenizer fixtures are the contract between the two codebases, they
+# are small, and a diff on them is exactly what should be reviewable.
+infer/src/main/assets/model/*.onnx
+
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Vendored agent skills. Restored from skills-lock.json, which pins each one to a
+# content hash in runpod/skills — the lock is tracked, the installed tree is not, the
+# same split a package lock and its installed modules get.
+.agents/
+
+# Source archive built to ship at a rented GPU box. 1.3 GB and rebuilt by
+# scripts/remote_run.sh on every run.
+training.zip
+
+# Whole-run outputs pulled back from a pod. The checkpoints and ONNX inside them are
+# already excluded above, and the export sidecars that actually ship are tracked under
+# infer/src/main/assets/model/ — so nothing here is the only copy of anything.
+training/_artifacts/
+training/_remote_artifacts/
+training/_run2_artifacts/

@@ -2,6 +2,8 @@ package com.keyguard.app.settings
 
 import android.content.Context
 
+import com.keyguard.app.BuildConfig
+
 /**
  * Which side of the product this phone is.
  *
@@ -117,6 +119,23 @@ class RoleStore(context: Context) {
      */
     fun reset() {
         prefs.edit().remove(KEY_ROLE).apply()
+    }
+
+    /**
+     * Sets the role without consulting [RolePolicy]. **Debug builds only.**
+     *
+     * Every other path through this class refuses a change that would let a supervised child
+     * leave supervision, and that refusal is a security property rather than a convenience.
+     * This bypasses it so one test phone can be flipped between the two products, which is
+     * exactly what [RolePolicy] exists to prevent in the field.
+     *
+     * The guard is a runtime `require` rather than a comment, and its only caller is behind
+     * `BuildConfig.DEBUG`. If this is ever reached in a release build it should crash loudly
+     * during testing rather than quietly hand a child the parent dashboard.
+     */
+    fun forceForDebug(next: DeviceRole, isDebugBuild: Boolean = BuildConfig.DEBUG) {
+        require(isDebugBuild) { "forceForDebug is not available in a release build" }
+        role = next
     }
 
     private companion object {
