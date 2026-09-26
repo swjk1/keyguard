@@ -250,7 +250,7 @@
     <string name="parent_outcome_sent">sent anyway</string>
     <string name="parent_outcome_abandoned">left it unsent</string>
     <string name="parent_remove_child">Unpair this device</string>
-    <string name="parent_remove_confirm">Unpair? Their warning history is deleted and their keyboard goes back to their own settings.</string>
+    <string name="parent_remove_confirm">Unpair this phone? Its warning history is deleted, it stops reporting to you, and Keyguard on it goes back to the settings your child chose, without your rules.</string>
 
     <string name="parent_policy_min_intensity">Least forceful warnings allowed</string>
     <string name="parent_policy_min_intensity_hint">A floor, not a setting. They can choose something stronger; they can\'t go below this.</string>
