@@ -383,6 +383,18 @@ class KeyguardAccessibilityService : AccessibilityService() {
     }
 
     /**
+     * What the user has typed, which is not always what [AccessibilityNodeInfo.getText] says.
+     *
+     * An empty Compose text field reports its placeholder as its text — Google Messages hands
+     * over "Text message" — so the field never looked empty, the empty-field branch in
+     * [scanNode] never ran, and neither a send nor a deletion was ever recorded in the most
+     * common messaging app on Android. Only switching apps produced an event. The platform
+     * flags the case, so it is asked rather than guessed from the string.
+     */
+    private fun fieldText(node: AccessibilityNodeInfo): String =
+        if (node.isShowingHintText) "" else node.text?.toString().orEmpty()
+
+    /**
      * The shared body of both entry points: gate the field, then scan it if the text moved.
      */
     private fun scanNode(node: AccessibilityNodeInfo, sighting: FieldWatch.Sighting) {
@@ -394,7 +406,7 @@ class KeyguardAccessibilityService : AccessibilityService() {
         // form: a scan, and possibly a warning, about a field nobody is typing in.
         if (node != targetNode) return
 
-        val text = node.text?.toString().orEmpty()
+        val text = fieldText(node)
         if (text == lastText) return
         lastText = text
 
@@ -529,6 +541,12 @@ class KeyguardAccessibilityService : AccessibilityService() {
      */
     private fun fieldBounds(): OverlayAnchor.Bounds? = runCatching {
         val node = targetNode ?: return null
+        // The cached node keeps the bounds it had when it was adopted — often before the
+        // keyboard opened, with the field at the bottom of the screen. Those fail the anchor's
+        // "field below the keyboard" check, and the warning fell back to the keyboard's edge:
+        // on top of the composer and its send button, where a tap meant for Send landed on the
+        // warning instead.
+        node.refresh()
         val rect = android.graphics.Rect()
         node.getBoundsInScreen(rect)
         OverlayAnchor.Bounds(rect.left, rect.top, rect.right, rect.bottom)
@@ -552,10 +570,11 @@ class KeyguardAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Deletes the flagged span from the host's field.
+     * Deletes the flagged spans from the host's field — all of them at the top severity, see
+     * [FlaggedSpans].
      *
      * The exit that exists at every override level, and the only one at
-     * [com.keyguard.app.family.OverrideLevel.NONE]. It edits *only* the flagged span rather
+     * [com.keyguard.app.family.OverrideLevel.NONE]. It edits *only* the flagged text rather
      * than clearing the field, which matters more than it sounds: most of a flagged message is
      * ordinarily fine, and a tool that eats an entire paragraph to remove an address teaches
      * people to compose somewhere else and paste it in, which defeats the product entirely.
@@ -565,19 +584,14 @@ class KeyguardAccessibilityService : AccessibilityService() {
      */
     private fun removeFlaggedSpan() {
         val node = targetNode ?: return
-        val finding = scanResult.findings.maxWithOrNull(
-            compareBy({ it.severity.level }, { -it.start }),
-        ) ?: return
 
         // A cached node goes stale the moment the host re-lays out, and writing to a stale one
         // either fails silently or edits a field that has moved on. Refreshing first is cheap
         // and turns both into a no-op instead.
         if (!runCatching { node.refresh() }.getOrDefault(false)) return
 
-        val current = node.text?.toString() ?: return
-        if (finding.end > current.length || finding.length <= 0) return
-
-        val replacement = current.removeRange(finding.start, finding.end)
+        val current = fieldText(node).ifEmpty { return }
+        val replacement = FlaggedSpans.remove(current, scanResult.findings) ?: return
         val arguments = Bundle().apply {
             putCharSequence(
                 AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,

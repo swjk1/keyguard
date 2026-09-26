@@ -261,6 +261,32 @@ class OverlayTest {
     }
 
     @Test
+    fun `a keyboard that drops out for a frame still leaves the warning above the composer`() {
+        // Seen on the emulator with Google Messages: every other render had no IME window, and
+        // the fixed fallback put the warning's buttons over the host's send button.
+        val composer = OverlayAnchor.Bounds(190, 1370, 796, 1496)
+        val placement = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            screenHeight,
+            imeBounds = null,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = composer,
+        )
+        assertEquals(screenHeight - composer.top, placement.bottomMarginPx)
+
+        // A document-sized field is no anchor; above it is off the top of the screen.
+        val document = OverlayAnchor.Bounds(0, 300, 1080, 2300)
+        val fallback = OverlayAnchor.placeWarning(
+            OverlayAnchor.Position.ABOVE_KEYBOARD,
+            screenHeight,
+            imeBounds = null,
+            fallbackBottomMarginPx = 800,
+            fieldBounds = document,
+        )
+        assertEquals(800, fallback.bottomMarginPx)
+    }
+
+    @Test
     fun `nonsense keyboard bounds are treated as no answer`() {
         // A reported top of zero, or one past the bottom of the screen, means the window list
         // handed us something that is not a visible keyboard. Trusting it would put the warning
@@ -471,6 +497,51 @@ class OverlayTest {
         // Hide when unsure: a stale warning over someone else's app is worse than one that
         // vanished.
         assertTrue(FieldWatch.endsComposition(FieldWatch.WindowKind.UNKNOWN))
+    }
+
+    // endregion
+
+    // region FlaggedSpans
+
+    private fun span(text: String, part: String, severity: Severity = Severity.HIGH): Finding {
+        val start = text.indexOf(part)
+        return Finding(start, start + part.length, Category.PII_DISCLOSURE, severity, "t", "t")
+    }
+
+    @Test
+    fun `remove takes the address, not just the phrase that introduced it`() {
+        // Seen on the emulator: the lead-in went, the address stayed, and the warning came back.
+        val text = "my address is 123 Main Street"
+        val findings = listOf(span(text, "my address is"), span(text, "123 Main Street"))
+        assertEquals("", FlaggedSpans.remove(text, findings))
+    }
+
+    @Test
+    fun `remove keeps the rest of the message and one space between the survivors`() {
+        val text = "come over, 123 Main Street is mine"
+        assertEquals(
+            "come over, is mine",
+            FlaggedSpans.remove(text, listOf(span(text, "123 Main Street"))),
+        )
+    }
+
+    @Test
+    fun `remove merges overlapping spans and leaves lower severities alone`() {
+        val text = "hi my address is 123 Main Street lol"
+        val findings = listOf(
+            span(text, "address is 123"),
+            span(text, "123 Main Street"),
+            span(text, "lol", Severity.LOW),
+        )
+        assertEquals("hi my lol", FlaggedSpans.remove(text, findings))
+    }
+
+    @Test
+    fun `remove refuses spans the text no longer contains`() {
+        // The field moved on between the scan and the tap.
+        val stale = Finding(10, 40, Category.PII_DISCLOSURE, Severity.HIGH, "t", "t")
+        assertNull(FlaggedSpans.remove("short", listOf(stale)))
+        assertNull(FlaggedSpans.remove("anything", emptyList()))
     }
 
     // endregion

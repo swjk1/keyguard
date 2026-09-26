@@ -79,6 +79,15 @@ object OverlayAnchor {
         // gave us something that is not a visible keyboard. Treated as "no answer" rather than
         // trusted, since either would place the warning somewhere absurd.
         if (keyboardTop == null || keyboardTop <= 0 || keyboardTop >= screenHeight) {
+            // The field still knows where it is. The keyboard window drops out of the window
+            // list for a frame at a time — on the emulator, on every other render while
+            // typing — and the fixed fallback then landed the warning squarely on the
+            // composer, with its buttons over the host's send button. A composer-sized field
+            // is a better anchor than a guessed margin; a document-sized one is not.
+            val field = fieldBounds?.takeIf { it.isUsable }
+            if (field != null && field.top > 0 && field.height < screenHeight / 3) {
+                return Placement(bottomMarginPx = screenHeight - field.top, fromTop = false)
+            }
             return Placement(bottomMarginPx = fallbackBottomMarginPx, fromTop = false)
         }
 
