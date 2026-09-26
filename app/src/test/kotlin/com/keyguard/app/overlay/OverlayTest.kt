@@ -398,4 +398,80 @@ class OverlayTest {
     }
 
     // endregion
+
+    // region FieldWatch
+
+    private fun watch(
+        sighting: FieldWatch.Sighting,
+        monitorable: Boolean = true,
+        sameAsTarget: Boolean = false,
+    ) = FieldWatch.decide(sighting, monitorable, sameAsTarget)
+
+    @Test
+    fun `a wake-up that resolved to an unreadable node does not end the watch`() {
+        // The flicker. TYPE_WINDOW_CONTENT_CHANGED fires continuously while someone types, and
+        // on hosts whose input focus sits on a non-editable wrapper the node it wakes us up to
+        // read is one MonitoredField refuses. Releasing on that hid the warning; the next
+        // keystroke put it back; at a 60ms rate limit the two alternated for as long as the
+        // user kept typing.
+        assertEquals(
+            FieldWatch.Action.IGNORE,
+            watch(FieldWatch.Sighting.WAKE_UP, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `focus moving to a password field still hides, whatever else is being watched`() {
+        // The case the protected flag exists for. A focus change speaks for a field, so this
+        // one is believed - the wake-up exemption above must not weaken it.
+        assertEquals(
+            FieldWatch.Action.RELEASE,
+            watch(FieldWatch.Sighting.FOCUS, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `a text change from a field we may not read hides too`() {
+        assertEquals(
+            FieldWatch.Action.RELEASE,
+            watch(FieldWatch.Sighting.TEXT, monitorable = false),
+        )
+    }
+
+    @Test
+    fun `a wake-up may still adopt a field, which is what a canvas editor needs`() {
+        // Google Docs emits no text-changed event at all. If a wake-up could not adopt, the
+        // one host this event type was subscribed for would be the one it did not cover.
+        assertEquals(FieldWatch.Action.ADOPT, watch(FieldWatch.Sighting.WAKE_UP))
+    }
+
+    @Test
+    fun `seeing the field we are already on is not a re-adoption`() {
+        for (sighting in FieldWatch.Sighting.entries) {
+            assertEquals(
+                FieldWatch.Action.KEEP,
+                watch(sighting, sameAsTarget = true),
+                "re-adopted on $sighting, which would clear lastText and re-scan",
+            )
+        }
+    }
+
+    @Test
+    fun `the keyboard changing its own window is not the conversation ending`() {
+        // An emoji panel, a height change, one-handed mode, voice input. Ending the
+        // composition on these hid the warning mid-message and reported a spurious
+        // ABANDONED_SWITCHED to the parent for a message still being typed.
+        assertFalse(FieldWatch.endsComposition(FieldWatch.WindowKind.KEYBOARD))
+        assertFalse(FieldWatch.endsComposition(FieldWatch.WindowKind.SYSTEM))
+    }
+
+    @Test
+    fun `leaving for another app still ends the composition, and so does not knowing`() {
+        assertTrue(FieldWatch.endsComposition(FieldWatch.WindowKind.APPLICATION))
+        // Hide when unsure: a stale warning over someone else's app is worse than one that
+        // vanished.
+        assertTrue(FieldWatch.endsComposition(FieldWatch.WindowKind.UNKNOWN))
+    }
+
+    // endregion
 }

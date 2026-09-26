@@ -15,8 +15,10 @@ import com.keyguard.app.family.SampleQueue
 import com.keyguard.app.family.SupervisedSettings
 import com.keyguard.app.family.Supervision
 import com.keyguard.app.family.SupervisionEvent
+import com.keyguard.app.family.SupervisionSync
 import com.keyguard.app.input.ComposeOutcome
 import com.keyguard.app.settings.Settings
+import com.keyguard.app.ui.CategoryLabels
 import com.keyguard.detect.Category
 import com.keyguard.detect.CrisisResources
 import com.keyguard.app.BuildConfig
@@ -242,13 +244,13 @@ class KeyguardAccessibilityService : AccessibilityService() {
             // survive it, or a theme from one app would colour a scan in the next.
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 releaseHostIfRevoked()
-                // Unconditional, deliberately. Guarding this on "did the focused field really go
-                // away" stopped the overlay hiding when the user left the app, which is far worse
-                // than a flicker: a warning about one app's text sitting over another's. The
-                // feedback loop this was meant to break is addressed where it starts instead —
-                // [adopt] no longer re-scans unchanged text, so the overlay is not being
-                // re-rendered continuously in the first place.
-                finishComposition(switched = true)
+                // Guarded on *which window changed*, never on what became of the field. An
+                // earlier version guarded on "did the focused field really go away" and left a
+                // warning about one app's text floating over another's; the answer to that is
+                // not to stop guarding, it is to guard on the axis that distinguishes leaving
+                // the app from the keyboard opening its emoji panel. See
+                // [FieldWatch.endsComposition].
+                if (endsComposition(event)) finishComposition(switched = true)
             }
 
             AccessibilityEvent.TYPE_VIEW_FOCUSED -> {
@@ -260,7 +262,7 @@ class KeyguardAccessibilityService : AccessibilityService() {
                 if (source == null || source != targetNode) {
                     finishComposition(switched = true)
                 }
-                adopt(source)
+                adopt(source, FieldWatch.Sighting.FOCUS)
             }
 
             AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> onTextChanged(event)
@@ -271,34 +273,70 @@ class KeyguardAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun adopt(node: AccessibilityNodeInfo?) {
+    /**
+     * Whether a window-state change means the user has gone somewhere else.
+     *
+     * Two questions, in order of cost. The kind of window is answered from the window list we
+     * already hold, and rules out the keyboard and the system bars without touching the node.
+     * Only for an application window is the second question worth a binder call: a change in
+     * the window our own field lives in is a re-layout — a snackbar, the app's own emoji
+     * picker, a toolbar settling — unless the field went away with it, which is what a failed
+     * [AccessibilityNodeInfo.refresh] or a lost focus flag means.
+     */
+    private fun endsComposition(event: AccessibilityEvent): Boolean {
+        if (!FieldWatch.endsComposition(windowKind(event.windowId))) return false
+        val node = targetNode ?: return true
+        if (event.windowId != node.windowId) return true
+        return !runCatching { node.refresh() && node.isFocused }.getOrDefault(false)
+    }
+
+    private fun windowKind(windowId: Int): FieldWatch.WindowKind = runCatching {
+        when (windows.firstOrNull { it.id == windowId }?.type) {
+            null -> FieldWatch.WindowKind.UNKNOWN
+            AccessibilityWindowInfo.TYPE_APPLICATION -> FieldWatch.WindowKind.APPLICATION
+            AccessibilityWindowInfo.TYPE_INPUT_METHOD -> FieldWatch.WindowKind.KEYBOARD
+            else -> FieldWatch.WindowKind.SYSTEM
+        }
+    }.getOrDefault(FieldWatch.WindowKind.UNKNOWN)
+
+    private fun adopt(node: AccessibilityNodeInfo?, sighting: FieldWatch.Sighting) {
         if (node == null) {
             clearTarget()
             return
         }
 
-        // Re-adopting the field we are already on must not reset `lastText`. Clearing it here
-        // made the unchanged-text guard in [scanNode] dead code — it compared against a value
-        // this line had just emptied — so every content-changed event re-ran a full scan, and
-        // once there was a model, a full inference. One observed session did 27 inferences for
-        // nine typed words, all but a handful on byte-identical text.
-        if (targetNode == node) return
-
-        clearTarget()
-
-        val allowed = MonitoredField.mayMonitor(
-            packageName = node.packageName?.toString(),
-            ourPackage = packageName,
-            editable = node.isEditable,
-            password = node.isPassword,
-            inputType = node.inputType,
+        val action = FieldWatch.decide(
+            sighting = sighting,
+            monitorable = MonitoredField.mayMonitor(
+                packageName = node.packageName?.toString(),
+                ourPackage = packageName,
+                editable = node.isEditable,
+                password = node.isPassword,
+                inputType = node.inputType,
+            ),
+            // Re-adopting the field we are already on must not reset `lastText`. Clearing it
+            // made the unchanged-text guard in [scanNode] dead code — it compared against a
+            // value that had just been emptied — so every content-changed event re-ran a full
+            // scan, and once there was a model, a full inference. One observed session did 27
+            // inferences for nine typed words, all but a handful on byte-identical text.
+            sameAsTarget = targetNode == node,
         )
-        fieldProtected = !allowed
-        if (!allowed) {
-            host?.hide()
-            return
+
+        when (action) {
+            FieldWatch.Action.KEEP, FieldWatch.Action.IGNORE -> Unit
+
+            FieldWatch.Action.ADOPT -> {
+                clearTarget()
+                targetNode = node
+            }
+
+            FieldWatch.Action.RELEASE -> {
+                clearTarget()
+                // After `clearTarget`, which resets it — the order matters.
+                fieldProtected = true
+                host?.hide()
+            }
         }
-        targetNode = node
     }
 
     private fun onTextChanged(event: AccessibilityEvent) {
@@ -308,7 +346,7 @@ class KeyguardAccessibilityService : AccessibilityService() {
             // do with those: we cannot check whether the field is a password, so we do not look.
             return
         }
-        scanNode(node)
+        scanNode(node, FieldWatch.Sighting.TEXT)
     }
 
     /**
@@ -341,15 +379,20 @@ class KeyguardAccessibilityService : AccessibilityService() {
         lastContentScanAt = now
 
         val focused = rootInActiveWindow?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
-        scanNode(focused)
+        scanNode(focused, FieldWatch.Sighting.WAKE_UP)
     }
 
     /**
      * The shared body of both entry points: gate the field, then scan it if the text moved.
      */
-    private fun scanNode(node: AccessibilityNodeInfo) {
-        adopt(node)
+    private fun scanNode(node: AccessibilityNodeInfo, sighting: FieldWatch.Sighting) {
+        adopt(node, sighting)
         if (fieldProtected || targetNode == null) return
+
+        // The sighting was ignored and the watch stayed where it was, so this node is not the
+        // one we are monitoring. Reading its text here would be the flicker again in a quieter
+        // form: a scan, and possibly a warning, about a field nobody is typing in.
+        if (node != targetNode) return
 
         val text = node.text?.toString().orEmpty()
         if (text == lastText) return
@@ -644,6 +687,11 @@ class KeyguardAccessibilityService : AccessibilityService() {
                         heeded = heeded,
                     ),
                 )
+                // A serious warning should not wait out the periodic job's fifteen minutes.
+                // Only at the top severity: an expedited job has a quota, and spending it on
+                // the medium warnings an ordinary day produces would mean none left for the
+                // one that mattered. Everything below this still rides the periodic upload.
+                if (peak.maxSeverity == Severity.HIGH) SupervisionSync.syncNow(this)
             }
         }
 
@@ -679,16 +727,10 @@ class KeyguardAccessibilityService : AccessibilityService() {
         val finding = result.findings.maxWithOrNull(
             compareBy({ it.severity.level }, { -it.start }),
         ) ?: return ""
-        val categoryLabel = when (finding.category) {
-            Category.PII_DISCLOSURE -> R.string.category_pii
-            Category.HARASSMENT -> R.string.category_harassment
-            Category.SEXUAL_SOLICITATION -> R.string.category_solicitation
-            Category.SELF_HARM -> R.string.category_self_harm
-            Category.VIOLENCE_THREAT -> R.string.category_violence
-            Category.IN_PERSON_MEETUP -> R.string.category_meetup
-            Category.SUBSTANCE -> R.string.category_substance
-        }
-        return getString(R.string.warning_detail, getString(categoryLabel))
+        return getString(
+            R.string.warning_detail,
+            getString(CategoryLabels.res(finding.category)),
+        )
     }
 
     private fun crisisResource(): CrisisResources.Resource {
