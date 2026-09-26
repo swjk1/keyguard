@@ -170,6 +170,7 @@
     <string name="supervision_pairing">Pairing…</string>
     <string name="supervision_code_invalid">That code isn\'t right, or it has expired. Ask for a new one.</string>
     <string name="supervision_pair_failed">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="supervision_pair_rate_limited">Too many tries. Wait a few minutes, then ask for a new code.</string>
     <string name="supervision_notification_required">Supervision needs notifications so this phone always shows that monitoring is on. Allow notifications, then pairing will continue.</string>
     <string name="supervision_restore_notification">Turn supervision notification back on</string>
     <string name="supervision_not_configured">No server is configured in this build, so supervision can\'t be set up yet.</string>

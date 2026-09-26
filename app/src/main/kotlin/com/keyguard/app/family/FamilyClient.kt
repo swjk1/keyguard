@@ -55,6 +55,24 @@ data class FamilyOverview(
  * removed this device, the other is a tunnel. Collapsing them would make airplane mode the
  * way out of supervision.
  */
+/**
+ * The outcome of redeeming a pairing code.
+ *
+ * Three cases because the child can act on each differently. A wrong, used or expired code
+ * used to be reported as "couldn't reach the server" - the one cause the child cannot fix and
+ * the least likely one, since codes expire after ten minutes and are typed from someone
+ * else's screen.
+ */
+sealed interface JoinOutcome {
+    data class Joined(val familyId: String, val policy: FamilyPolicy) : JoinOutcome
+    /** The server answered and refused the code. Wrong, spent and expired look the same. */
+    data object Rejected : JoinOutcome
+    /** Too many guesses from this device; the server's own limit, not ours. */
+    data object RateLimited : JoinOutcome
+    /** No answer, or one that could not be read. */
+    data object Unreachable : JoinOutcome
+}
+
 sealed interface PolicyOutcome {
     data class Supervised(val policy: FamilyPolicy) : PolicyOutcome
     data object Unsupervised : PolicyOutcome
@@ -184,17 +202,23 @@ class FamilyClient(context: Context, baseUrl: String) {
         return api.parentAuthorized("POST", "/api/family/parent-join", body)?.ok == true
     }
 
-    /** Redeems a code. Returns the policy to start enforcing, or null if the code is no good. */
-    fun join(code: String, label: String): Pair<String, FamilyPolicy>? {
+    /** Redeems a code. See [JoinOutcome] for why a refusal and a dead network differ. */
+    fun join(code: String, label: String): JoinOutcome {
         val body = JSONObject().put("code", code).put("label", label).toString()
-        val response = api.authorized("POST", "/api/family/join", body) ?: return null
-        if (!response.ok) return null
+        val response = api.authorized("POST", "/api/family/join", body)
+            ?: return JoinOutcome.Unreachable
+        when {
+            response.code == 404 -> return JoinOutcome.Rejected
+            response.code == 429 -> return JoinOutcome.RateLimited
+            !response.ok -> return JoinOutcome.Unreachable
+        }
 
-        val json = response.json() ?: return null
-        val familyId = json.optString("familyId").takeIf { it.isNotBlank() } ?: return null
+        val json = response.json() ?: return JoinOutcome.Unreachable
+        val familyId = json.optString("familyId").takeIf { it.isNotBlank() }
+            ?: return JoinOutcome.Unreachable
         val policy = json.optJSONObject("policy")?.let(FamilyPolicy::fromJson)
             ?: FamilyPolicy.DEFAULT
-        return familyId to policy
+        return JoinOutcome.Joined(familyId, policy)
     }
 
     fun fetchPolicy(): PolicyOutcome {
