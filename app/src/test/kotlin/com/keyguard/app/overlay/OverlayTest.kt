@@ -229,6 +229,37 @@ class OverlayTest {
         assertTrue(state.shaded)
     }
 
+    @Test
+    fun `the card is told the category of the finding its summary describes`() {
+        // The summary comes from the most severe finding, earliest first. The category has to
+        // come from the same one, or the card puts a meetup's message under "Personal
+        // information".
+        val result = ScanResult(
+            findings = listOf(
+                Finding(0, 4, Category.SUBSTANCE, Severity.MEDIUM, "medium.rule", "medium"),
+                Finding(6, 9, Category.IN_PERSON_MEETUP, Severity.HIGH, "late.rule", "late"),
+                Finding(5, 8, Category.PII_DISCLOSURE, Severity.HIGH, "early.rule", "early"),
+            ),
+            maxSeverity = Severity.HIGH,
+            eligibleForVerification = false,
+            verifyReason = null,
+            requiresCrisisResponse = false,
+        )
+        val state = OverlayDecision.decide(
+            result = result,
+            fieldProtected = false,
+            overrideLevel = OverrideLevel.FULL,
+            blockingEnabled = true,
+            acknowledged = false,
+            summaryFor = { "summary" },
+            detailFor = { "detail" },
+            crisisMessage = "crisis",
+            crisisResourceLabel = "Samaritans",
+        )
+        assertTrue(state is OverlayState.Warning)
+        assertEquals(Category.PII_DISCLOSURE, state.category)
+    }
+
     // endregion
 
     // region OverlayAnchor

@@ -1,6 +1,7 @@
 package com.keyguard.app.overlay
 
 import com.keyguard.app.family.OverrideLevel
+import com.keyguard.detect.Category
 import com.keyguard.detect.ScanResult
 import com.keyguard.detect.Severity
 
@@ -40,6 +41,16 @@ sealed interface OverlayState {
         val dismissible: Boolean,
         /** Offer *Remove it*. The exit that exists at every override level. */
         val removable: Boolean,
+        /**
+         * The category of the finding [summary] describes, so the card can say what *kind* of
+         * thing this is and why it matters in its own words.
+         *
+         * Carried as the enum rather than folded into [detail] because [detail] is a finished
+         * sentence written for the keyboard strip ("Flagged as: …"), and the card has no
+         * business parsing a label back out of it. Null for a caller that does not know — a
+         * preview, or an older call site — in which case the card shows [detail] instead.
+         */
+        val category: Category? = null,
     ) : OverlayState
 
     /**
@@ -103,6 +114,11 @@ object OverlayDecision {
 
         if (waived) return OverlayState.Hidden
 
+        // The same pick the service makes for the summary and detail text: the most severe
+        // finding, earliest first on a tie. Choosing differently here would put one finding's
+        // message under another finding's category.
+        val top = result.findings.maxWithOrNull(compareBy({ it.severity.level }, { -it.start }))
+
         return OverlayState.Warning(
             summary = summaryFor(result),
             detail = detailFor(result),
@@ -115,6 +131,7 @@ object OverlayDecision {
             // Always. This is the exit that must exist at every level, and it is the only exit
             // at OverrideLevel.NONE.
             removable = true,
+            category = top?.category,
         )
     }
 }
