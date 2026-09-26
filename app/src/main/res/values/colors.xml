@@ -83,4 +83,7 @@
     <!-- Chip backgrounds in the report. Neutral: a theme is an observation, not a verdict. -->
     <color name="chip_surface">#FFE8EAEE</color>
     <color name="chip_text">#FF31384A</color>
+
+    <!-- The pale wash behind row icons and other accent-tinted surfaces. -->
+    <color name="accent_soft">#FFE3EAFD</color>
 </resources>
