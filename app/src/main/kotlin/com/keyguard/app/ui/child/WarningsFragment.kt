@@ -332,6 +332,7 @@ class WarningsFragment : SectionFragment(), ChildScreen {
                 shaded = blocking,
                 dismissible = effective.overrideLevel.mayDismiss(top.severity),
                 removable = true,
+                category = top.category,
             ),
             // The real shade is a separate window over the keyboard, which a preview inside a
             // scrolling card cannot reproduce. Reporting it as inactive keeps the paused notice
@@ -342,17 +343,12 @@ class WarningsFragment : SectionFragment(), ChildScreen {
     }
 
     /**
-     * Fades the card's background, never its words or buttons.
-     *
-     * The opacity setting exists so a child can see a little of the chat through the warning;
-     * fading the whole view would fade the text with it, which is the opposite of the point.
-     * Applied after every render because rendering may replace the background drawable.
+     * Fades the card's background, never its words or buttons — through the same call the real
+     * floating window uses, so the preview and the warning cannot disagree about what a given
+     * slider position looks like.
      */
     private fun applyOpacityToPreview() {
-        val overlay = previewOverlay ?: return
-        val percent = settings.overlayOpacityPercent
-            .coerceIn(Settings.MIN_OVERLAY_OPACITY, Settings.MAX_OVERLAY_OPACITY)
-        overlay.background?.mutate()?.alpha = percent * 255 / 100
+        previewOverlay?.setCardOpacity(settings.overlayOpacityPercent)
     }
 
     // endregion
