@@ -1,9 +1,12 @@
 package com.keyguard.app.overlay
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import com.keyguard.app.settings.Appearance
 import com.keyguard.app.settings.OverlayPosition
@@ -53,8 +56,13 @@ class OverlayHost(
         warningView.updateAppearance(appearance)
         // Clamped against the same bounds the settings slider uses, so a value written by an
         // older build cannot produce an invisible warning that still shades the keyboard.
-        warningView.alpha = opacityPercent
-            .coerceIn(Settings.MIN_OVERLAY_OPACITY, Settings.MAX_OVERLAY_OPACITY) / 100f
+        //
+        // The card's *fill* only. This used to set the whole view's alpha, which faded the
+        // words and buttons along with the background and let the chat underneath show
+        // through the text — at the default 96% as well as at the minimum.
+        warningView.setCardOpacity(
+            opacityPercent.coerceIn(Settings.MIN_OVERLAY_OPACITY, Settings.MAX_OVERLAY_OPACITY),
+        )
     }
 
     /**
@@ -73,6 +81,7 @@ class OverlayHost(
             return
         }
 
+
         val wantsShade = state is OverlayState.Warning && state.shaded
         val shadeRect = if (wantsShade) {
             OverlayAnchor.shadeRect(screenWidth(), screenHeight(), imeBounds)
@@ -88,6 +97,7 @@ class OverlayHost(
         warningView.render(state, shadeActive)
         showWarning(position, imeBounds, fieldBounds)
     }
+
 
     fun hide() {
         hideShade()
@@ -113,8 +123,33 @@ class OverlayHost(
             fieldBounds = fieldBounds,
         )
 
+        // Sized to the card, not to the screen. The card floats with a margin either side, and
+        // a MATCH_PARENT window would own those margins too: a window takes every touch inside
+        // its rectangle whether anything is drawn there or not, so taps on the chat beside the
+        // card would silently land on nothing. What remains transparent is the view's small
+        // shadow inset, which is the least the elevation shadow needs to draw into.
+        val screenWidth = screenWidth()
+        val width = OverlayCardMetrics.windowWidthPx(screenWidth, density())
+        val geometry = WindowGeometry(
+            gravity = if (placement.fromTop) {
+                Gravity.TOP or Gravity.START
+            } else {
+                Gravity.BOTTOM or Gravity.START
+            },
+            x = OverlayCardMetrics.windowX(screenWidth, width),
+            // At the top, clear the status bar. OverlayAnchor's 0 means "the top of the usable
+            // screen"; the old full-width band could sit under the clock and still be read, but
+            // a floating card tucked under the status bar icons looks broken.
+            y = if (placement.fromTop) statusBarHeight() else placement.bottomMarginPx,
+            width = width,
+        )
+
+        // The service renders on every keystroke. An update with nothing to change still costs
+        // the window a relayout, so an unchanged placement is not sent at all.
+        if (warningAttached && geometry == lastWarningGeometry) return
+
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
+            geometry.width,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             // NOT_FOCUSABLE keeps the host's keyboard open; see the class note. LAYOUT_IN_SCREEN
@@ -125,15 +160,36 @@ class OverlayHost(
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
         ).apply {
-            gravity = if (placement.fromTop) {
-                Gravity.TOP or Gravity.START
-            } else {
-                Gravity.BOTTOM or Gravity.START
-            }
-            y = if (placement.fromTop) 0 else placement.bottomMarginPx
+            gravity = geometry.gravity
+            x = geometry.x
+            y = geometry.y
         }
 
         attachOrUpdate(warningView, params, warningAttached) { warningAttached = it }
+        lastWarningGeometry = if (warningAttached) geometry else null
+    }
+
+    /** The parts of the warning window's layout that vary, so an unchanged one can be skipped. */
+    private data class WindowGeometry(val gravity: Int, val x: Int, val y: Int, val width: Int)
+
+    private var lastWarningGeometry: WindowGeometry? = null
+
+    /**
+     * The status bar's height, or 0 if nothing will say. Wrapped like every other window call
+     * here: window metrics from a service context are not guaranteed on every build, and a
+     * card a little too high is far better than a service that throws.
+     */
+    private fun statusBarHeight(): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            runCatching {
+                windows?.currentWindowMetrics?.windowInsets
+                    ?.getInsetsIgnoringVisibility(WindowInsets.Type.statusBars())
+                    ?.top
+            }.getOrNull()?.let { return it }
+        }
+        @SuppressLint("DiscouragedApi", "InternalInsetResource")
+        val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id != 0) context.resources.getDimensionPixelSize(id) else 0
     }
 
     private fun showShade(rect: OverlayAnchor.Bounds) {
@@ -189,6 +245,8 @@ class OverlayHost(
     @Suppress("DEPRECATION")
     private fun screenWidth(): Int = context.resources.displayMetrics.widthPixels
 
-    private fun dp(value: Int): Int =
-        (value * context.resources.displayMetrics.density).roundToInt()
+
+    private fun density(): Float = context.resources.displayMetrics.density
+
+    private fun dp(value: Int): Int = (value * density()).roundToInt()
 }

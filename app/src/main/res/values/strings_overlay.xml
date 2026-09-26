@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The floating warning card's own copy. Kept apart from strings.xml so the overlay redesign merges
+  cleanly alongside the child and parent app work.
+
+  Same reader as the overlay strings in strings.xml: a teenager, mid-message. Every line here is
+  written to be read in a second, to explain rather than accuse, and to never imply that anyone
+  is watching or that they are in trouble. "Why it matters" beats "what you did wrong".
+-->
+<resources>
+    <!--
+      The supporting line under the card's title: why this kind of thing is worth a second
+      thought. One per category, because a single generic "this could be risky" line is exactly
+      the kind of message people learn to tap past. The title already says *what* was spotted.
+    -->
+    <string name="overlay_why_pii">Once it\'s sent, you can\'t control who else sees it.</string>
+    <string name="overlay_why_harassment">Words like these can land harder than you meant.</string>
+    <string name="overlay_why_solicitation">You never have to send anything you\'re not comfortable with.</string>
+    <string name="overlay_why_self_harm">If things feel heavy, you don\'t have to handle them alone.</string>
+    <string name="overlay_why_violence">Even as a joke, this can read as a real threat.</string>
+    <string name="overlay_why_meetup">Meeting someone new? Let an adult you trust know the plan.</string>
+    <string name="overlay_why_substance">Messages like this can be screenshotted and shared.</string>
+
+    <!--
+      The paused notice when Ignore is on offer too. The plain overlay_typing_paused is only true
+      when removing is the one way out; telling someone who can tap Ignore that removing is
+      their only option would be a small lie told at exactly the wrong moment.
+    -->
+    <string name="overlay_typing_paused_or_ignore">Typing is paused until you remove this or tap Ignore.</string>
+
+    <!--
+      The crisis supporting line when the region has no named helpline. The fallback resource's
+      label is an instruction ("Find a helpline near you") rather than a name, so it cannot be
+      slotted into overlay_crisis_detail: the old copy came out as "Find a helpline near you can
+      help, and it's free."
+    -->
+    <string name="overlay_crisis_support_generic">You don\'t have to go through this alone. Talking to someone can really help, and it\'s free.</string>
+
+    <!-- Spoken by TalkBack for the leading icon, so the severity is never carried by colour alone. -->
+    <string name="overlay_icon_high">Important</string>
+    <string name="overlay_icon_medium">Heads up</string>
+    <string name="overlay_icon_crisis">Support</string>
+    <!-- Announced when the card appears, like a window title. -->
+    <string name="overlay_pane_title">Keyguard</string>
+</resources>

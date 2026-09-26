@@ -32,6 +32,13 @@
       and dressing it up as an error would be the wrong thing to show a struggling teenager.
     -->
     <color name="crisis_background">#FF115E59</color>
+    <!--
+      The crisis card's teal: its icon, border and the "Talk to someone" button. The button is
+      filled in the accent rather than the warning card's neutral pill, because here the primary
+      action is an offer the card wants taken, and warmth matters more than restraint.
+    -->
+    <color name="crisis_accent">#FF5EEAD4</color>
+    <color name="crisis_on_accent">#FF042F2E</color>
 
     <!--
       The floating overlay's own palette.
@@ -39,15 +46,37 @@
       Dark in both modes, with no night variant, for the same reason the keyboard's palette has
       none: this surface floats over an arbitrary app whose background we do not control and
       cannot sample. Following the system theme would mean a light warning over a light chat in
-      the daytime and no contrast at all. A fixed dark bar with `strip_text` on it reads against
-      every host, which is worth more here than matching the phone's theme.
+      the daytime and no contrast at all. A fixed dark card with light text reads against every
+      host, which is worth more here than matching the phone's theme.
 
-      These are darker and more saturated than `warn_medium`/`warn_high`, which are highlight
-      colours applied to short spans of text. A whole bar at those values is oppressive; a whole
-      bar has to carry the severity by weight instead.
+      The warning is a floating card now rather than a red bar, and severity lives in a small
+      tinted icon disc, a hairline border and the category label - never in a flooded surface.
+      A whole card in red read as "error" to the teenagers it is for, and the thing we want them
+      to feel is "worth a second look", not "you did something wrong".
+
+      Contrast is checked against the worst case the opacity setting allows: the card at its
+      85% floor (OverlayCardMetrics.MIN_BACKGROUND_ALPHA) over pure white. There, text is
+      9.7:1, muted text 6.4:1 and the lowest accent label (high) 5.5:1; over the solid card they
+      are all above 8:1. Change a value here and re-check it against that floor, not against
+      the solid card.
     -->
-    <color name="overlay_medium_background">#FF7F1D1D</color>
-    <color name="overlay_high_background">#FF991B1B</color>
+    <color name="overlay_card">#FF1B1E25</color>
+    <color name="overlay_text">#FFF5F7FA</color>
+    <color name="overlay_text_muted">#FFC5CBD4</color>
+    <!-- The secondary (text) button. Slightly off the title white so it reads as the quieter option. -->
+    <color name="overlay_text_button">#FFE4E8EE</color>
+    <color name="overlay_ripple_on_dark">#33FFFFFF</color>
+    <color name="overlay_ripple_on_light">#29000000</color>
+    <!--
+      Accent per severity: the icon, the category label and the hairline border. Pastel tones
+      rather than the saturated warn_* values, because these sit on a dark card and must pass
+      4.5:1 as text; the disc behind the icon is the same hue at low alpha.
+    -->
+    <color name="overlay_high_accent">#FFFCA5A5</color>
+    <color name="overlay_medium_accent">#FFFCD34D</color>
+    <!-- The primary action on a warning: a light pill with dark text, calm rather than alarming. -->
+    <color name="overlay_primary">#FFF5F7FA</color>
+    <color name="overlay_on_primary">#FF16181D</color>
 
     <!--
       The sheet that covers the keyboard while typing is blocked.

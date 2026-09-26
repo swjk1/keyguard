@@ -279,10 +279,13 @@
     -->
     <string name="overlay_ignore">Ignore</string>
     <string name="overlay_remove">Remove it</string>
-    <string name="overlay_get_help">Get help</string>
+    <!-- The crisis card's one button. An invitation to a person, not the name of a menu:
+         "Get help" read as though something had gone wrong with the phone. -->
+    <string name="overlay_get_help">Talk to someone</string>
     <string name="overlay_typing_paused">Typing is paused until this is removed.</string>
-    <!-- e.g. "Samaritans is free and open now." -->
-    <string name="overlay_crisis_detail">%1$s can help, and it\'s free.</string>
+    <!-- %1$s is the region's helpline name, e.g. "Samaritans". strings_overlay.xml has the line
+         used when the region has no named helpline. -->
+    <string name="overlay_crisis_detail">You don\'t have to go through this alone. You can reach %1$s for free, any time.</string>
 
     <!--
       Shown in the system accessibility settings list, which is the one place a user reads a
