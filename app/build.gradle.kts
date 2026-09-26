@@ -70,8 +70,11 @@ android {
             isMinifyEnabled = false
             // Test builds go on one phone over adb, and the ONNX Runtime AAR carries native
             // libraries for four ABIs. Three of them are weight nothing on this device can use.
+            // `-Pkeyguard.emulator` adds x86_64 for the emulator, whose ARM translation is too
+            // slow for ONNX Runtime to be worth testing through.
             ndk {
                 abiFilters += "arm64-v8a"
+                if (project.hasProperty("keyguard.emulator")) abiFilters += "x86_64"
             }
         }
         release {
