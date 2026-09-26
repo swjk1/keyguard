@@ -97,7 +97,7 @@ class OverlayHost(
 
         val wantsShade = state is OverlayState.Warning && state.shaded
         val shadeRect = if (wantsShade) {
-            OverlayAnchor.shadeRect(screenWidth(), screenHeight(), ime)
+            OverlayAnchor.shadeRect(screenWidth(), screenHeight(), ime, fieldBounds)
         } else {
             null
         }

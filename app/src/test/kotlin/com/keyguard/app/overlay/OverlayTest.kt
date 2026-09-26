@@ -449,6 +449,24 @@ class OverlayTest {
     }
 
     @Test
+    fun `a keyboard popup never pulls the shade over the composer`() {
+        // Gboard reports its window top at 1380 while a tooltip shows; the composer spans
+        // 1370-1496. The shade must start under the composer, not over it and its Send button.
+        val popupKeyboard = OverlayAnchor.Bounds(0, 1380, 1080, 2400)
+        val composer = OverlayAnchor.Bounds(190, 1370, 796, 1496)
+        val rect = OverlayAnchor.shadeRect(screenWidth, screenHeight, popupKeyboard, composer)
+        assertEquals(1496, rect?.top)
+
+        // A document-sized field is not a composer; moving the shade to its bottom would
+        // uncover the keys, so the keyboard's own edge stands.
+        val document = OverlayAnchor.Bounds(0, 300, 1080, 2300)
+        assertEquals(
+            1380,
+            OverlayAnchor.shadeRect(screenWidth, screenHeight, popupKeyboard, document)?.top,
+        )
+    }
+
+    @Test
     fun `no keyboard means no shade, and the caller must handle that`() {
         // Null is a real answer: the block could not be enforced. The view uses this to decide
         // whether to claim typing is paused, which is the one message that would be a lie.
