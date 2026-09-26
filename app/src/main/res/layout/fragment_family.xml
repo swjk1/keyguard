@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Family, from the child's side.
 
-  Exactly one of the two cards is ever visible. An unpaired device sees a pairing form
-  and nothing else; a supervised one sees what its parent can see and has no pairing
-  form to be confused by.
+  Exactly one of the two states is ever visible. An unpaired device sees a pairing form and
+  nothing else; a supervised one sees what its parent can see and has no pairing form to be
+  confused by.
 
-  The supervised card cannot be dismissed, collapsed or navigated away from within this
-  section, because it carries the disclosure a monitored person is owed. The scope line
-  is first and bold: it is the fact that changes, and the one a child most needs. -->
+  The supervised state cannot be dismissed or collapsed, because it carries the disclosure a
+  monitored person is owed. The scope line is first and bold: it is the fact that changes, and
+  the one a child most needs. The lists below it are the same facts the old single paragraph
+  stated, split into what a parent can see, can never see, and can change - with a tick, a
+  cross or a slider icon per line, so the difference reads at a glance. They are built in code
+  because the first list depends on the review scope. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/familyScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface"
     android:clipToPadding="false"
     android:paddingStart="@dimen/screen_margin"
-    android:paddingEnd="@dimen/screen_margin"
     android:paddingTop="@dimen/space_sm"
-    android:paddingBottom="@dimen/scroll_bottom_padding">
+    android:paddingEnd="@dimen/screen_margin"
+    android:paddingBottom="@dimen/space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,26 +29,46 @@
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/supervisionUnpaired"
             style="@style/Widget.Keyguard.Card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/supervisionUnpaired">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
-                <TextView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/supervision_heading"
-                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_circle"
+                        android:importantForAccessibility="no"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_nav_family"
+                        app:tint="@color/accent_icon" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_md"
+                        android:layout_weight="1"
+                        android:accessibilityHeading="true"
+                        android:text="@string/supervision_heading"
+                        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_xs"
+                    android:layout_marginTop="@dimen/space_md"
                     android:text="@string/supervision_unpaired_hint"
                     android:textAppearance="@style/TextAppearance.Keyguard.Body" />
 
@@ -82,7 +106,8 @@
                     android:id="@+id/pairButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:minHeight="52dp"
                     android:text="@string/supervision_pair_button" />
 
                 <TextView
@@ -90,61 +115,184 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
+                    android:accessibilityLiveRegion="polite"
                     android:textAppearance="@style/TextAppearance.Keyguard.Body"
                     android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.Keyguard.Card"
+        <LinearLayout
+            android:id="@+id/supervisionActive"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/supervisionActive">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_icon_circle"
+                            android:importantForAccessibility="no"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_nav_family"
+                            app:tint="@color/accent_icon" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:accessibilityHeading="true"
+                                android:text="@string/supervision_active_title"
+                                android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                            <TextView
+                                android:id="@+id/supervisionSyncText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/supervisionScopeText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:text="@string/family_scope_note"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/restoreNotificationButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:textColor="@color/button_text_accent"
+                        app:backgroundTint="@color/button_tonal_background"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:text="@string/supervision_restore_notification"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:accessibilityHeading="true"
+                        android:text="@string/family_can_see_title"
+                        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                    <LinearLayout
+                        android:id="@+id/canSeeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:accessibilityHeading="true"
+                        android:text="@string/family_never_see_title"
+                        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                    <LinearLayout
+                        android:id="@+id/neverSeeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_xs"
+                        android:accessibilityHeading="true"
+                        android:text="@string/family_can_change_title"
+                        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                    <LinearLayout
+                        android:id="@+id/canChangeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/card_padding">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/supervision_active_title"
-                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle"
-                    android:textColor="@color/accent" />
-
-                <TextView
-                    android:id="@+id/supervisionScopeText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Label"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_md"
-                    android:text="@string/supervision_active_body"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
-
-                <TextView
-                    android:id="@+id/supervisionSyncText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_md"
-                    android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/restoreNotificationButton"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
-                    android:text="@string/supervision_restore_notification"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                android:paddingStart="@dimen/space_xs"
+                android:paddingEnd="@dimen/space_xs"
+                android:text="@string/family_ending"
+                android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/supervisionNotConfigured"

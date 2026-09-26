@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Privacy and data.
 
-  The disclosure was previously the first thing anyone saw, above every control, which
-  meant it was scrolled past rather than read. It lives here now, with the two things it
-  actually governs - what leaves the device, and what has been counted - so the page
-  answers one question rather than gating an unrelated one.
+  The disclosure lives here with the two things it actually governs - what leaves the device,
+  and what has been counted - so the page answers one question rather than gating an unrelated
+  one. It is the same string onboarding shows, deliberately: what a child consents to in
+  onboarding and what they can re-read here must never drift apart.
 
-  Setup still cannot proceed without it: the checklist on Protection links here and the
-  keyboard button stays disabled until it is ticked. -->
+  Setup still cannot proceed without it: the home screen's first setup step links here, and
+  the keyboard button stays disabled until it is ticked. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/privacyScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface"
     android:clipToPadding="false"
     android:paddingStart="@dimen/screen_margin"
-    android:paddingEnd="@dimen/screen_margin"
     android:paddingTop="@dimen/space_sm"
-    android:paddingBottom="@dimen/scroll_bottom_padding">
+    android:paddingEnd="@dimen/screen_margin"
+    android:paddingBottom="@dimen/space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,51 +35,84 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
-                <TextView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/setup_disclosure_heading"
-                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_circle"
+                        android:importantForAccessibility="no"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_nav_privacy"
+                        app:tint="@color/accent_icon" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_md"
+                        android:layout_weight="1"
+                        android:accessibilityHeading="true"
+                        android:text="@string/setup_disclosure_heading"
+                        android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+                </LinearLayout>
+
+                <!-- Filled from setup_disclosure_body; see PrivacyFragment.renderDisclosure. -->
+                <LinearLayout
+                    android:id="@+id/disclosureBody"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
-                    android:text="@string/setup_disclosure_body"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+                    android:orientation="vertical" />
 
                 <TextView
                     android:id="@+id/disclosureNetworkText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_callout"
+                    android:padding="14dp"
                     android:text="@string/setup_disclosure_network"
                     android:textAppearance="@style/TextAppearance.Keyguard.Body" />
 
-                <CheckBox
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    app:dividerColor="@color/card_stroke" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/disclosureCheckbox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
+                    android:minHeight="48dp"
                     android:text="@string/setup_disclosure_accept"
                     android:textAppearance="@style/TextAppearance.Keyguard.Label" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/aiCard"
             style="@style/Widget.Keyguard.Card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/aiCard">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
-                <TextView
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/aiSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:text="@string/ai_heading"
                     android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
 
@@ -89,13 +123,15 @@
                     android:text="@string/ai_hint"
                     android:textAppearance="@style/TextAppearance.Keyguard.Body" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/aiSwitch"
+                <TextView
+                    android:id="@+id/aiLockedText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
-                    android:text="@string/ai_toggle"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                    android:text="@string/supervision_locked_by_parent"
+                    android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+                    android:textColor="@color/accent_icon"
+                    android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -109,10 +145,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/stats_heading"
+                    android:accessibilityHeading="true"
+                    android:text="@string/privacy_stats_title"
                     android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
 
                 <TextView
@@ -122,23 +160,32 @@
                     android:text="@string/stats_hint"
                     android:textAppearance="@style/TextAppearance.Keyguard.Body" />
 
+                <LinearLayout
+                    android:id="@+id/statsTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical" />
+
                 <TextView
                     android:id="@+id/statsText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
-                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                    android:layout_marginTop="@dimen/space_md"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Label"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/engineText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
+                    android:layout_marginTop="@dimen/space_md"
                     android:textAppearance="@style/TextAppearance.Keyguard.OptionHint" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/resetStatsButton"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:textColor="@color/button_text_accent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"

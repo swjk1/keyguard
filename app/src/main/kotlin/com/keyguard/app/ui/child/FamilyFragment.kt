@@ -2,6 +2,7 @@ package com.keyguard.app.ui.child
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -13,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.keyguard.app.R
 import com.keyguard.app.databinding.FragmentFamilyBinding
+import com.keyguard.app.databinding.ItemFactBinding
 import com.keyguard.app.family.Elapsed
 import com.keyguard.app.family.EventQueue
 import com.keyguard.app.family.FamilyClient
@@ -30,17 +32,21 @@ import java.util.concurrent.Executors
 /**
  * Family, from the monitored side.
  *
- * Exactly one of the two cards is ever visible: an unpaired device sees a pairing form and
+ * Exactly one of the two states is ever visible: an unpaired device sees a pairing form and
  * nothing else, a supervised one sees what its parent can see and has no pairing form to be
  * confused by.
  *
- * The supervised card is the disclosure a monitored person is owed, so it cannot be dismissed or
- * collapsed, and the review-scope line is first and bold because that is the fact that changes
- * and the one a child most needs. A misconfigured build cannot hide it either — the section is
- * only dropped from the navigation when the device is *both* unpaired and has no server, which
- * is checked in `SetupActivity.familyReachable`.
+ * The supervised state is the disclosure a monitored person is owed, so it cannot be dismissed
+ * or collapsed, and the review-scope line is first and bold because that is the fact that
+ * changes and the one a child most needs. Below it, the facts the old paragraph listed are
+ * split into what a parent can see, can never see, and can change, one line and one icon each:
+ * the same claims, readable at a glance instead of as a wall of bullets. A misconfigured build
+ * cannot hide any of it either — the screen is only dropped from the hub when the device is
+ * *both* unpaired and has no server, which is checked in [ChildNav.familyReachable].
  */
-class FamilyFragment : SectionFragment() {
+class FamilyFragment : SectionFragment(), ChildScreen {
+
+    override val titleRes: Int = R.string.screen_family
 
     private var _binding: FragmentFamilyBinding? = null
     private val binding get() = _binding!!
@@ -119,6 +125,7 @@ class FamilyFragment : SectionFragment() {
         binding.pairButton.isEnabled = client != null
 
         if (!supervised) return
+        renderFacts()
 
         // What this child's parent can actually see, named specifically rather than left to
         // "your parent manages your settings". The scope is the one policy field whose effect a
@@ -146,6 +153,64 @@ class FamilyFragment : SectionFragment() {
             notificationMissing -> getString(R.string.supervision_notification_required)
             queued == 0 -> synced
             else -> "$synced · ${getString(R.string.supervision_queued, queued)}"
+        }
+    }
+
+    /**
+     * The three lists. Every line is a claim enforced somewhere in family/ — see the note on
+     * the supervision strings — so a line is only ever added here, never reworded to be vaguer.
+     *
+     * The first list grows with the review scope, and the second drops "what you type" once
+     * full review is on: the child's own screen must never say a parent cannot read their
+     * typing while they can.
+     */
+    private fun renderFacts() {
+        val scope = effective.reviewScope
+        val canSee = buildList {
+            add(R.string.family_see_kind)
+            add(R.string.family_see_outcome)
+            add(R.string.family_see_time)
+            add(R.string.family_see_self_harm)
+            if (scope == ReviewScope.THEMES) add(R.string.family_see_themes)
+            if (scope == ReviewScope.FULL_TEXT) add(R.string.family_see_full)
+        }
+        val neverSee = buildList {
+            if (scope != ReviewScope.FULL_TEXT) add(R.string.family_never_typed)
+            add(R.string.family_never_who)
+            add(R.string.family_never_passwords)
+            add(R.string.family_never_received)
+        }
+        val canChange = listOf(
+            R.string.family_change_intensity,
+            R.string.family_change_dismiss,
+            R.string.family_change_ai,
+        )
+
+        fill(
+            binding.canSeeList, canSee,
+            R.drawable.ic_check, R.color.status_ok, R.color.status_ok_surface,
+        )
+        fill(
+            binding.neverSeeList, neverSee,
+            R.drawable.ic_close, R.color.on_surface_muted, R.color.chip_surface,
+        )
+        fill(
+            binding.canChangeList, canChange,
+            R.drawable.ic_tune, R.color.accent_icon, R.color.accent_soft,
+        )
+    }
+
+    private fun fill(container: ViewGroup, lines: List<Int>, icon: Int, tint: Int, disc: Int) {
+        val context = requireContext()
+        container.removeAllViews()
+        for (line in lines) {
+            val fact = ItemFactBinding.inflate(layoutInflater, container, true)
+            fact.factIcon.setImageResource(icon)
+            fact.factIcon.imageTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(context, tint))
+            fact.factIcon.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(context, disc))
+            fact.factText.setText(line)
         }
     }
 

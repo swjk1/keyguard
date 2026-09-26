@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The child app's shell: a title bar, a section, and the navigation between sections.
+  The child app's frame: a title bar and one screen at a time.
 
-  This file used to be the whole child app - 733 lines holding disclosure, permissions, keyboard
-  setup, seven sliders, a live keyboard preview, an AI toggle, the pairing form and the
-  statistics, in one scroll. That is why it read as a demo: everything was equally prominent,
-  which is another way of saying nothing was, and the question a user actually opens the app to
-  ask ("am I protected?") was six screens of scrolling from an answer.
-
-  Now it holds nothing but the frame. Each section is a fragment that owns its own state and its
-  own layout, and can be read on its own.
+  This used to carry a four-tab bottom navigation (Protection / Look / Family / Privacy), and
+  before that it was the whole child app in one 733-line scroll. The tabs fixed the scroll but
+  not the feel: each tab was still a long stack of cards, so the app read as a settings dump.
+  It is now a hub (HomeFragment) with detail screens pushed on top of it, which is what the
+  kids' apps it is modelled on do - the thing a child opens this to check is one status card,
+  and everything else is one row away.
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -35,16 +33,8 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/sectionContainer"
+        android:id="@+id/screenContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
-        style="@style/Widget.Keyguard.BottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:menu="@menu/nav_child" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

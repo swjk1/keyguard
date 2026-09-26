@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The child app's hub-and-detail screens.
+
+  Kept apart from strings.xml so the child, parent and overlay redesigns can land in parallel
+  without fighting over one file. The wording rule is the same one the overlay strings state:
+  the child is the reader. Short sentences, second person, and never a claim about what an
+  adult can or cannot see that the code in family/ does not enforce.
+-->
+<resources>
+    <!-- ==================== Home ==================== -->
+    <string name="home_title_setup">Finish setting up</string>
+    <string name="home_section_stats">Since you started</string>
+    <string name="home_section_settings">Settings</string>
+
+    <string name="home_stat_shown">Warnings</string>
+    <string name="home_stat_changed">Changed</string>
+    <string name="home_stat_sent">Sent anyway</string>
+
+    <!-- The numbered setup steps inside the hero card. -->
+    <string name="home_step_disclosure">Read what Keyguard can see</string>
+    <string name="home_step_disclosure_hint">Takes a minute. Nothing else turns on until you have.</string>
+    <!-- Primary button labels, one per next step. -->
+    <string name="home_action_disclosure">Read it now</string>
+    <string name="home_action_accessibility">Open accessibility settings</string>
+    <string name="home_action_overlay">Allow warnings to show</string>
+    <string name="home_action_enable_keyboard">Open keyboard settings</string>
+    <string name="home_action_choose_keyboard">Switch to the Keyguard keyboard</string>
+    <!-- Content description on a step's number badge, e.g. "Step 2, done". -->
+    <string name="home_step_badge_done">Step %1$d, done</string>
+    <string name="home_step_badge_todo">Step %1$d</string>
+
+    <!--
+      The family line on home. Three versions because the review scope is the fact that
+      changes, and a line that said "never your messages" while full review was on would be a
+      lie told to a child about what an adult can read.
+    -->
+    <string name="home_family_title">Your family can see some things</string>
+    <string name="home_family_concerning">Warning types, never your messages</string>
+    <string name="home_family_themes">Warning types and weekly topics, never your messages</string>
+    <string name="home_family_full">Your parent can read what you type</string>
+
+    <!-- Hub rows -->
+    <string name="row_warnings">Warnings</string>
+    <!-- e.g. "Standard · above the keyboard" -->
+    <string name="row_warnings_summary">%1$s · %2$s</string>
+    <string name="row_warnings_off">Turned off</string>
+    <string name="row_family">Family</string>
+    <string name="row_family_unpaired">Pair with a parent if they ask</string>
+    <string name="row_family_supervised">Supervised by your family</string>
+    <string name="row_privacy">Privacy</string>
+    <string name="row_privacy_summary">What Keyguard can see</string>
+    <string name="row_keyboard">Keyguard keyboard</string>
+    <string name="row_keyboard_off">Optional · Not turned on</string>
+    <string name="row_keyboard_enabled">Optional · Turned on, not in use</string>
+    <string name="row_keyboard_in_use">In use</string>
+
+    <string name="intensity_subtle">Subtle</string>
+    <string name="intensity_standard">Standard</string>
+    <string name="intensity_insistent">Insistent</string>
+    <string name="position_above_short">above the keyboard</string>
+    <string name="position_top_short">top of the screen</string>
+
+    <!-- Toolbar titles for the detail screens -->
+    <string name="screen_warnings">Warnings</string>
+    <string name="screen_family">Family</string>
+    <string name="screen_privacy">Privacy</string>
+    <string name="screen_keyboard">Keyguard keyboard</string>
+    <string name="navigate_up">Back</string>
+
+    <!-- ==================== Warnings ==================== -->
+    <string name="warnings_preview_title">Preview</string>
+    <string name="warnings_preview_incoming_first">party on saturday, u coming??</string>
+    <string name="warnings_preview_incoming">where do u live? mum can pick u up</string>
+    <string name="warnings_preview_outgoing">yesss cant wait</string>
+    <string name="warnings_preview_description">A preview of a Keyguard warning floating over a chat app, using your current settings.</string>
+
+    <string name="warnings_intensity_title">How strongly warnings interrupt</string>
+    <string name="warnings_intensity_subtle_hint">A small warning. Never stops you sending.</string>
+    <string name="warnings_intensity_standard_hint">Serious warnings open in full and ask before you send.</string>
+    <string name="warnings_intensity_insistent_hint">Anything concerning opens in full and asks first.</string>
+    <!--
+      True today and worth saying: the accessibility service does not read the intensity at
+      all, so a child on the overlay would otherwise be adjusting a control that does nothing.
+    -->
+    <string name="warnings_intensity_keyboard_only">This changes the Keyguard keyboard. Warnings over your own keyboard always show in full.</string>
+
+    <string name="warnings_placement_title">Where warnings appear</string>
+    <string name="warnings_enabled_hint">Turn this off and Keyguard stops showing warnings over other apps.</string>
+
+    <string name="warnings_size_title">Text size</string>
+    <string name="warnings_size_hint">A warning too small to notice is a warning that does nothing.</string>
+
+    <!-- ==================== Keyboard ==================== -->
+    <string name="keyboard_card_title">Keyguard\'s own keyboard</string>
+    <string name="keyboard_status_in_use">In use</string>
+    <string name="keyboard_status_enabled">Turned on, but another keyboard is active</string>
+    <string name="keyboard_status_off">Not turned on</string>
+    <string name="keyboard_disclosure_first">Read what Keyguard can see (under Privacy) before turning this on.</string>
+
+    <!-- ==================== Family ==================== -->
+    <string name="family_can_see_title">What your parent can see</string>
+    <string name="family_never_see_title">What they can never see</string>
+    <string name="family_can_change_title">What they can change</string>
+    <string name="family_see_kind">The kind of warning you got, and how serious it was</string>
+    <string name="family_see_outcome">Whether you deleted the message or sent it anyway</string>
+    <string name="family_see_time">When it happened</string>
+    <string name="family_see_self_harm">Warnings about hurting yourself</string>
+    <string name="family_see_themes">A weekly picture of the topics you talk about and how you seem</string>
+    <string name="family_see_full">Everything you type on this phone</string>
+    <string name="family_never_who">Who you were talking to, or which app you were using</string>
+    <string name="family_never_passwords">Anything you type in a password field</string>
+    <string name="family_never_received">Messages you receive</string>
+    <string name="family_never_typed">What you type</string>
+    <string name="family_change_intensity">How strongly warnings interrupt you</string>
+    <string name="family_change_dismiss">Whether you can ignore a warning</string>
+    <string name="family_change_ai">Whether double-checking is on</string>
+    <string name="family_scope_note">Your parent picks how much they see. If they change it, this page changes too.</string>
+    <string name="family_ending">Only your parent can end supervision, from their phone. Removing Keyguard also ends it, and they will see that this phone stopped reporting.</string>
+
+    <!-- ==================== Privacy ==================== -->
+    <string name="privacy_stats_title">Your counts</string>
+    <string name="privacy_stat_shown">Warnings shown</string>
+    <string name="privacy_stat_rate">Change rate</string>
+</resources>
