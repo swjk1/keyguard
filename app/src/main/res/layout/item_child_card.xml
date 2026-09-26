@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One child on the Family screen.
+
+  Read top to bottom it answers, in order: who is this, is their phone still reporting, is
+  anything wrong, and what was the last thing that happened. The status is a coloured pill
+  *and* a sentence, so colour is never the only signal. The whole card opens that child's
+  page; there are no buttons on it, because the destructive one (Unpair) used to sit here and
+  a parent scrolling their family list is the last person who should be one tap from it.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Keyguard.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/card_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/childAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_parent_avatar"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="E" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/childName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle"
+                    android:textSize="18sp"
+                    tools:text="Emu child" />
+
+                <TextView
+                    android:id="@+id/childLastSeen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+                    tools:text="Last seen 1 min ago" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/on_surface_muted" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/childStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:background="@drawable/bg_parent_chip"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:minHeight="28dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="12dp"
+            android:textAppearance="@style/TextAppearance.Keyguard.Chip"
+            tools:text="All clear this week" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/childLatestDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            app:dividerColor="@color/card_stroke" />
+
+        <LinearLayout
+            android:id="@+id/childLatestRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <!-- Pinned to the first line's centre, so a wrapped line does not float the dot. -->
+            <View
+                android:id="@+id/childLatestDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginEnd="@dimen/space_sm"
+                android:background="@drawable/bg_parent_avatar" />
+
+            <TextView
+                android:id="@+id/childLatest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.Keyguard.Body"
+                tools:text="Latest: Personal information, deleted it · 2 h ago" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

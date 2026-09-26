@@ -1,63 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The parent app's shell.
+  The parent app's shell: a toolbar, one content area, and three tabs.
 
-  Two states, not one. Signed out, the whole screen is the sign-in panel and there is no
-  navigation — there is nothing behind it to navigate to, and a bottom bar leading to four empty
-  sections is a worse first impression than a single focused form. Signed in, the panel goes and
-  the sections appear.
+  Two states, not one. Signed out, the content area is the welcome panel and there is no
+  navigation - there is nothing behind it to navigate to. Signed in, the panel goes and the
+  tabs appear: Family (home), Activity (every child's warnings), Settings.
 
-  The old screen put the policy editor — six radio groups and two checkboxes — directly above
-  the activity feed, so every visit made a parent scroll past a settings form to reach the thing
-  they opened the app for. Rules is now its own section, visited when a parent means to change
-  something.
+  Detail screens (a child's page, Add a child, Warning rules, Caregivers) are pushed into the
+  same container over the tab they were opened from, and the bottom bar hides while one is
+  showing - a detail belongs to the tab underneath it, and a tab bar under a child's page
+  would offer a way to leave it that the back button then has to explain.
+
+  A vertical LinearLayout rather than the CoordinatorLayout this used to be. The bottom bar
+  used to float over the content, so every screen had to pad its last card by the bar's
+  height; stacked, the content simply ends where the bar begins, and the Family tab's
+  floating button sits above the bar instead of behind it.
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parentRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface">
+    android:background="@color/surface"
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBar"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:background="@color/surface"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/surface"
-            app:titleTextColor="@color/on_surface" />
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/sectionContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:navigationContentDescription="@string/parent_navigate_up"
+        app:navigationIconTint="@color/on_surface"
+        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+        app:titleTextColor="@color/on_surface" />
 
     <!--
-      The signed-out state. A sibling of the section container rather than something inside it,
-      so it covers the whole screen while it lasts.
-
-      Wrapped in a FrameLayout rather than carrying the behaviour on the <include> itself:
-      `include` only forwards `android:layout_*` attributes, so an `app:layout_behavior` written
-      there is silently dropped and the panel renders underneath the toolbar. The wrapper holds
-      the behaviour; the include holds the content.
+      Shown while a load the parent asked for is in flight (first load, the Refresh action).
+      Not for the Add child screen's background polling, which would otherwise flicker a bar
+      across the top every four seconds.
     -->
-    <FrameLayout
-        android:id="@+id/authContainer"
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loadingBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:indicatorColor="@color/accent"
+        app:trackColor="@android:color/transparent"
+        app:trackThickness="2dp" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/sectionContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- The signed-out state. Covers the content area while it lasts. -->
         <include
             android:id="@+id/authPanel"
-            layout="@layout/panel_parent_auth" />
+            layout="@layout/panel_parent_auth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -65,6 +72,5 @@
         style="@style/Widget.Keyguard.BottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         app:menu="@menu/nav_parent" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

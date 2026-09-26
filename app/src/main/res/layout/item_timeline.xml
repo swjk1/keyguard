@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One warning on a child's page, as a point on a timeline: a severity dot on a vertical rail,
+  the category, what they did, and when.
+
+  A timeline rather than a list of sentences because the question a parent brings to this
+  screen is "is this a pattern or a bad day?", and a column of dots answers it at a glance -
+  three red dots in one evening look different from three grey ones over a month before a
+  word is read. The rail is trimmed at the first and last entries in code.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="64dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_md">
+
+    <FrameLayout
+        android:layout_width="24dp"
+        android:layout_height="match_parent">
+
+        <View
+            android:id="@+id/railTop"
+            android:layout_width="2dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/timeline_line" />
+
+        <View
+            android:id="@+id/railBottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="22dp"
+            android:background="@color/timeline_line" />
+
+        <View
+            android:id="@+id/timelineDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_parent_avatar" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/timelineTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Keyguard.Label"
+            tools:text="Personal information" />
+
+        <TextView
+            android:id="@+id/timelineSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+            tools:text="Serious · deleted it" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/timelineTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_sm"
+        android:paddingTop="12dp"
+        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+        tools:text="2 h ago" />
+</LinearLayout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Colours only the parent app uses. A file of its own so the parent redesign never has to edit
+  the shared palette in colors.xml, which the overlay and child work also touch.
+-->
+<resources>
+    <!--
+      Serious-warning status: the red end of the status scale that `status_ok` and
+      `status_pending` start. Deeper than `warn_medium` so it passes 4.5:1 as text on its own
+      pale surface; the night variant is lighter for the same reason on a dark one.
+    -->
+    <color name="status_alert">#FFB91C1C</color>
+    <color name="status_alert_surface">#FFFEE2E2</color>
+
+    <!-- Neutral status, for a phone that has not reported anything yet. -->
+    <color name="status_neutral">#FF4B5563</color>
+
+    <!--
+      Accent used as *text* (links, text buttons). The accent itself is dark enough for white
+      labels on a filled button, which makes it too dark to read as text on a dark card.
+    -->
+    <color name="accent_text">#FF1D4ED8</color>
+
+    <!--
+      `colorPrimary` for the parent screens. Identical to the accent in light mode; one step
+      lighter at night so radio buttons and switches clear 3:1 on a dark card while white
+      button labels on it still clear 4.5:1.
+    -->
+    <color name="parent_primary">#FF1D4ED8</color>
+
+    <!--
+      Avatar discs. A child is recognised by colour before their name is read, so each child
+      keeps one colour (picked from their install id) everywhere in the app.
+    -->
+    <color name="avatar_1_bg">#FFDBEAFE</color>
+    <color name="avatar_1_fg">#FF1E40AF</color>
+    <color name="avatar_2_bg">#FFD1FAE5</color>
+    <color name="avatar_2_fg">#FF065F46</color>
+    <color name="avatar_3_bg">#FFFCE7F3</color>
+    <color name="avatar_3_fg">#FF9D174D</color>
+    <color name="avatar_4_bg">#FFFEF3C7</color>
+    <color name="avatar_4_fg">#FF92400E</color>
+    <color name="avatar_5_bg">#FFEDE9FE</color>
+    <color name="avatar_5_fg">#FF5B21B6</color>
+
+    <!-- The vertical line joining the dots of a child's warning timeline. -->
+    <color name="timeline_line">#FFE2E5EA</color>
+</resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- What the parent has decided.
+<!-- What the parent has decided. Pushed from Settings as "Warning rules".
 
   Split out of the dashboard so a parent checking on their child does not walk past six
   radio groups to get there. Every option carries its own one-line hint - these are
@@ -17,12 +17,21 @@
     android:paddingStart="@dimen/screen_margin"
     android:paddingEnd="@dimen/screen_margin"
     android:paddingTop="@dimen/space_sm"
-    android:paddingBottom="@dimen/scroll_bottom_padding">
+    android:paddingBottom="@dimen/space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_marginTop="@dimen/space_xs"
+            android:layout_marginBottom="@dimen/space_md"
+            android:text="@string/parent_rules_intro"
+            android:textAppearance="@style/TextAppearance.Keyguard.Body" />
 
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.Keyguard.Card"
@@ -297,13 +306,15 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/space_sm"
             android:textAppearance="@style/TextAppearance.Keyguard.Body"
-            android:textColor="@color/warn_medium"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:textColor="@color/status_alert"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/parent_policy_save" />
+            android:layout_height="56dp"
+            android:text="@string/parent_policy_save_changes" />
     </LinearLayout>
 </ScrollView>
