@@ -154,8 +154,18 @@ class KeyguardAccessibilityService : AccessibilityService() {
             overlayHost = null
         }
     }
-    private var eventQueue: EventQueue? = null
-    private var sampleQueue: SampleQueue? = null
+    private lateinit var events: EventQueue
+    private lateinit var samples: SampleQueue
+
+    /**
+     * The parent's queues, only while this phone is supervised — asked per message rather than
+     * decided once at connect. The service is switched on during setup, before the child pairs,
+     * so a connect-time answer was "not supervised" for the life of the service: a newly paired
+     * child's warnings never reached the parent until the phone restarted. The reverse held
+     * after unpairing, when events kept queueing for whichever family came next.
+     */
+    private val eventQueue: EventQueue? get() = events.takeIf { supervision.isSupervised }
+    private val sampleQueue: SampleQueue? get() = samples.takeIf { supervision.isSupervised }
 
     /** In-memory only, cleared on every field change. Never persisted, never uploaded. */
     private var context = RollingContext()
@@ -203,9 +213,9 @@ class KeyguardAccessibilityService : AccessibilityService() {
         supervision = Supervision(this)
         effective = SupervisedSettings(settings, supervision)
         outcomeLog = OutcomeLog(this)
-        eventQueue = if (supervision.isSupervised) EventQueue(this) else null
+        events = EventQueue(this)
         modelGate = ModelGate(applicationContext) { text, verdict -> onModelVerdict(text, verdict) }
-        sampleQueue = if (supervision.isSupervised) SampleQueue(this) else null
+        samples = SampleQueue(this)
 
         // Deliberately not created here — see [host]. The draw-over grant routinely arrives
         // after this point, and deciding once at connect time is what used to leave the
