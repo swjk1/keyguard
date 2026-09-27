@@ -51,6 +51,21 @@
         <item name="android:textColor">@color/on_surface</item>
     </style>
 
+    <!--
+      The small heading above a group of rows or cards on a hub screen ("Settings", "This
+      week"). Muted and smaller than a card title, so it labels a group without competing
+      with what is in it.
+    -->
+    <style name="TextAppearance.Keyguard.SectionHeader" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/on_surface_muted</item>
+    </style>
+
+    <!-- The large title at the top of a hub screen's status card. -->
+    <style name="TextAppearance.Keyguard.Hero" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <!-- The one-line explanation under a radio option. -->
     <style name="TextAppearance.Keyguard.OptionHint" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textColor">@color/on_surface_muted</item>

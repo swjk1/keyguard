@@ -2,12 +2,16 @@
 <!--
   One screen, re-rendered per step, rather than four layouts or a pager.
 
-  The steps differ only in their text and which of three optional controls is showing, and a
-  pager would additionally let a user swipe past a step they have not actually completed -
+  The steps differ only in their text, icon and which of two optional controls is showing, and
+  a pager would additionally let a user swipe past a step they have not actually completed -
   which is the one thing this flow must not allow, since every step is a system action that
   either happened or did not.
+
+  Styled from the same text appearances and tinted disc as the hub, so onboarding and the app
+  behind it read as one product rather than a setup wizard bolted on the front.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface"
@@ -17,43 +21,76 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="@dimen/space_lg"
+        android:paddingTop="@dimen/space_xl"
+        android:paddingEnd="@dimen/space_lg"
+        android:paddingBottom="@dimen/space_md">
+
+        <ImageView
+            android:id="@+id/stepIcon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_icon_circle"
+            android:importantForAccessibility="no"
+            android:padding="16dp"
+            app:tint="@color/accent_icon" />
 
         <TextView
             android:id="@+id/stepText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/accent"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="@dimen/space_lg"
+            android:textAppearance="@style/TextAppearance.Keyguard.SectionHeader"
+            android:textColor="@color/accent_icon" />
 
         <TextView
             android:id="@+id/headingText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/on_surface"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="@dimen/space_sm"
+            android:accessibilityHeading="true"
+            android:textAppearance="@style/TextAppearance.Keyguard.Hero" />
 
         <TextView
             android:id="@+id/bodyText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingExtra="3dp"
-            android:textColor="@color/on_surface_muted"
-            android:textSize="14sp" />
+            android:layout_marginTop="@dimen/space_md"
+            android:textAppearance="@style/TextAppearance.Keyguard.Body"
+            android:textSize="15sp" />
+
+        <!--
+          Step 1 only: the disclosure, laid out by Disclosure.render from the same string the
+          Privacy screen shows, then the flavor-specific paragraph about what leaves the phone.
+        -->
+        <LinearLayout
+            android:id="@+id/disclosureBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/disclosureNetworkText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
+            android:background="@drawable/bg_callout"
+            android:padding="14dp"
+            android:text="@string/setup_disclosure_network"
+            android:textAppearance="@style/TextAppearance.Keyguard.Body"
+            android:visibility="gone" />
 
         <!-- Step 1 only. The gate on every other step, so it is checked before it is shown. -->
-        <CheckBox
+        <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/disclosureCheckbox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/space_md"
+            android:minHeight="48dp"
             android:text="@string/setup_disclosure_accept"
-            android:textColor="@color/on_surface"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Keyguard.Label"
             android:visibility="gone" />
 
         <!--
@@ -79,18 +116,20 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/primaryButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="@dimen/space_lg"
+            android:minHeight="52dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/skipButton"
-            style="?attr/borderlessButtonStyle"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:textColor="@color/button_text_accent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/space_xs"
             android:text="@string/onboarding_skip" />
     </LinearLayout>
 </ScrollView>

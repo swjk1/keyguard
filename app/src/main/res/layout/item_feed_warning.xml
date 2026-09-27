@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One warning in the Activity feed: severity icon, what kind, whose phone and what they did,
+  and how long ago. Sits inside a card of its day, divided from its neighbours, and opens
+  that child's page.
+
+  The time is coarse ("2 h ago") for the reason Elapsed gives: a feed of exact timestamps
+  invites reading a timeline of someone's afternoon, which is not the product.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="72dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_md"
+    android:paddingTop="12dp"
+    android:paddingEnd="@dimen/space_md"
+    android:paddingBottom="12dp">
+
+    <ImageView
+        android:id="@+id/feedIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_parent_avatar"
+        android:importantForAccessibility="no"
+        android:padding="9dp"
+        android:src="@drawable/ic_parent_warning" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/feedTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Keyguard.Label"
+            tools:text="Personal information" />
+
+        <TextView
+            android:id="@+id/feedSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+            tools:text="Emu child · deleted it" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/feedTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_sm"
+        android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+        tools:text="2 h ago" />
+</LinearLayout>

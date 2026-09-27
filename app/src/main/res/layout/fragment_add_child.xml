@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pairing a child's phone.
+
+  The code is the largest thing on the screen because it is read aloud across a room or
+  typed from this screen by someone else. Under it, a countdown - the code dies after ten
+  minutes and a parent should not discover that from their child - and a live waiting line.
+  The screen polls while it is open and switches to a success state the moment the child's
+  phone appears, then opens their page. Before this, a parent watching the screen saw nothing
+  happen until they thought to press Refresh.
+-->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingStart="@dimen/screen_margin"
+    android:paddingEnd="@dimen/screen_margin"
+    android:paddingBottom="@dimen/space_xl">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/pairingContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_xs"
+                android:layout_marginTop="@dimen/space_xs"
+                android:layout_marginBottom="@dimen/space_md"
+                android:text="@string/parent_add_child_intro"
+                android:textAppearance="@style/TextAppearance.Keyguard.Body"
+                android:textSize="16sp" />
+
+            <!-- The code -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/card_padding"
+                    android:paddingTop="@dimen/space_lg"
+                    android:paddingEnd="@dimen/card_padding"
+                    android:paddingBottom="@dimen/space_lg">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/parent_code_label"
+                        android:textAppearance="@style/TextAppearance.Keyguard.SectionHeader" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:layout_marginTop="@dimen/space_sm">
+
+                        <TextView
+                            android:id="@+id/codeText"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="monospace"
+                            android:gravity="center"
+                            android:letterSpacing="0.12"
+                            android:textColor="@color/on_surface"
+                            android:textIsSelectable="true"
+                            android:textSize="38sp"
+                            android:textStyle="bold"
+                            tools:text="SJF7-Z9KF" />
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/codeProgress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:visibility="gone"
+                            app:indicatorColor="@color/accent" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/expiryText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Body"
+                        tools:text="Expires in 9:42" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:id="@+id/waitingDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        app:dividerColor="@color/card_stroke" />
+
+                    <LinearLayout
+                        android:id="@+id/waitingRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:accessibilityLiveRegion="polite"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:indeterminate="true"
+                            app:indicatorColor="@color/accent"
+                            app:indicatorSize="18dp"
+                            app:trackThickness="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/parent_waiting_for_child"
+                            android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/newCodeButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:minHeight="52dp"
+                        android:text="@string/parent_code_new"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_parent_refresh"
+                        app:iconTint="@android:color/white" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- How -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Keyguard.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/stepsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/space_sm"
+                    android:paddingBottom="@dimen/space_sm" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Connected -->
+        <LinearLayout
+            android:id="@+id/connectedContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:accessibilityLiveRegion="assertive"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:background="@drawable/bg_parent_avatar"
+                android:backgroundTint="@color/status_ok_surface"
+                android:importantForAccessibility="no"
+                android:padding="20dp"
+                android:src="@drawable/ic_parent_connected"
+                app:tint="@color/status_ok" />
+
+            <TextView
+                android:id="@+id/connectedTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.Keyguard.Hero"
+                tools:text="Emu child is connected" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:gravity="center"
+                android:text="@string/parent_child_connected_body"
+                android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+        </LinearLayout>
+    </FrameLayout>
+</androidx.core.widget.NestedScrollView>

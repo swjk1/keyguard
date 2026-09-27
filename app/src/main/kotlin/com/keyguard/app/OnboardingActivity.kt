@@ -13,12 +13,14 @@ import com.keyguard.app.settings.OnboardingProgress
 import com.keyguard.app.settings.OnboardingStep
 import com.keyguard.app.settings.Settings
 import com.keyguard.app.ui.applySystemBarInsets
+import com.keyguard.app.ui.child.Disclosure
 
 /**
- * The three things a user has to do before this keyboard does anything, one screen at a time.
+ * The three things a user has to do before Keyguard does anything, one screen at a time.
  *
- * Every step is a system action taken outside this app - accept the disclosure, allow the IME,
- * select the IME - so the screen cannot know it succeeded except by re-asking. It therefore
+ * Past the disclosure, every step is a system action taken outside this app - allow the
+ * accessibility service and drawing over apps, or on the older path enable and select the IME -
+ * so the screen cannot know it succeeded except by re-asking. It therefore
  * renders from [OnboardingProgress] on every `onResume` and never tracks a step of its own.
  * Coming back from the system keyboard settings advances the screen with no button to press,
  * and a user who turns the keyboard off again is walked back rather than left on "all set".
@@ -82,6 +84,18 @@ class OnboardingActivity : AppCompatActivity() {
             },
         )
 
+        binding.stepIcon.setImageResource(
+            when (step) {
+                OnboardingStep.READ_PRIVACY -> R.drawable.ic_nav_privacy
+                OnboardingStep.GRANT_ACCESSIBILITY -> R.drawable.ic_nav_protection
+                OnboardingStep.GRANT_OVERLAY -> R.drawable.ic_warning
+                OnboardingStep.ENABLE_KEYBOARD,
+                OnboardingStep.CHOOSE_KEYBOARD,
+                -> R.drawable.ic_keyboard
+                OnboardingStep.READY -> R.drawable.ic_shield_check
+            },
+        )
+
         binding.headingText.setText(
             when (step) {
                 OnboardingStep.READ_PRIVACY -> R.string.setup_disclosure_heading
@@ -93,12 +107,20 @@ class OnboardingActivity : AppCompatActivity() {
             },
         )
 
+        // Step 1 shows both halves of the disclosure, because the flavor-specific paragraph is
+        // the part that says whether anything leaves the device - the half a user most needs
+        // before ticking the box. Laid out by the same helper as the Privacy screen, from the
+        // same strings, so what is consented to here and what can be re-read there cannot drift.
+        val disclosure = step == OnboardingStep.READ_PRIVACY
+        binding.bodyText.visibility = if (disclosure) View.GONE else View.VISIBLE
+        binding.disclosureBody.visibility = if (disclosure) View.VISIBLE else View.GONE
+        binding.disclosureNetworkText.visibility = if (disclosure) View.VISIBLE else View.GONE
+        if (disclosure && binding.disclosureBody.childCount == 0) {
+            Disclosure.render(binding.disclosureBody, layoutInflater)
+        }
+
         binding.bodyText.text = when (step) {
-            // Both halves, because the flavor-specific paragraph is the part that says whether
-            // anything leaves the device - the half a user most needs before ticking the box.
-            OnboardingStep.READ_PRIVACY ->
-                getString(R.string.setup_disclosure_body) + "\n\n" +
-                    getString(R.string.setup_disclosure_network)
+            OnboardingStep.READ_PRIVACY -> ""
             OnboardingStep.GRANT_ACCESSIBILITY -> getString(R.string.onboarding_accessibility_body)
             OnboardingStep.GRANT_OVERLAY -> getString(R.string.onboarding_overlay_body)
             OnboardingStep.ENABLE_KEYBOARD -> getString(R.string.onboarding_enable_body)

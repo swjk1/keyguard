@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The parent app's four sections.
+  The parent app's three tabs.
 
-  Ordered by what a parent opens the app to do. Almost always that is "check on them", which is
-  Children; occasionally it is "read the summary", which is Reports. Rules and Account are
-  configuration — visited once at setup and then rarely — so they sit at the end rather than
-  competing with the two that answer questions.
+  Family is home: a parent opens the app to check on their children, so the list of them is
+  the first thing on screen and each child's page is one tap away. Activity is the same
+  information cut the other way - every warning, newest first, across all children - for the
+  parent who wants "what happened today" rather than "how is Sam". Settings holds everything
+  that is configured once and then rarely touched: the warning rules, caregivers,
+  notifications and the account.
 
-  Splitting Rules out of Children is the single biggest change from the old screen, where the
-  policy editor sat directly above the activity feed. That put six radio groups between a parent
-  and the thing they opened the app to see, and made every visit feel like a settings screen.
+  Four tabs used to split the report and the rules out as top-level destinations. The report
+  is about one child, so it now lives on that child's page; the rules are a setting, so they
+  live in Settings. Fewer tabs is what makes each one feel like a place rather than a list.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_children"
+        android:id="@+id/nav_family"
         android:icon="@drawable/ic_nav_family"
-        android:title="@string/nav_children" />
+        android:title="@string/parent_tab_family" />
 
     <item
-        android:id="@+id/nav_reports"
-        android:icon="@drawable/ic_nav_reports"
-        android:title="@string/nav_reports" />
+        android:id="@+id/nav_activity"
+        android:icon="@drawable/ic_nav_activity"
+        android:title="@string/parent_tab_activity" />
 
     <item
-        android:id="@+id/nav_rules"
-        android:icon="@drawable/ic_nav_rules"
-        android:title="@string/nav_rules" />
-
-    <item
-        android:id="@+id/nav_account"
-        android:icon="@drawable/ic_nav_account"
-        android:title="@string/nav_account" />
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_nav_settings"
+        android:title="@string/parent_tab_settings" />
 </menu>

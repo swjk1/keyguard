@@ -134,13 +134,29 @@ object OverlayAnchor {
         screenWidth: Int,
         screenHeight: Int,
         imeBounds: Bounds?,
+        fieldBounds: Bounds? = null,
     ): Bounds? {
         val bounds = imeBounds?.takeIf { it.isUsable } ?: return null
         if (bounds.top <= 0 || bounds.top >= screenHeight) return null
+
+        // Never over the composer. While Gboard shows a popup or tooltip it reports its window
+        // top well above its keys - on the emulator, 1380 against a composer spanning
+        // 1370-1496 - and a shade from that edge covered the field and the host's Send
+        // button, which is the one thing a paused child is being asked to look at. A
+        // composer-sized field the keyboard edge cuts into moves the shade down to the
+        // field's bottom; a document-sized one does not, since its bottom can sit below the
+        // real keys and moving the shade there would uncover them.
+        val field = fieldBounds?.takeIf { it.isUsable && it.height < screenHeight / 3 }
+        val top = if (field != null && bounds.top in field.top until field.bottom) {
+            field.bottom
+        } else {
+            bounds.top
+        }
+
         // Widened to the full screen width and extended to the bottom edge, rather than using
         // the reported rectangle exactly. A keyboard that insets itself would otherwise leave
         // live strips down either side, which is the whole block defeated by a few pixels.
-        return Bounds(left = 0, top = bounds.top, right = screenWidth, bottom = screenHeight)
+        return Bounds(left = 0, top = top, right = screenWidth, bottom = screenHeight)
     }
 
     /** Fallback distance from the bottom, in dp, when no keyboard window is reported. */

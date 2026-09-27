@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Warnings: how the floating warning behaves and looks, with the real thing at the top.
+
+  The preview comes first and stays first, because every control below it changes what it
+  shows. It is the real WarningOverlayView over a mock chat - bubbles, a composer with the
+  sample in it, a keyboard - so the card sits where it will sit in an app, rather than in an
+  empty box. The overlay itself is added in code (it has no XML constructor).
+
+  This screen merges what used to be two tabs: the intensity choice from Protection and all of
+  Look. Keyboard sizing moved to the Keyguard keyboard screen, which is the only place it means
+  anything.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/warningsScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/screen_margin"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingEnd="@dimen/screen_margin"
+    android:paddingBottom="@dimen/space_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/warnings_preview_title"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/appearance_preview_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <!--
+                  The mock app. A RelativeLayout so the warning can float *over* the messages,
+                  anchored above the composer or pinned to the top, exactly as the two position
+                  settings place it on a real screen.
+                -->
+                <RelativeLayout
+                    android:id="@+id/previewStage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:background="@drawable/bg_preview_stage"
+                    android:clipToOutline="true"
+                    android:contentDescription="@string/warnings_preview_description"
+                    android:importantForAccessibility="noHideDescendants">
+
+                    <LinearLayout
+                        android:id="@+id/previewMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:gravity="bottom"
+                        android:minHeight="170dp"
+                        android:orientation="vertical"
+                        android:paddingStart="12dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="48dp"
+                            android:background="@drawable/bg_bubble_in"
+                            android:paddingStart="14dp"
+                            android:paddingTop="9dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="9dp"
+                            android:text="@string/warnings_preview_incoming_first"
+                            android:textColor="@color/chip_text"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginStart="48dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_bubble_out"
+                            android:paddingStart="14dp"
+                            android:paddingTop="9dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="9dp"
+                            android:text="@string/warnings_preview_outgoing"
+                            android:textColor="@android:color/white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="48dp"
+                            android:background="@drawable/bg_bubble_in"
+                            android:paddingStart="14dp"
+                            android:paddingTop="9dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="9dp"
+                            android:text="@string/warnings_preview_incoming"
+                            android:textColor="@color/chip_text"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/previewComposer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/previewMessages"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/previewComposerText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_composer"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:paddingStart="16dp"
+                            android:paddingTop="10dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="10dp"
+                            android:textColor="@color/on_surface"
+                            android:textSize="15sp" />
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_disc"
+                            android:backgroundTint="@color/accent">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_send"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <com.keyguard.app.ui.child.MockKeyboardView
+                        android:id="@+id/previewKeyboard"
+                        android:layout_width="match_parent"
+                        android:layout_height="112dp"
+                        android:layout_below="@id/previewComposer" />
+
+                    <!-- The real warning goes here; its placement rule is set per position. -->
+                    <FrameLayout
+                        android:id="@+id/previewOverlaySlot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@id/previewComposer" />
+                </RelativeLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/overlayEnabledSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/overlay_enabled_toggle"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/warnings_enabled_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/warnings_placement_title"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/appearance_position_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <RadioGroup
+                    android:id="@+id/overlayPositionGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/overlayPositionAbove"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:text="@string/overlay_position_above"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                    <RadioButton
+                        android:id="@+id/overlayPositionTop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:text="@string/overlay_position_top"
+                        android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+                </RadioGroup>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:layout_marginBottom="@dimen/space_md"
+                    app:dividerColor="@color/card_stroke" />
+
+                <TextView
+                    android:id="@+id/opacityLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Label" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/opacitySlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:valueFrom="40"
+                    android:valueTo="100"
+                    app:tickVisible="false"
+                    app:trackColorInactive="@color/accent_soft" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/warnings_size_title"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/warnings_size_hint"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <LinearLayout
+                    android:id="@+id/alarmControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Keyguard.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/warnings_intensity_title"
+                    android:textAppearance="@style/TextAppearance.Keyguard.CardTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/warnings_intensity_keyboard_only"
+                    android:textAppearance="@style/TextAppearance.Keyguard.Body" />
+
+                <RadioGroup
+                    android:id="@+id/intensityGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/intensitySubtle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp" />
+
+                    <RadioButton
+                        android:id="@+id/intensityStandard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp" />
+
+                    <RadioButton
+                        android:id="@+id/intensityInsistent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/intensityLockedText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/supervision_locked_by_parent"
+                    android:textAppearance="@style/TextAppearance.Keyguard.OptionHint"
+                    android:textColor="@color/accent_icon"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetAppearanceButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:textColor="@color/button_text_accent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/appearance_reset" />
+    </LinearLayout>
+</ScrollView>

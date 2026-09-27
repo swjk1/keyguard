@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fill for the child app's tonal buttons; see button_text_accent.xml for why a selector. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.12" android:color="@color/on_surface" android:state_enabled="false" />
+    <item android:color="@color/accent_soft" />
+</selector>

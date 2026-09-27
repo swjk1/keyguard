@@ -3,7 +3,9 @@ package com.keyguard.app.family
 import android.app.job.JobParameters
 import android.app.job.JobService
 import com.keyguard.app.R
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 /**
  * The periodic wakeup that keeps a supervised device honest.
@@ -19,6 +21,14 @@ class SupervisionJobService : JobService() {
 
     private val executor = Executors.newSingleThreadExecutor()
 
+    /**
+     * The running sync for each job id. The system reuses one service instance across jobs,
+     * so stopping a job cancels its own work and leaves the executor alive. Shutting the
+     * executor down there made the next job on the same instance throw on `execute` and
+     * crash the app.
+     */
+    private val running = ConcurrentHashMap<Int, Future<*>>()
+
     override fun onStartJob(params: JobParameters?): Boolean {
         val endpoint = getString(R.string.verify_base_url)
         if (endpoint.isBlank() || !Supervision(this).isSupervised) {
@@ -26,10 +36,12 @@ class SupervisionJobService : JobService() {
             return false
         }
 
-        executor.execute {
+        val jobId = params?.jobId ?: 0
+        running[jobId] = executor.submit {
             val sync = SupervisionSync(this, endpoint)
             val reached = runCatching { sync.syncBlocking() }.getOrDefault(false)
             sync.shutdown()
+            running.remove(jobId)
             // Reschedule on failure: a sync that could not reach the server is exactly the one
             // worth retrying, and the periodic job would otherwise wait out its full interval.
             jobFinished(params, !reached)
@@ -38,7 +50,12 @@ class SupervisionJobService : JobService() {
     }
 
     override fun onStopJob(params: JobParameters?): Boolean {
-        executor.shutdownNow()
+        params?.let { running.remove(it.jobId)?.cancel(true) }
         return true
+    }
+
+    override fun onDestroy() {
+        executor.shutdownNow()
+        super.onDestroy()
     }
 }

@@ -1,6 +1,7 @@
 package com.keyguard.app.overlay
 
 import com.keyguard.app.family.OverrideLevel
+import com.keyguard.app.settings.Settings
 import com.keyguard.detect.Category
 import com.keyguard.detect.FieldPolicy
 import com.keyguard.detect.Finding
@@ -229,6 +230,37 @@ class OverlayTest {
         assertTrue(state.shaded)
     }
 
+    @Test
+    fun `the card is told the category of the finding its summary describes`() {
+        // The summary comes from the most severe finding, earliest first. The category has to
+        // come from the same one, or the card puts a meetup's message under "Personal
+        // information".
+        val result = ScanResult(
+            findings = listOf(
+                Finding(0, 4, Category.SUBSTANCE, Severity.MEDIUM, "medium.rule", "medium"),
+                Finding(6, 9, Category.IN_PERSON_MEETUP, Severity.HIGH, "late.rule", "late"),
+                Finding(5, 8, Category.PII_DISCLOSURE, Severity.HIGH, "early.rule", "early"),
+            ),
+            maxSeverity = Severity.HIGH,
+            eligibleForVerification = false,
+            verifyReason = null,
+            requiresCrisisResponse = false,
+        )
+        val state = OverlayDecision.decide(
+            result = result,
+            fieldProtected = false,
+            overrideLevel = OverrideLevel.FULL,
+            blockingEnabled = true,
+            acknowledged = false,
+            summaryFor = { "summary" },
+            detailFor = { "detail" },
+            crisisMessage = "crisis",
+            crisisResourceLabel = "Samaritans",
+        )
+        assertTrue(state is OverlayState.Warning)
+        assertEquals(Category.PII_DISCLOSURE, state.category)
+    }
+
     // endregion
 
     // region OverlayAnchor
@@ -417,6 +449,24 @@ class OverlayTest {
     }
 
     @Test
+    fun `a keyboard popup never pulls the shade over the composer`() {
+        // Gboard reports its window top at 1380 while a tooltip shows; the composer spans
+        // 1370-1496. The shade must start under the composer, not over it and its Send button.
+        val popupKeyboard = OverlayAnchor.Bounds(0, 1380, 1080, 2400)
+        val composer = OverlayAnchor.Bounds(190, 1370, 796, 1496)
+        val rect = OverlayAnchor.shadeRect(screenWidth, screenHeight, popupKeyboard, composer)
+        assertEquals(1496, rect?.top)
+
+        // A document-sized field is not a composer; moving the shade to its bottom would
+        // uncover the keys, so the keyboard's own edge stands.
+        val document = OverlayAnchor.Bounds(0, 300, 1080, 2300)
+        assertEquals(
+            1380,
+            OverlayAnchor.shadeRect(screenWidth, screenHeight, popupKeyboard, document)?.top,
+        )
+    }
+
+    @Test
     fun `no keyboard means no shade, and the caller must handle that`() {
         // Null is a real answer: the block could not be enforced. The view uses this to decide
         // whether to claim typing is paused, which is the one message that would be a lie.
@@ -542,6 +592,49 @@ class OverlayTest {
         val stale = Finding(10, 40, Category.PII_DISCLOSURE, Severity.HIGH, "t", "t")
         assertNull(FlaggedSpans.remove("short", listOf(stale)))
         assertNull(FlaggedSpans.remove("anything", emptyList()))
+    }
+
+    // endregion
+
+    // region OverlayCardMetrics
+
+    @Test
+    fun `the warning window leaves the screen edges to the app underneath`() {
+        // Pixel 7: 1080px at 2.625 density. The card is 12dp in from each side and the window
+        // only reaches 8dp further out, for the shadow, so the outer 4dp strip either side —
+        // and everything beyond the card on a wide screen — still takes the host's taps.
+        val density = 2.625f
+        val width = OverlayCardMetrics.windowWidthPx(1080, density)
+        val x = OverlayCardMetrics.windowX(1080, width)
+        assertEquals(1080 - Math.round(2 * 4 * density), width)
+        assertEquals((1080 - width) / 2, x)
+        assertTrue(x + width < 1080)
+    }
+
+    @Test
+    fun `on a wide screen the card is capped and centred rather than a banner`() {
+        val density = 2f
+        val width = OverlayCardMetrics.windowWidthPx(2400, density)
+        assertEquals(Math.round((560 + 16) * density), width)
+        val x = OverlayCardMetrics.windowX(2400, width)
+        assertEquals(2400 - width - x, x)
+    }
+
+    @Test
+    fun `the opacity setting never fades the card below the contrast floor`() {
+        assertEquals(
+            OverlayCardMetrics.MIN_BACKGROUND_ALPHA,
+            OverlayCardMetrics.backgroundAlpha(Settings.MIN_OVERLAY_OPACITY),
+        )
+        assertEquals(1f, OverlayCardMetrics.backgroundAlpha(Settings.MAX_OVERLAY_OPACITY))
+        // A value from an older build or a bad write is clamped like the setting itself.
+        assertEquals(
+            OverlayCardMetrics.MIN_BACKGROUND_ALPHA,
+            OverlayCardMetrics.backgroundAlpha(0),
+        )
+        assertEquals(1f, OverlayCardMetrics.backgroundAlpha(250))
+        val default = OverlayCardMetrics.backgroundAlpha(Settings.DEFAULT_OVERLAY_OPACITY)
+        assertTrue(default > OverlayCardMetrics.MIN_BACKGROUND_ALPHA && default < 1f)
     }
 
     // endregion

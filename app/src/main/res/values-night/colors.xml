@@ -19,4 +19,5 @@
     <color name="status_pending_surface">#FF33270B</color>
     <color name="chip_surface">#FF2A2F37</color>
     <color name="chip_text">#FFD3D8E0</color>
+    <color name="accent_soft">#FF1F2A44</color>
 </resources>

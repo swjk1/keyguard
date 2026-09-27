@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Accent for icons and small accent text that sit on `card_surface` or `accent_soft`.
+
+      `accent` itself has no night variant, and it cannot get one: it is also the filled button
+      colour, which `colorOnPrimary` pairs with white in both themes. But #1D4ED8 on the dark
+      card and dark `accent_soft` is close to 2:1, so the row icons and "Set by your parent"
+      notes all but disappeared in dark mode. This is the same hue, lightened for night.
+    -->
+    <color name="accent_icon">#FF1D4ED8</color>
+</resources>

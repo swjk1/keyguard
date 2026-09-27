@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One line of the Family screen's "can see / can never see / can change" lists: a small icon in
+  a tinted disc, then the fact. Replaces a paragraph of bullet text, which is what the old
+  supervised card was - accurate, and a wall nobody reads.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="44dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/space_xs"
+    android:paddingBottom="@dimen/space_xs">
+
+    <ImageView
+        android:id="@+id/factIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:background="@drawable/bg_disc"
+        android:importantForAccessibility="no"
+        android:padding="5dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/factText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.Keyguard.Label"
+        android:textSize="15sp" />
+</LinearLayout>

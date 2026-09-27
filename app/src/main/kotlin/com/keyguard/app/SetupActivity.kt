@@ -12,29 +12,25 @@ import com.keyguard.app.settings.KeyboardStatus
 import com.keyguard.app.settings.OnboardingProgress
 import com.keyguard.app.settings.OnboardingStep
 import com.keyguard.app.settings.Settings
-import com.keyguard.app.ui.Section
 import com.keyguard.app.ui.Shell
-import com.keyguard.app.ui.child.AppearanceFragment
-import com.keyguard.app.ui.child.FamilyFragment
-import com.keyguard.app.ui.child.PrivacyFragment
-import com.keyguard.app.ui.child.ProtectionFragment
 import com.keyguard.app.ui.applySystemBarInsets
+import com.keyguard.app.ui.child.ChildNav
+import com.keyguard.app.ui.child.ChildScreen
+import com.keyguard.app.ui.child.HomeFragment
 
 /**
  * The child app.
  *
- * This class used to be 691 lines and this file used to be the entire product: disclosure,
- * permissions, keyboard setup, seven sliders, a live keyboard preview, an AI toggle, the pairing
- * form and the outcome counters, all in one scroll behind one `refresh()` that touched every one
- * of them. It is now a shell - four sections, each owning its own state - and the sections live
- * in `ui/child/`.
- *
- * What the split bought beyond the line count: the question people actually reopen the app to
- * ask ("am I protected?") is the first thing on the first tab instead of six screens down, and a
- * change to the sizing sliders can no longer break the pairing form by way of a shared refresh.
+ * This class used to be 691 lines and this file used to be the entire product. It then became
+ * a four-tab shell, which fixed the line count but not the feel: every tab was still a long
+ * scroll of cards. It is now a hub-and-detail frame. [HomeFragment] answers the one question
+ * people reopen the app to ask ("am I protected?") and leads to Warnings, Family, Privacy and
+ * the optional keyboard, each pushed over it with the toolbar's up arrow to come back. The
+ * screens live in `ui/child/`; the navigation rules are in [ChildNav].
  *
  * The class name is unchanged deliberately. [SupervisionNotice]'s content intent targets it, and
- * a supervised child tapping that notice must land on the screen it refers to.
+ * a supervised child tapping that notice must land on the screen it refers to - which is the
+ * hub, whose family line says what the parent can see and leads to the full list.
  */
 class SetupActivity : AppCompatActivity() {
 
@@ -56,33 +52,22 @@ class SetupActivity : AppCompatActivity() {
         SupervisionNotice.refresh(this, supervision)
         if (supervision.isSupervised) SupervisionSync.schedule(this)
 
-        val sections = buildList {
-            add(Section(R.id.nav_protection, R.string.nav_protection) { ProtectionFragment() })
-            add(Section(R.id.nav_appearance, R.string.nav_appearance) { AppearanceFragment() })
-            if (familyReachable()) {
-                add(Section(R.id.nav_family, R.string.nav_family) { FamilyFragment() })
-            }
-            add(Section(R.id.nav_privacy, R.string.nav_privacy) { PrivacyFragment() })
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        supportFragmentManager.addOnBackStackChangedListener { renderToolbar() }
+
+        // Only on a fresh instance. After a rotation the FragmentManager has already restored
+        // the hub *and* whatever detail screen was on top of it, and adding the hub again here
+        // would stack a second one under the restored stack.
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(ChildNav.CONTAINER_ID, HomeFragment(), HomeFragment::class.java.simpleName)
+                .commitNow()
         }
+        renderToolbar()
 
-        // A tab that cannot do anything is removed rather than shown disabled. In the solo
-        // flavor that is the permanent state, and an app should not advertise a section the
-        // build does not contain. A *paired* device always keeps it, whatever the endpoint
-        // says, because that tab carries the disclosure a monitored user is owed and a
-        // misconfigured build must never be a way to make supervision invisible.
-        if (!familyReachable()) binding.bottomNav.menu.removeItem(R.id.nav_family)
-
-        Shell.install(
-            activity = this,
-            nav = binding.bottomNav,
-            toolbar = binding.toolbar,
-            containerId = binding.sectionContainer.id,
-            sections = sections,
-            savedSelection = Shell.restoreSelection(savedInstanceState),
-        )
-
-        // Setup that is not finished gets the guided flow; this screen is the full settings
-        // surface behind it, which is what a user who skips lands on.
+        // Setup that is not finished gets the guided flow; the hub is the full surface behind
+        // it, which is what a user who skips lands on.
         //
         // From onCreate and only on a fresh instance, deliberately not from onResume:
         // onboarding is dismissible, and re-launching it on every resume would make Skip unable
@@ -92,16 +77,11 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Shell.saveSelection(outState, binding.bottomNav)
-    }
-
     override fun onResume() {
         super.onResume()
         // Opening the app is the most reliable sync opportunity a supervised device gets; the
-        // periodic job is the fallback, not the primary path. Sections re-read themselves on
-        // entry - see SectionFragment - so this only has to nudge the ones already built once a
+        // periodic job is the fallback, not the primary path. Screens re-read themselves on
+        // entry - see SectionFragment - so this only has to nudge the one on screen once a
         // sync actually lands.
         if (!supervision.isSupervised) return
         val endpoint = getString(R.string.verify_base_url)
@@ -118,9 +98,24 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 
-    /** Whether the Family section has anything to offer: a server to pair with, or a pairing. */
-    private fun familyReachable(): Boolean =
-        getString(R.string.verify_base_url).isNotBlank() || supervision.isSupervised
+    /**
+     * Title and up arrow follow whatever is on top.
+     *
+     * Read from the fragment rather than tracked alongside the transactions, so a restored
+     * stack after rotation gets the right title with no bookkeeping of its own. The hub shows
+     * the app's name and no arrow: there is nowhere up to go from it.
+     */
+    private fun renderToolbar() {
+        val top = supportFragmentManager.findFragmentById(ChildNav.CONTAINER_ID)
+        val detail = supportFragmentManager.backStackEntryCount > 0
+        binding.toolbar.title = getString((top as? ChildScreen)?.titleRes ?: R.string.app_name)
+        if (detail) {
+            binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+            binding.toolbar.setNavigationContentDescription(R.string.navigate_up)
+        } else {
+            binding.toolbar.navigationIcon = null
+        }
+    }
 
     private fun isSetUp(): Boolean = OnboardingProgress.next(
         disclosureAccepted = settings.disclosureAccepted,
